@@ -11,15 +11,19 @@ worry-free backend multithreading.
 
 # Commands
 * `quit` - Quits out of interpreter
-* `create_cell [name] [content_type] [add_content](y/n)`
+* `create_cell [name] [content_type](python/markdown) [add_content](y/n)`
     - All cells require unique names
     - Set `content_type` to "python" for python cells
     - If `add_content` is "y", a text box will pop up. Input your python code here.
 * `link [first_name] [second_name]`
     - Links the two cells whose names are provided. You can technically still make branching graphs this way, but they
     will not work at all.
-* `execute`
-    - Currently executes the linked cells sequentially. 
+* `execute [name]`
+    - If `name` is defined, only that cell will execute.
+    - Currently executes linked cells sequentially. 
+* `display [name]`
+    - If `name` is defined, that cell's contents will be printed to the console
+    - Otherwise, the entire graph will be displayed in matplotlib.
 
 # Example
 Here, code written in [ ] brackets was typed into the text box popup.
@@ -27,7 +31,7 @@ Here, code written in [ ] brackets was typed into the text box popup.
 ♄: create_cell root python y
 [x = 10]
 ♄: create_cell mid python y
-[x *= 20]
+[x *= 22]
 ♄: create_cell bottom python y
 [print(x)]
 ♄: link root mid
