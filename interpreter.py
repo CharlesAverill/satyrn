@@ -36,6 +36,7 @@ class Graph:
     def __init__(self):
         self.graph = nx.Graph()
         self.labels = []
+        self.edge_labels = {}
         self.exec_globals = {}
 
     def name_to_idx(self, cell_name):
@@ -44,15 +45,29 @@ class Graph:
         else:
             return self.labels.index(cell_name)
 
+    def get_cell(self, cell_name):
+        cells = nx.get_node_attributes(self.graph, 'data').values()
+        for cell in cells:
+            if cell.name == cell_name:
+                return cell
+
     def add_cell(self, cell: Cell):
-        self.graph.add_node(len(self.graph.nodes), data=cell)
-        self.labels.append(cell.name)
+        if cell.name in self.labels:
+            raise Exception("All cells must have unique names")
+        else:
+            self.graph.add_node(len(self.graph.nodes), data=cell)
+            self.labels.append(cell.name)
 
     def connect_cells(self, idx1, idx2):
         self.graph.add_edge(idx1, idx2)
 
     def display(self):
-        nx.draw_networkx(self.graph, label={idx: moniker for idx, moniker in zip(range(len(self.labels)), self.labels)})
+        pos = nx.spring_layout(self.graph)
+        labels = {idx: moniker for idx, moniker in zip(range(len(self.labels)), self.labels)}
+        nx.draw_networkx_nodes(self.graph, pos)
+        nx.draw_networkx_edges(self.graph, pos)
+        nx.draw_networkx_labels(self.graph, pos, labels)
+        # nx.draw_networkx_edge_labels(self.graph, pos)
         plt.show()
 
     def execute_linear_graph(self):
@@ -66,11 +81,12 @@ class TextInput:
 
     def __init__(self):
         self.root = tk.Tk()
+        self.root.wm_title("Satyrn Text Editor")
         self.output = ""
 
     def get_text_from_widget(self, widget):
         self.output = widget.get("1.0", "end")
-        self.root.destroy()
+        self.root.quit()
 
     def text_input(self):
         text = tk.Text(self.root)
@@ -80,46 +96,88 @@ class TextInput:
                                command=lambda: self.get_text_from_widget(text))
         save_close.pack()
         self.root.mainloop()
+        self.root.destroy()
 
         return self.output
 
 
-graph = Graph()
+class Interpreter:
 
-while True:
-    try:
+    def __init__(self):
+        self.graph = Graph()
+        self.run()
+
+    @staticmethod
+    def read_input():
         usr = input("♄: ").strip()
-    except EOFError as e:
-        usr = ""
-    usr = usr.lower()
-    words = usr.split()
+        usr = usr.lower()
+        return usr.split()
 
-    if len(words) == 0:
-        continue
-
-    if usr == "help":
+    @staticmethod
+    def print_help_menu():
         print("help menu")
 
-    if usr == "quit":
-        break
-
-    if words[0] == "create_cell":
-        if len(words) != 4:
-            raise Exception("create_cell takes 3 arguments: name content_type add_content")
-        name = words[1]
-        content_type = words[2]
+    def create_cell(self, command):
+        if len(command) != 4:
+            raise Exception("create_cell takes 3 arguments: [name] [content_type] [add_content]")
+        name = command[1]
+        content_type = command[2]
         content = ""
-        if words[3] == "y":
+        if command[3] == "y":
             ti = TextInput()
             content = ti.text_input().strip()
-        graph.add_cell(Cell(name=name, graph=graph, content_type=content_type, content=content))
+        self.graph.add_cell(Cell(name, self.graph, content_type, content))
 
-    if words[0] == "link":
-        if len(words) != 3:
-            raise Exception("link takes 2 arguments: cell_1 cell_2")
-        name_1 = graph.name_to_idx(words[1])
-        name_2 = graph.name_to_idx(words[2])
-        graph.connect_cells(name_1, name_2)
+    def link(self, command):
+        if len(command) != 3:
+            raise Exception("link takes 2 arguments: [cell_1] [cell_2]")
+        name_1 = self.graph.name_to_idx(command[1])
+        name_2 = self.graph.name_to_idx(command[2])
+        self.graph.connect_cells(name_1, name_2)
 
-    if words[0] == "execute":
-        graph.execute_linear_graph()
+    def execute(self, command):
+        if len(command) > 1:
+            try:
+                cell = self.graph.get_cell(command[1])
+                cell.execute()
+            except Exception as e:
+                print("There was an error executing cell \"" + command[1] + "\"")
+        else:
+            self.graph.execute_linear_graph()
+
+    def display(self, command):
+        if len(command) == 1:
+            self.graph.display()
+        else:
+            if len(command) != 2:
+                raise Exception("display takes 0 or 1 arguments: [name_of_cell_to_print]")
+            else:
+                print(self.graph.get_cell(command[1]).content)
+
+    def run(self):
+        while True:
+            command = self.read_input()
+
+            if len(command) == 0:
+                continue
+
+            if command[0] == "help":
+                self.print_help_menu()
+
+            if command[0] == "quit":
+                break
+
+            if command[0] == "create_cell":
+                self.create_cell(command)
+
+            if command[0] == "link":
+                self.link(command)
+
+            if command[0] == "execute":
+                self.execute(command)
+
+            if command[0] == "display":
+                self.display(command)
+
+
+i = Interpreter()
