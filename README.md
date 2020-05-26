@@ -22,12 +22,18 @@ worry-free backend multithreading.
 * `link [first_name] [second_name]`
     - Links the two cells whose names are provided. You can technically still make branching graphs this way, but they
     will not work at all.
+* `sever [first_name] [second_name]`
+    - Severs the link between the two cells whose names are provided
 * `execute [name]`
     - If `name` is defined, only that cell will execute.
     - Currently executes linked cells sequentially. 
 * `display [name]`
     - If `name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
+* `remove_cell [name]`
+    - Deletes cell and its links from graph. 
+* `reset_runtime`
+    - Deletes all local variables created by cells.
 * `[filename].satx`
     - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](examples/syntax_example.satx) shows the basic syntax rules.
 

@@ -324,7 +324,7 @@ class Interpreter:
             elif command[0] == "remove_cell":
                 self.remove_cell(command)
 
-            elif command[0] == "reset_runtime":
+            elif command[0] == "reset_runtime" and len(command) == 1:
                 self.reset_runtime()
 
             elif ".satx" in command[0]:
