@@ -13,20 +13,20 @@ worry-free backend multithreading.
 ## Commands
 * `quit` - Quits out of interpreter
 * `create_cell [name] [content_type](python/markdown) [add_content](y/n)`
-      - All cells require unique names
-      - Set `content_type` to "python" for python cells
-      - If `add_content` is "y", a text box will pop up. Input your python code here.
+    - All cells require unique names
+    - Set `content_type` to "python" for python cells
+    - If `add_content` is "y", a text box will pop up. Input your python code here.
 * `link [first_name] [second_name]`
-      - Links the two cells whose names are provided. You can technically still make branching graphs this way, but they
+    - Links the two cells whose names are provided. You can technically still make branching graphs this way, but they
     will not work at all.
 * `execute [name]`
-      - If `name` is defined, only that cell will execute.
-      - Currently executes linked cells sequentially. 
+    - If `name` is defined, only that cell will execute.
+    - Currently executes linked cells sequentially. 
 * `display [name]`
-      - If `name` is defined, that cell's contents will be printed to the console
-      - Otherwise, the entire graph will be displayed in matplotlib.
+    - If `name` is defined, that cell's contents will be printed to the console
+    - Otherwise, the entire graph will be displayed in matplotlib.
 * `[filename].satx`
-      - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](./test.satx) shows the basic syntax rules.
+    - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](./test.satx) shows the basic syntax rules.
 
 ## Example
 Here, code written in [ ] brackets was typed into the text box popup.
