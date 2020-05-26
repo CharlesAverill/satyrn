@@ -67,7 +67,6 @@ class Graph:
         nx.draw_networkx_nodes(self.graph, pos)
         nx.draw_networkx_edges(self.graph, pos)
         nx.draw_networkx_labels(self.graph, pos, labels)
-        # nx.draw_networkx_edge_labels(self.graph, pos)
         plt.show()
 
     def execute_linear_graph(self):
