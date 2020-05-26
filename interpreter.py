@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import networkx as nx
 import tkinter as tk
-import matplotlib.pyplot as plt
 
 print("------------------------------------------------------------------------\n"
       "Hi, and welcome to Satyrn.\n"
@@ -105,11 +105,24 @@ class Interpreter:
 
     def __init__(self):
         self.graph = Graph()
+        self.input_type = "live"
+        self.file = None
         self.run()
 
-    @staticmethod
-    def read_input():
-        usr = input("♄: ").strip()
+    def run_file(self, command):
+        try:
+            openfile = open(command[0], "r")
+            self.file = openfile.readlines()
+            self.input_type = "file"
+        except Exception as e:
+            print(e)
+
+    def read_input(self):
+        if self.input_type == "live" or len(self.file) == 0:
+            usr = input("♄: ").strip()
+            self.input_type = "live"
+        else:
+            usr = self.file.pop(0).strip()
         usr = usr.lower()
         return usr.split()
 
@@ -123,9 +136,15 @@ class Interpreter:
         name = command[1]
         content_type = command[2]
         content = ""
-        if command[3] == "y":
-            ti = TextInput()
-            content = ti.text_input().strip()
+        if "y" in command[3]:
+            if self.input_type == "file":
+                temp = ""
+                while ";" not in temp:
+                    content += temp
+                    temp = self.file.pop(0) + "\n"
+            else:
+                ti = TextInput()
+                content = ti.text_input().strip()
         self.graph.add_cell(Cell(name, self.graph, content_type, content))
 
     def link(self, command):
@@ -178,6 +197,9 @@ class Interpreter:
 
             if command[0] == "display":
                 self.display(command)
+
+            if ".satx" in command[0]:
+                self.run_file(command)
 
 
 i = Interpreter()

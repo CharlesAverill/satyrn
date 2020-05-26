@@ -1,11 +1,11 @@
 create_cell root python y:
-    x = 10
+x = 10
 ;
 create_cell middle python y:
-    x *= 22
+x *= 22
 ;
 create_cell bottom python y:
-    print(x)
+print(x)
 ;
 link root middle
 link middle bottom
