@@ -179,26 +179,29 @@ class Interpreter:
             if len(command) == 0:
                 continue
 
-            if command[0] == "help":
+            elif command[0] == "help":
                 self.print_help_menu()
 
-            if command[0] == "quit":
+            elif command[0] == "quit":
                 break
 
-            if command[0] == "create_cell":
+            elif command[0] == "create_cell":
                 self.create_cell(command)
 
-            if command[0] == "link":
+            elif command[0] == "link":
                 self.link(command)
 
-            if command[0] == "execute":
+            elif command[0] == "execute":
                 self.execute(command)
 
-            if command[0] == "display":
+            elif command[0] == "display":
                 self.display(command)
 
-            if ".satx" in command[0]:
+            elif ".satx" in command[0]:
                 self.run_file(command)
+
+            else:
+                print("Syntax error: command " + command[0] + " not recognized.")
 
 
 i = Interpreter()
