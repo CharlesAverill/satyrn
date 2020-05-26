@@ -77,10 +77,12 @@ class Graph:
     def connect_cells(self, idx1, idx2):
         self.graph.add_edge(idx1, idx2)
 
+    def sever_cells(self, idx1, idx2):
+        self.graph.remove_edge(idx1, idx2)
+
     def display(self):
         pos = nx.spring_layout(self.graph)
         labels = {idx: moniker for moniker, idx in zip(list(self.indeces.keys()), list(self.indeces.values()))}
-        print(labels)
         nx.draw_networkx_nodes(self.graph, pos)
         nx.draw_networkx_edges(self.graph, pos)
         nx.draw_networkx_labels(self.graph, pos, labels)
@@ -119,8 +121,6 @@ class TextInput:
 
 class Interpreter:
 
-    keywords = ["help", "quit", "create_cell", "link", "execute", "display"]
-
     def __init__(self):
         self.graph = Graph()
         self.input_type = "live"
@@ -150,12 +150,16 @@ class Interpreter:
         print("help menu")
 
     def create_cell(self, command):
+        keywords = ["help", "quit", "create_cell", "link", "sever", "execute", "display", "remove_cell", "reset_runtime"]
         if len(command) != 4:
             print("create_cell takes 3 arguments: [name] [content_type] [add_content]")
             return
         name = command[1]
-        if name in self.keywords:
-            print("\"" + name + "\" is a restricted keyword and cannot be used for a node name.")
+        if name in keywords:
+            print("\"" + name + "\" is a restricted keyword and cannot be used for a cell name.")
+            return
+        if ".satx" in name:
+            print("Cell names cannot include \".satx\"")
             return
         content_type = command[2]
         content = ""
@@ -180,6 +184,14 @@ class Interpreter:
         name_1 = self.graph.name_to_idx(command[1])
         name_2 = self.graph.name_to_idx(command[2])
         self.graph.connect_cells(name_1, name_2)
+
+    def sever(self, command):
+        if len(command) != 3:
+            print("sever takes 2 arguments: [cell_1] [cell_2]")
+            return
+        name_1 = self.graph.name_to_idx(command[1])
+        name_2 = self.graph.name_to_idx(command[2])
+        self.graph.sever_cells(name_1, name_2)
 
     def execute(self, command):
         if len(command) > 1:
@@ -222,6 +234,9 @@ class Interpreter:
 
             elif command[0] == "link":
                 self.link(command)
+
+            elif command[0] == "sever":
+                self.sever(command)
 
             elif command[0] == "execute":
                 self.execute(command)
