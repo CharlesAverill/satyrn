@@ -2,8 +2,6 @@ import networkx as nx
 import tkinter as tk
 import matplotlib.pyplot as plt
 
-from Cell import Cell
-
 print("------------------------------------------------------------------------\n"
       "Hi, and welcome to Satyrn.\n"
       "Satyrn is an experimental application that extends typical notebook functionality.\n"
@@ -18,26 +16,19 @@ def update_node(node, field, update):
     return new_node
 
 
-class TextInput:
+class Cell:
 
-    def __init__(self):
-        self.root = tk.Tk()
-        self.output = ""
+    def __init__(self, name_, graph_, content_type_="code", content_=""):
+        self.name = name_
+        self.content_type = content_type_
+        self.content = content_
+        self.graph = graph_
 
-    def get_text_from_widget(self, widget):
-        self.output = widget.get("1.0", "end")
-        self.root.destroy()
+    def execute(self):
+        exec(self.content, self.graph.exec_globals)
 
-    def text_input(self):
-        text = tk.Text(self.root)
-        text.pack()
-        save_close = tk.Button(self.root,
-                               text="Save and Close",
-                               command=lambda: self.get_text_from_widget(text))
-        save_close.pack()
-        self.root.mainloop()
-
-        return self.output
+    def __str__(self):
+        return self.name
 
 
 class Graph:
@@ -69,6 +60,28 @@ class Graph:
         for cell in cells:
             if cell.content_type == "python":
                 cell.execute()
+
+
+class TextInput:
+
+    def __init__(self):
+        self.root = tk.Tk()
+        self.output = ""
+
+    def get_text_from_widget(self, widget):
+        self.output = widget.get("1.0", "end")
+        self.root.destroy()
+
+    def text_input(self):
+        text = tk.Text(self.root)
+        text.pack()
+        save_close = tk.Button(self.root,
+                               text="Save and Close",
+                               command=lambda: self.get_text_from_widget(text))
+        save_close.pack()
+        self.root.mainloop()
+
+        return self.output
 
 
 graph = Graph()

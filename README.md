@@ -7,7 +7,7 @@ worry-free backend multithreading.
 
 # Setup
 * Install requirements with `python -m pip install -r requirements.txt`
-* Run `python Interpreter.py`
+* Run `python interpreter.py`
 
 # Commands
 * `quit` - Quits out of interpreter
