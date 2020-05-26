@@ -1,0 +1,14 @@
+create_cell a a a
+create_cell b b b
+create_cell c c c
+create_cell d d d
+link a b
+link a c
+link a d
+link b d
+link c d
+display
+remove_cell a
+display
+remove_cell b
+display

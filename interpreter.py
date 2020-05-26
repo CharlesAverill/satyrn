@@ -18,7 +18,7 @@ def update_node(node, field, update):
 
 class Cell:
 
-    def __init__(self, name_, graph_, content_type_="code", content_=""):
+    def __init__(self, name_, graph_, content_type_="code", content_=" "):
         self.name = name_
         self.content_type = content_type_
         self.content = content_
@@ -35,16 +35,15 @@ class Graph:
 
     def __init__(self):
         self.graph = nx.Graph()
-        self.labels = []
-        self.edge_labels = {}
+        self.indeces = {}
         self.exec_globals = {}
 
     def name_to_idx(self, cell_name):
-        if cell_name not in self.labels:
+        if cell_name not in list(self.indeces.keys()):
             print("Cell \"" + cell_name + "\" does not exist")
             return -1
         else:
-            return self.labels.index(cell_name)
+            return self.indeces[cell_name]
 
     def get_cell(self, cell_name):
         cells = nx.get_node_attributes(self.graph, 'data').values()
@@ -53,26 +52,35 @@ class Graph:
                 return cell
 
     def add_cell(self, cell: Cell):
-        if cell.name in self.labels:
+        if cell.name in list(self.indeces.keys()):
             print("All cells must have unique names")
             return
         else:
-            self.graph.add_node(len(self.graph.nodes), data=cell)
-            self.labels.append(cell.name)
+            self.graph.add_node(len(self.graph.nodes), data=cell, name=cell.name)
+        self.indeces.update({cell.name: len(self.indeces)})
+
+    def remove_cell(self, name):
+        if self.get_cell(name):
+            idx = self.name_to_idx(name)
+            self.graph.remove_node(idx)
+            del self.indeces[name]
+        else:
+            print("Cell \"" + name + "\" does not exist.")
 
     def connect_cells(self, idx1, idx2):
         self.graph.add_edge(idx1, idx2)
 
     def display(self):
         pos = nx.spring_layout(self.graph)
-        labels = {idx: moniker for idx, moniker in zip(range(len(self.labels)), self.labels)}
+        labels = {idx: moniker for moniker, idx in zip(list(self.indeces.keys()), list(self.indeces.values()))}
+        print(labels)
         nx.draw_networkx_nodes(self.graph, pos)
         nx.draw_networkx_edges(self.graph, pos)
         nx.draw_networkx_labels(self.graph, pos, labels)
         plt.show()
 
     def execute_linear_graph(self):
-        cells = nx.get_node_attributes(self.graph, 'data').values()
+        cells = list(nx.get_node_attributes(self.graph, 'data').values())
         for cell in cells:
             if cell.content_type == "python":
                 cell.execute()
@@ -126,6 +134,7 @@ class Interpreter:
             self.input_type = "live"
         else:
             usr = self.file.pop(0).strip()
+            print("♄: " + usr)
         usr = usr.lower()
         return usr.split()
 
@@ -153,6 +162,9 @@ class Interpreter:
                 ti = TextInput()
                 content = ti.text_input().strip()
         self.graph.add_cell(Cell(name, self.graph, content_type, content))
+
+    def remove_cell(self, command):
+        self.graph.remove_cell(command[1])
 
     def link(self, command):
         if len(command) != 3:
@@ -206,6 +218,9 @@ class Interpreter:
 
             elif command[0] == "display":
                 self.display(command)
+
+            elif command[0] == "remove_cell":
+                self.remove_cell(command)
 
             elif ".satx" in command[0]:
                 self.run_file(command)

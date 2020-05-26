@@ -29,7 +29,7 @@ worry-free backend multithreading.
     - If `name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
 * `[filename].satx`
-    - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](./test.satx) shows the basic syntax rules.
+    - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](SATX examples/syntax_example.satx) shows the basic syntax rules.
 
 ## Example
 Here, code written in [ ] brackets was typed into the text box popup.
