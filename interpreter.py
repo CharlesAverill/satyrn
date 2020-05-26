@@ -25,7 +25,11 @@ class Cell:
         self.graph = graph_
 
     def execute(self):
-        exec(self.content, self.graph.exec_globals)
+        try:
+            exec(self.content, self.graph.exec_globals)
+        except Exception as e:
+            print("Exception occurred in cell " + self.name)
+            print(e)
 
     def __str__(self):
         return self.name
@@ -36,6 +40,9 @@ class Graph:
     def __init__(self):
         self.graph = nx.Graph()
         self.indeces = {}
+        self.exec_globals = {}
+
+    def reset_runtime(self):
         self.exec_globals = {}
 
     def name_to_idx(self, cell_name):
@@ -194,6 +201,9 @@ class Interpreter:
             else:
                 print(self.graph.get_cell(command[1]).content)
 
+    def reset_runtime(self):
+        self.graph.reset_runtime()
+
     def run(self):
         while True:
             command = self.read_input()
@@ -221,6 +231,9 @@ class Interpreter:
 
             elif command[0] == "remove_cell":
                 self.remove_cell(command)
+
+            elif command[0] == "reset_runtime":
+                self.reset_runtime()
 
             elif ".satx" in command[0]:
                 self.run_file(command)
