@@ -1,4 +1,7 @@
 # Satyrn
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/70ea40eb271c480787a4d7905a11d269)](https://app.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&utm_medium=referral&utm_content=CharlesAverill/satyrn&utm_campaign=Badge_Grade_Dashboard)
+
 ![](media/cover.png?raw=true)
 Satyrn is a command-line-based alternative to Jupyter notebooks.
 The backend is completely based on node networks, because I soon 
@@ -6,11 +9,11 @@ plan to implement branching code graphs in order to provide the user
 with visual differentiation while writing code, and perhaps even 
 worry-free backend multithreading. 
 
-# Setup
+## Setup
 * Install requirements with `python -m pip install -r requirements.txt`
 * Run `python interpreter.py`
 
-# Commands
+## Commands
 * `quit` - Quits out of interpreter
 * `create_cell [name] [content_type](python/markdown) [add_content](y/n)`
     - All cells require unique names
@@ -28,7 +31,7 @@ worry-free backend multithreading.
 * `[filename].satx`
     - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](./test.satx) shows the basic syntax rules.
 
-# Example
+## Example
 Here, code written in [ ] brackets was typed into the text box popup.
 ```
 ♄: create_cell root python y
