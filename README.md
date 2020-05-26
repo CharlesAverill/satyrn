@@ -1,4 +1,5 @@
 # Satyrn
+![](media/cover.png?raw=true)
 Satyrn is a command-line-based alternative to Jupyter notebooks.
 The backend is completely based on node networks, because I soon 
 plan to implement branching code graphs in order to provide the user
