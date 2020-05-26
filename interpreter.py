@@ -41,7 +41,8 @@ class Graph:
 
     def name_to_idx(self, cell_name):
         if cell_name not in self.labels:
-            raise Exception("That cell name does not exist")
+            print("Cell \"" + cell_name + "\" does not exist")
+            return -1
         else:
             return self.labels.index(cell_name)
 
@@ -53,7 +54,8 @@ class Graph:
 
     def add_cell(self, cell: Cell):
         if cell.name in self.labels:
-            raise Exception("All cells must have unique names")
+            print("All cells must have unique names")
+            return
         else:
             self.graph.add_node(len(self.graph.nodes), data=cell)
             self.labels.append(cell.name)
@@ -102,6 +104,8 @@ class TextInput:
 
 class Interpreter:
 
+    keywords = ["help", "quit", "create_cell", "link", "execute", "display"]
+
     def __init__(self):
         self.graph = Graph()
         self.input_type = "live"
@@ -131,8 +135,12 @@ class Interpreter:
 
     def create_cell(self, command):
         if len(command) != 4:
-            raise Exception("create_cell takes 3 arguments: [name] [content_type] [add_content]")
+            print("create_cell takes 3 arguments: [name] [content_type] [add_content]")
+            return
         name = command[1]
+        if name in self.keywords:
+            print("\"" + name + "\" is a restricted keyword and cannot be used for a node name.")
+            return
         content_type = command[2]
         content = ""
         if "y" in command[3]:
@@ -148,7 +156,8 @@ class Interpreter:
 
     def link(self, command):
         if len(command) != 3:
-            raise Exception("link takes 2 arguments: [cell_1] [cell_2]")
+            print("link takes 2 arguments: [cell_1] [cell_2]")
+            return
         name_1 = self.graph.name_to_idx(command[1])
         name_2 = self.graph.name_to_idx(command[2])
         self.graph.connect_cells(name_1, name_2)
@@ -168,7 +177,8 @@ class Interpreter:
             self.graph.display()
         else:
             if len(command) != 2:
-                raise Exception("display takes 0 or 1 arguments: [name_of_cell_to_print]")
+                print("display takes 0 or 1 arguments: [name_of_cell_to_print]")
+                return
             else:
                 print(self.graph.get_cell(command[1]).content)
 
