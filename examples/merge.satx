@@ -1,7 +1,7 @@
-create_cell a n n
-create_cell b n n
-create_cell c n n
-create_cell d n n
+cell a n n
+cell b n n
+cell c n n
+cell d n n
 link a b
 link b c
 link c d

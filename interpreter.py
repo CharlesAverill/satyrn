@@ -209,11 +209,12 @@ class Graph:
 
         plt.show()
 
-    def execute_linear_graph(self):
-        # Execute nodes starting from first index and proceeding linearly
-        cells = list(nx.get_node_attributes(self.graph, 'data').values())
+    def execute_linear_list_of_cells(self, cells_list=None):
+        if not cells_list:
+            cells_list = list(nx.get_node_attributes(self.graph, 'name').values())
 
-        for cell in cells:
+        for cell_name in cells_list:
+            cell = self.get_cell(cell_name)
             if cell.content_type == "python":
                 cell.execute()
 
@@ -370,10 +371,10 @@ class Interpreter:
         """
         if len(command) > 1:
             try:
-                cell = self.graph.get_cell(command[1])
-                cell.execute()
+                cells_list = command[1:]
+                self.graph.execute_linear_list_of_cells(cells_list)
             except Exception as e:
-                print("There was an error executing cell \"" + command[1] + "\"")
+                print("There was an error executing one of the cells")
                 print(e)
         else:
             self.graph.execute_linear_graph()

@@ -1,0 +1,17 @@
+cell root python y:
+x = 10
+;
+cell 22test python y:
+x *= 22
+;
+cell 33test python y:
+x *= 33
+;
+cell bottom python y:
+print(x)
+;
+link root 22test
+link 22test 33test
+link 33test bottom
+display
+execute root 33test bottom

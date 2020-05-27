@@ -1,10 +1,10 @@
-create_cell a python y:
+cell a python y:
 x = 10
 ;
-create_cell b python y:
+cell b python y:
 x *= 22
 ;
-create_cell c python y:
+cell c python y:
 print(x)
 ;
 link a b
@@ -15,7 +15,7 @@ remove_cell a
 remove_cell b
 remove_cell c
 display
-create_cell a python y:
+cell a python y:
 print(x)
 ;
 execute

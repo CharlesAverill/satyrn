@@ -29,9 +29,9 @@ worry-free backend multithreading.
     will not work at all.
 * `sever [first_cell_name] [second_cell_name]`
     - Severs the link between the two cells whose names are provided
-* `execute [cell_name]`
-    - If `cell_name` is defined, only that cell will execute.
-    - Currently executes linked cells sequentially. 
+* `execute [cell_name_1] [cell_name_2] ...`
+    - If no cell names are defined, the entire graph will execute sequentially
+    - If cell names are defined, they will execute in the order they are named
 * `display [cell_name]`
     - If `cell_name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
