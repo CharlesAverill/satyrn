@@ -15,23 +15,26 @@ worry-free backend multithreading.
 
 ## Commands
 * `quit` - Quits out of interpreter
-* `create_cell [name] [content_type](python/markdown) [add_content](y/n)`
+* `cell [cell_name] [content_type](python/markdown) [add_content](y/n)`
+    - Creates cell with given parameters
     - All cells require unique names
     - Set `content_type` to "python" for python cells
     - If `add_content` is "y", a text box will pop up. Input your python code here.
-* `link [first_name] [second_name]`
+* `remove_cell [cell_name]`
+    - Deletes cell and its links from graph. 
+* `edit [cell_name]`
+    - Reopens text input window so that users can edit cells
+* `link [first_cell_name] [second_cell_name]`
     - Links the two cells whose names are provided. You can technically still make branching graphs this way, but they
     will not work at all.
-* `sever [first_name] [second_name]`
+* `sever [first_cell_name] [second_cell_name]`
     - Severs the link between the two cells whose names are provided
-* `execute [name]`
-    - If `name` is defined, only that cell will execute.
+* `execute [cell_name]`
+    - If `cell_name` is defined, only that cell will execute.
     - Currently executes linked cells sequentially. 
-* `display [name]`
-    - If `name` is defined, that cell's contents will be printed to the console
+* `display [cell_name]`
+    - If `cell_name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
-* `remove_cell [name]`
-    - Deletes cell and its links from graph. 
 * `reset_runtime`
     - Deletes all local variables created by cells.
 * `[filename].satx`
