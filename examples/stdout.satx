@@ -1,0 +1,10 @@
+stdout external
+cell a python y:
+for i in range(15):
+    print(i)
+;
+cell b python y:
+for i in range(25, 50):
+    print(i)
+;
+execute b >> stdout_new.txt
