@@ -1,5 +1,3 @@
-# Satyrn
-
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7f9993985a9f4103848b3d41db86edbe)](https://www.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CharlesAverill/satyrn&amp;utm_campaign=Badge_Grade)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
@@ -13,6 +11,8 @@
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/CharlesAverill/satyrn.svg)](http://isitmaintained.com/project/CharlesAverill/satyrn "Percentage of issues still open")
 
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/charlesaverill20@gmail.com)
+
+# Satyrn
 
 ![](media/cover.png?raw=true)
 Satyrn is a command-line-based alternative to Jupyter notebooks.
