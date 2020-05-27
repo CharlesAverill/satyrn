@@ -122,6 +122,10 @@ class Graph:
         # TextIO object
         self.ti = TextIO()
 
+    def get_lookup_table(self):
+        return {idx: moniker for moniker, idx in
+                zip(list(self.names_to_indeces.keys()), list(self.names_to_indeces.values()))}
+
     def reset_runtime(self):
         # Erase all runtime variables
         self.exec_globals = {}
@@ -228,14 +232,37 @@ class Graph:
         # Display graph in matplotlib
         pos = nx.spring_layout(self.graph)
 
-        labels = {idx: moniker for moniker, idx in
-                  zip(list(self.names_to_indeces.keys()), list(self.names_to_indeces.values()))}
+        labels = self.get_lookup_table()
 
         nx.draw_networkx_nodes(self.graph, pos)
         nx.draw_networkx_edges(self.graph, pos)
         nx.draw_networkx_labels(self.graph, pos, labels)
 
         plt.show()
+
+    def get_in_out_edges(self, cell_name, cell_index=None):
+        if not cell_index:
+            cell_index = self.name_to_idx(cell_name)
+
+        lookup_table = self.get_lookup_table()
+
+        in_edges = []
+        in_edges_idx = self.graph.in_edges(cell_index)
+        for edge in in_edges_idx:
+            idx_1 = edge[0]
+            idx_2 = edge[1]
+            str_edge = "" + str(lookup_table[idx_1]) + " -> " + str(lookup_table[idx_2])
+            in_edges.append(str_edge)
+
+        out_edges = []
+        out_edges_idx = self.graph.out_edges(cell_index)
+        for edge in out_edges_idx:
+            idx_1 = edge[0]
+            idx_2 = edge[1]
+            str_edge = "" + str(lookup_table[idx_1]) + " -> " + str(lookup_table[idx_2])
+            out_edges.append(str_edge)
+
+        return in_edges, out_edges
 
     def execute_linear_list_of_cells(self, cells_list=None, stdout="internal", output_filename="stdout.txt"):
         if not cells_list:
@@ -428,7 +455,16 @@ class Interpreter:
                 print("display takes 0 or 1 arguments: [name_of_cell_to_print]")
                 return
             else:
-                print(self.graph.get_cell(command[1]).content)
+                print("\n```\n" + self.graph.get_cell(command[1]).content.strip() + "\n```\n")
+                in_edges, out_edges = self.graph.get_in_out_edges(command[1])
+                print("In Edges:")
+                for e in in_edges:
+                    print(e)
+                print()
+                print("Out Edges:")
+                for e in out_edges:
+                    print(e)
+                print()
 
     def set_stdout(self, command):
         """
