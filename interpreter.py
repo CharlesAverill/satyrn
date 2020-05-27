@@ -240,6 +240,9 @@ class Graph:
 
         plt.show()
 
+    def get_all_cells(self):
+        return list(nx.get_node_attributes(self.graph, 'name').values())
+
     def get_in_out_edges(self, cell_name, cell_index=None):
         if not cell_index:
             cell_index = self.name_to_idx(cell_name)
@@ -466,6 +469,9 @@ class Interpreter:
                     print(e)
                 print()
 
+    def list_cells(self):
+        print(self.graph.get_all_cells())
+
     def set_stdout(self, command):
         """
         :param command: command to be executed
@@ -521,6 +527,9 @@ class Interpreter:
 
             elif command[0] == "display":
                 self.display(command)
+
+            elif command[0] == "list":
+                self.list_cells()
 
             elif command[0] == "stdout":
                 self.set_stdout(command)
