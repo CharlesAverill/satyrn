@@ -38,6 +38,8 @@ worry-free backend multithreading.
     - Otherwise, the entire graph will be displayed in matplotlib.
 * `reset_runtime`
     - Deletes all local variables created by cells.
+* `reset_graph`
+    - Deletes all cells and variables. Equivalent of restarting Satyrn session.
 * `[filename].satx`
     - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](examples/syntax_example.satx) shows the basic syntax rules.
 

@@ -443,6 +443,11 @@ class Interpreter:
         # Delete all runtime variables
         self.graph.reset_runtime()
 
+    def reset_graph(self):
+        confirm = input("Are you sure you want to reset the graph? This will delete all nodes and variables. (y/n) ")
+        if "y" in confirm:
+            self.graph = Graph()
+
     def run(self):
         # Main application loop
         while True:
@@ -484,8 +489,11 @@ class Interpreter:
             elif command[0] == "stdout":
                 self.set_stdout(command)
 
-            elif command[0] == "reset_runtime" and len(command) == 1:
+            elif command[0] == "reset_runtime":
                 self.reset_runtime()
+
+            elif command[0] == "reset_graph":
+                self.reset_graph()
 
             elif ".satx" in command[0]:
                 self.run_file(command)
