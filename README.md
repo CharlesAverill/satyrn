@@ -1,6 +1,18 @@
-# Satyrn
-
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7f9993985a9f4103848b3d41db86edbe)](https://www.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CharlesAverill/satyrn&amp;utm_campaign=Badge_Grade)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/CharlesAverill/satyrn/blob/master/LICENSE)
+[![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+
+
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/CharlesAverill/satyrn/graphs/commit-activity)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![GitHub issues-closed](https://img.shields.io/github/issues-closed/Naereen/StrapDown.js.svg)](https://GitHub.com/Naereen/StrapDown.js/issues?q=is%3Aissue+is%3Aclosed)
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/CharlesAverill/satyrn.svg)](http://isitmaintained.com/project/CharlesAverill/satyrn "Percentage of issues still open")
+
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/charlesaverill20@gmail.com)
+
+# Satyrn
 
 ![](media/cover.png?raw=true)
 Satyrn is a command-line-based alternative to Jupyter notebooks.
@@ -29,10 +41,10 @@ worry-free backend multithreading.
     will not work at all.
 * `sever [first_cell_name] [second_cell_name]`
     - Severs the link between the two cells whose names are provided
-* `execute [cell_name_1] [cell_name_2] ... >> output_file.txt`
+* `execute [cell_name_1] [cell_name_2] ... >> (filename)`
     - If no cell names are defined, the entire graph will execute sequentially
     - If cell names are defined, they will execute in the order they are named
-    - `>> output_file.txt` is optional. If included, will save stdout cell output to `output_file.txt` or whatever filename is provided.
+    - `>> (filename)` is optional. If included, will save stdout cell output to whatever filename is provided.
 * `display [cell_name]`
     - If `cell_name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
