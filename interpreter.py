@@ -382,6 +382,7 @@ class Interpreter:
             "list": "Prints out names of all cells in graph",
             "reset_runtime": "Deletes all variables created within cells",
             "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrn session",
+            "save [filename].satx": "Saves graph to .satx file",
             "[filename].satx": "Executes satyrn code in specified file. File must have .satx extension. "
                                "\n\t\tExamples of "
                                "syntax can be seen at https://github.com/CharlesAverill/satyrn/tree/master/examples ",
@@ -405,7 +406,7 @@ class Interpreter:
         """
         keywords = ["help", "quit", "cell", "link", "sever",
                     "execute", "display", "remove", "reset_runtime",
-                    "edit", "swap", "list", "reset_graph", "merge"]
+                    "edit", "swap", "list", "reset_graph", "merge", "save"]
 
         if len(command) != 4:
             print("create_cell takes 3 arguments: [name] [content_type] [add_content]")
