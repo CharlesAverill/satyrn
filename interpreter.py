@@ -419,6 +419,17 @@ class Interpreter:
 
         target_cell.content = new_content
 
+    def rename_cell(self, command):
+        """
+        :param command: command to be executed
+        """
+        if len(command) != 3:
+            print("link takes 2 arguments: [original_cell_name] [new_cell_name]")
+            return
+        self.graph.get_cell(command[1]).name = command[2]
+        self.graph.names_to_indeces.update({command[2]: self.graph.names_to_indeces[command[1]]})
+        del self.graph.names_to_indeces[command[1]]
+
     def remove_cell(self, command):
         """
         :param command: command to be executed
@@ -514,13 +525,18 @@ class Interpreter:
                 print("display takes 0 or 1 arguments: [name_of_cell_to_print]")
                 return
             else:
-                print("\n```\n" + self.graph.get_cell(command[1]).content.strip() + "\n```\n")
+                if not self.graph.get_cell(command[1]):
+                    print("Cell " + command[1] + " does not exist")
+                    return
+                code = self.graph.get_cell(command[1]).content.strip()
+                if code:
+                    print("\n```\n" + code+ "\n```\n")
                 in_edges, out_edges = self.graph.get_in_out_edges(command[1])
                 if len(in_edges) > 0:
                     print("In Edges:")
                     for e in in_edges:
                         print(e)
-                    print()
+                print()
                 if len(out_edges) > 0:
                     print("Out Edges:")
                     for e in out_edges:
@@ -567,6 +583,9 @@ class Interpreter:
 
             elif command[0] == "edit":
                 self.edit_cell(command)
+
+            elif command[0] == "rename":
+                self.rename_cell(command)
 
             elif command[0] == "remove":
                 self.remove_cell(command)

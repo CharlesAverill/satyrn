@@ -1,0 +1,6 @@
+cell a a a
+cell b b b
+link a b
+display
+rename a root
+display
