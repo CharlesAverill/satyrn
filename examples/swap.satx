@@ -1,0 +1,17 @@
+cell a python y:
+x = 10
+;
+cell b python y:
+x = 20
+;
+cell c python y:
+print(x)
+;
+link a b
+link b c
+display
+execute
+reset_runtime
+swap a b
+display
+execute

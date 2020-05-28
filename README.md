@@ -42,6 +42,11 @@ worry-free backend multithreading.
     will not work at all.
 * `sever [first_cell_name] [second_cell_name]`
     - Severs the link between the two cells whose names are provided
+* `swap [first_cell_name] [second_cell_name]`
+    - Swaps the contents and names of the named cells. e.g. 
+        - `a -> b -> c`
+        - `swap a b`
+        - `b -> a -> c`
 * `execute [cell_name_1] [cell_name_2] ... >> (filename)`
     - If no cell names are defined, the entire graph will execute sequentially
     - If cell names are defined, they will execute in the order they are named

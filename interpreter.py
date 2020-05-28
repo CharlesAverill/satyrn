@@ -109,6 +109,9 @@ class Cell:
             print("stdout setting \"" + stdout + "\" not recognized. Please use internal/external.")
             return
 
+    def __str__(self):
+        return self.name + "\n\n" + "```\n" + self.content + "```\n"
+
 
 class Graph:
 
@@ -150,7 +153,8 @@ class Graph:
         cells = list(nx.get_node_attributes(self.graph, 'data').values())
 
         if cell_index:
-            return cells[cell_index]
+            output = cells[cell_index]
+            return output
 
         for cell in cells:
             if cell.name == cell_name:
@@ -199,6 +203,22 @@ class Graph:
         :param idx2: Index of second cell
         """
         self.graph.remove_edge(idx1, idx2)
+
+    def swap_cells(self, name1, name2):
+        cell1 = Cell(name2, self, self.get_cell(name2).content_type, self.get_cell(name2).content)
+        cell2 = Cell(name1, self, self.get_cell(name1).content_type, self.get_cell(name1).content)
+
+        idx1 = self.name_to_idx(name1)
+        idx2 = self.name_to_idx(name2)
+
+        self.graph.nodes[idx1]["data"] = cell1
+        self.graph.nodes[idx1]["name"] = name2
+
+        self.graph.nodes[idx2]["data"] = cell2
+        self.graph.nodes[idx2]["name"] = name1
+
+        self.names_to_indeces[name1] = idx2
+        self.names_to_indeces[name2] = idx1
 
     def merge_cells(self, idx1, idx2, new_name, new_content_type):
         # Not fully functional yet
@@ -327,8 +347,9 @@ class Interpreter:
         """
         :param command: command to be executed
         """
-        keywords = ["help", "quit", "create_cell", "link", "sever",
-                    "execute", "display", "remove_cell", "reset_runtime"]
+        keywords = ["help", "quit", "cell", "link", "sever",
+                    "execute", "display", "remove", "reset_runtime",
+                    "edit", "swap", "list", "reset_graph"]
 
         if len(command) != 4:
             print("create_cell takes 3 arguments: [name] [content_type] [add_content]")
@@ -406,6 +427,15 @@ class Interpreter:
 
         self.graph.sever_cells(name_1, name_2)
 
+    def swap(self, command):
+        """
+        :param command: command to be executed
+        """
+        if len(command) != 3:
+            print("swap takes 2 arguments: [cell_1] [cell_2]")
+            return
+        self.graph.swap_cells(command[1], command[2])
+
     def merge(self, command):
         """
         :param command: command to be executed
@@ -460,14 +490,16 @@ class Interpreter:
             else:
                 print("\n```\n" + self.graph.get_cell(command[1]).content.strip() + "\n```\n")
                 in_edges, out_edges = self.graph.get_in_out_edges(command[1])
-                print("In Edges:")
-                for e in in_edges:
-                    print(e)
-                print()
-                print("Out Edges:")
-                for e in out_edges:
-                    print(e)
-                print()
+                if len(in_edges) > 0:
+                    print("In Edges:")
+                    for e in in_edges:
+                        print(e)
+                    print()
+                if len(out_edges) > 0:
+                    print("Out Edges:")
+                    for e in out_edges:
+                        print(e)
+                    print()
 
     def list_cells(self):
         print(self.graph.get_all_cells())
@@ -510,7 +542,7 @@ class Interpreter:
             elif command[0] == "edit":
                 self.edit_cell(command)
 
-            elif command[0] == "remove_cell":
+            elif command[0] == "remove":
                 self.remove_cell(command)
 
             elif command[0] == "link":
@@ -519,8 +551,11 @@ class Interpreter:
             elif command[0] == "sever":
                 self.sever(command)
 
-            elif command[0] == "merge":
-                self.merge(command)
+            # elif command[0] == "merge":
+            #     self.merge(command)
+
+            elif command[0] == "swap":
+                self.swap(command)
 
             elif command[0] == "execute":
                 self.execute(command)
