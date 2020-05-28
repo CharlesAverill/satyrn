@@ -33,7 +33,7 @@ worry-free backend multithreading.
     - All cells require unique names
     - Set `content_type` to "python" for python cells
     - If `add_content` is "y", a text box will pop up. Input your python code here.
-* `remove_cell [cell_name]`
+* `remove [cell_name]`
     - Deletes cell and its links from graph. 
 * `edit [cell_name]`
     - Reopens text input window so that users can edit cells

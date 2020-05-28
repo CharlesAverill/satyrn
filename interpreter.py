@@ -6,12 +6,7 @@ import tkinter as tk
 import sys
 import contextlib
 
-print("------------------------------------------------------------------------\n"
-      "Hi, and welcome to Satyrn.\n"
-      "Satyrn is an experimental application that extends typical notebook functionality.\n"
-      "Satyrn provides the same functionality as a typical notebook, but allows for branching.\n"
-      "Therefore, cells can run in parallel. Please type \'help\' for a list of commands. Thank you!\n"
-      "------------------------------------------------------------------------\n")
+print(chr(27) + "[2J")
 
 """
 Structure Guide
@@ -340,8 +335,37 @@ class Interpreter:
         return usr.split()
 
     @staticmethod
-    def print_help_menu():
-        print("help menu")
+    def help_menu():
+        help_menu = {
+            "cell [cell_name] [content_type](python/markdown) [add_content](y/n)": "Creates a cell with the specified "
+                                                                                   "parameters",
+            "remove [cell_name]": "Removes the cell with specified name",
+            "edit [cell_name]": "Edit contents of cell with specified name",
+            "link [first_cell_name] [second_cell_name]": "Creates link from first_cell to second_cell",
+            "sever [first_cell_name] [second_cell_name]": "Removes link between first_cell and second_cell",
+            "swap [first_cell_name] [second_cell_name]": "Swaps name, content type, and contents of specified cells",
+            "execute [cell_name_1] [cell_name_2] ... >> (filename)": "Executes graph. If no cell names are provided, "
+                                                                     "all will be executed. \n\t\tIf '>> filename' is "
+                                                                     "included, stdout will be saved to the specified "
+                                                                     "file in plain text format ",
+            "display [cell_name]": "Displays graph. If cell_name defined, that cell's details will be printed out",
+            "list": "Prints out names of all cells in graph",
+            "reset_runtime": "Deletes all variables created within cells",
+            "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrn session",
+            "[filename].satx": "Executes satyrn code in specified file. File must have .satx extension. \n\t\tExamples of "
+                               "syntax can be seen at https://github.com/CharlesAverill/satyrn/tree/master/examples ",
+            "quit": "Exits satyrn session"
+        }
+        output = ("------------------------------------------------------------------------\n"
+                  "Hi, and welcome to Satyrn.\n"
+                  "Satyrn is an experimental application that extends typical notebook functionality.\n"
+                  "Satyrn provides the same functionality as a typical notebook, but allows for branching.\n"
+                  "Therefore, cells can run in parallel. Please type \'help\' for a list of commands. Thank you!\n"
+                  "------------------------------------------------------------------------\n\n")
+        help_list = [(command, description) for command, description in zip(list(help_menu.keys()), list(help_menu.values()))]
+        for item in help_list:
+            output += "\t" + item[0] + " :\n\t\t" + item[1] + "\n\n"
+        return output
 
     def create_cell(self, command):
         """
@@ -531,7 +555,7 @@ class Interpreter:
                 continue
 
             elif command[0] == "help":
-                self.print_help_menu()
+                print(self.help_menu())
 
             elif command[0] == "quit":
                 break
