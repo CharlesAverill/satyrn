@@ -44,6 +44,8 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
     will not work at all.
 * `sever [first_cell_name] [second_cell_name]`
     - Severs the link between the two cells whose names are provided
+* `merge [first_cell_name] [second_cell_name]`
+    - Merges the two cells if they are adjacent.
 * `swap [first_cell_name] [second_cell_name]`
     - Swaps the contents and names of the named cells. e.g. 
         - `a -> b -> c`
@@ -57,7 +59,7 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
     - If `cell_name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
 * `list`
-    - Prints a list of all cell names in graph
+    - Prints a list of all cell and edge names in graph
 * `reset_runtime`
     - Deletes all local variables created by cells.
 * `reset_graph`

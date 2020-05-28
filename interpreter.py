@@ -133,7 +133,7 @@ class Graph:
         :param cell_name: Name of cell
         :return: Corresponding index of provided cell name
         """
-        if cell_name not in list(self.names_to_indeces.keys()):
+        if cell_name not in self.get_all_cells_edges()[0]:
             print("Cell \"" + cell_name + "\" does not exist")
             return -1
         else:
@@ -215,38 +215,39 @@ class Graph:
         self.names_to_indeces[name1] = idx2
         self.names_to_indeces[name2] = idx1
 
-    def merge_cells(self, idx1, idx2, new_name, new_content_type):
-        # Not fully functional yet
+    def merge_cells(self, idx1, idx2, new_name):
         if not self.graph.has_edge(idx1, idx2):
             print("To merge, cells must be adjacent")
             return
 
         # make new cell
-        new_cell = Cell(name_=new_name, graph_=self, content_=new_content_type)
-        new_content = self.get_cell("", idx1).content + "\n\n" + self.get_cell("", idx2).content
+        new_cell = Cell(name_=new_name, graph_=self, content_type_=self.get_cell("", idx1).content_type)
+        new_content = self.get_cell("", idx1).content + "\n# merge point\n" + self.get_cell("", idx2).content
         new_cell.content = new_content
+        self.names_to_indeces[new_name] = self.names_to_indeces[self.get_cell("", idx1).name]
+        del self.names_to_indeces[self.get_cell("", idx1).name]
+        self.graph.nodes[idx1]["data"] = new_cell
+        self.graph.nodes[idx1]["name"] = new_name
 
         # in -> (1 + 2 merged) -> out
-        in_edges = list(self.graph.in_edges(idx1))
         out_edges = list(self.graph.out_edges(idx2))
 
-        self.remove_cell("", idx1)
         self.remove_cell("", idx2)
-        self.add_cell(new_cell)
 
-        new_cell_index = self.name_to_idx(new_name)
-
-        for edge in in_edges:
-            in_node = edge[0]
-            self.connect_cells(in_node, new_cell_index)
         for edge in out_edges:
             out_node = edge[1]
-            self.connect_cells(new_cell_index, out_node)
+            self.connect_cells(idx1, out_node)
+
+    def update_reverse_lookup_table(self):
+        cell_names, _ = self.get_all_cells_edges()
+        cell_indeces = list(self.graph.nodes)
+        self.names_to_indeces = {name: idx for name, idx in zip(cell_names, cell_indeces)}
 
     def display(self):
         # Display graph in matplotlib
         pos = nx.spring_layout(self.graph)
 
+        self.update_reverse_lookup_table()
         labels = self.get_lookup_table()
 
         nx.draw_networkx_nodes(self.graph, pos)
@@ -255,8 +256,8 @@ class Graph:
 
         plt.show()
 
-    def get_all_cells(self):
-        return list(nx.get_node_attributes(self.graph, 'name').values())
+    def get_all_cells_edges(self):
+        return list(nx.get_node_attributes(self.graph, 'name').values()), list(self.graph.edges)
 
     def get_in_out_edges(self, cell_name, cell_index=None):
         if not cell_index:
@@ -284,7 +285,7 @@ class Graph:
 
     def execute_linear_list_of_cells(self, cells_list=None, stdout="internal", output_filename="stdout.txt"):
         if not cells_list:
-            cells_list = list(nx.get_node_attributes(self.graph, 'name').values())
+            cells_list = self.get_all_cells_edges()[0]
 
         for cell_name in cells_list:
             cell = self.get_cell(cell_name)
@@ -343,6 +344,7 @@ class Interpreter:
             "edit [cell_name]": "Edit contents of cell with specified name",
             "link [first_cell_name] [second_cell_name]": "Creates link from first_cell to second_cell",
             "sever [first_cell_name] [second_cell_name]": "Removes link between first_cell and second_cell",
+            "merge [first_cell_name] [second_cell_name]": "Merges the two cells if they are adjacent",
             "swap [first_cell_name] [second_cell_name]": "Swaps name, content type, and contents of specified cells",
             "execute [cell_name_1] [cell_name_2] ... >> (filename)": "Executes graph. If no cell names are provided, "
                                                                      "all will be executed. \n\t\tIf '>> filename' is "
@@ -352,7 +354,8 @@ class Interpreter:
             "list": "Prints out names of all cells in graph",
             "reset_runtime": "Deletes all variables created within cells",
             "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrn session",
-            "[filename].satx": "Executes satyrn code in specified file. File must have .satx extension. \n\t\tExamples of "
+            "[filename].satx": "Executes satyrn code in specified file. File must have .satx extension. "
+                               "\n\t\tExamples of "
                                "syntax can be seen at https://github.com/CharlesAverill/satyrn/tree/master/examples ",
             "quit": "Exits satyrn session"
         }
@@ -373,7 +376,7 @@ class Interpreter:
         """
         keywords = ["help", "quit", "cell", "link", "sever",
                     "execute", "display", "remove", "reset_runtime",
-                    "edit", "swap", "list", "reset_graph"]
+                    "edit", "swap", "list", "reset_graph", "merge"]
 
         if len(command) != 4:
             print("create_cell takes 3 arguments: [name] [content_type] [add_content]")
@@ -477,8 +480,8 @@ class Interpreter:
         """
         :param command: command to be executed
         """
-        if not (2 < len(command) < 5):
-            print("merge takes 2-4 arguments: [cell_1] [cell_2] (new_name) (new_content_type)")
+        if not (2 < len(command) < 4):
+            print("merge takes 2-3 arguments: [cell_1] [cell_2] (new_name)")
             return
 
         name_1 = self.graph.name_to_idx(command[1])
@@ -487,14 +490,9 @@ class Interpreter:
         if len(command) >= 4:
             newname = command[3]
         else:
-            newname = command[1] + " (merged)"
+            newname = command[1] + "_merged"
 
-        if len(command) == 5:
-            new_c_type = command[4]
-        else:
-            new_c_type = self.graph.get_cell(command[1]).content_type
-
-        self.graph.merge_cells(name_1, name_2, newname, new_c_type)
+        self.graph.merge_cells(name_1, name_2, newname)
 
     def execute(self, command):
         """
@@ -544,7 +542,9 @@ class Interpreter:
                     print()
 
     def list_cells(self):
-        print(self.graph.get_all_cells())
+        nodes, edges = self.graph.get_all_cells_edges()
+        print("Cells:", nodes)
+        print("Edges:", edges)
 
     def set_stdout(self, command):
         """
@@ -596,8 +596,8 @@ class Interpreter:
             elif command[0] == "sever":
                 self.sever(command)
 
-            # elif command[0] == "merge":
-            #     self.merge(command)
+            elif command[0] == "merge":
+                self.merge(command)
 
             elif command[0] == "swap":
                 self.swap(command)

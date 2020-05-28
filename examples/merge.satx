@@ -1,9 +1,19 @@
-cell a n n
-cell b n n
-cell c n n
-cell d n n
+cell a python y:
+x = 10
+;
+cell b python y:
+x += 10
+;
+cell c python y:
+x += 10
+;
+cell d python y:
+print(x)
+;
 link a b
 link b c
 link c d
 merge b c
+list
 display
+execute
