@@ -2,13 +2,15 @@ cell a a a
 cell b b b
 cell c c c
 cell d d d
+cell e e e
 link a b
 link a c
 link a d
 link b d
 link c d
+link c e
 display
-remove_cell a
+remove a b c
 display
-remove_cell b
+remove d
 display

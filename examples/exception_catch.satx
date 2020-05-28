@@ -11,9 +11,9 @@ link a b
 link b c
 execute
 reset_runtime
-remove_cell a
-remove_cell b
-remove_cell c
+remove a
+remove b
+remove c
 display
 cell a python y:
 print(x)

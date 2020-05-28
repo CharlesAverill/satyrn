@@ -339,7 +339,7 @@ class Interpreter:
         help_menu = {
             "cell [cell_name] [content_type](python/markdown) [add_content](y/n)": "Creates a cell with the specified "
                                                                                    "parameters",
-            "remove [cell_name]": "Removes the cell with specified name",
+            "remove [cell_name_1] [cell_name_2] ...": "Removes all listed cells",
             "edit [cell_name]": "Edit contents of cell with specified name",
             "link [first_cell_name] [second_cell_name]": "Creates link from first_cell to second_cell",
             "sever [first_cell_name] [second_cell_name]": "Removes link between first_cell and second_cell",
@@ -423,7 +423,9 @@ class Interpreter:
         """
         :param command: command to be executed
         """
-        self.graph.remove_cell(command[1])
+        to_remove = command[1:]
+        for cell in to_remove:
+            self.graph.remove_cell(cell)
 
     def link(self, command):
         """
