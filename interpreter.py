@@ -239,7 +239,7 @@ class Graph:
             self.connect_cells(idx1, out_node)
 
     def update_reverse_lookup_table(self):
-        cell_names, _ = self.get_all_cells_edges()
+        cell_names, _, _2 = self.get_all_cells_edges()
         cell_indeces = list(self.graph.nodes)
         self.names_to_indeces = {name: idx for name, idx in zip(cell_names, cell_indeces)}
 
@@ -257,7 +257,9 @@ class Graph:
         plt.show()
 
     def get_all_cells_edges(self):
-        return list(nx.get_node_attributes(self.graph, 'name').values()), list(self.graph.edges)
+        lookup_table = self.get_lookup_table()
+        return list(nx.get_node_attributes(self.graph, 'name').values()), list(self.graph.edges), \
+               [(lookup_table[idx1], lookup_table[idx2]) for idx1, idx2 in list(self.graph.edges)]
 
     def get_in_out_edges(self, cell_name, cell_index=None):
         if not cell_index:
@@ -294,6 +296,32 @@ class Graph:
                 if stdout == "external":
                     with open(output_filename, 'w') as txt:
                         txt.write(cell_output)
+
+    def save_graph(self, filename):
+        txtout = ""
+
+        lookup_table = self.get_lookup_table()
+        cell_names, edges, _ = self.get_all_cells_edges()
+        cells = [self.get_cell(cn) for cn in cell_names]
+
+        for c in cells:
+            if c.content:
+                fill_with_code = "y:\n"
+            else:
+                fill_with_code = "n\n"
+            temp_text = "cell " + c.name + " " + c.content_type + " " + fill_with_code
+            if fill_with_code == "y:\n":
+                temp_text += c.content + ";\n"
+
+            txtout += temp_text
+
+        for e in edges:
+            name1 = lookup_table[e[0]]
+            name2 = lookup_table[e[1]]
+            txtout += "link " + name1 + " " + name2 + "\n"
+
+        with open(filename, "w") as file:
+            file.write(txtout)
 
 
 # noinspection PyBroadException
@@ -365,7 +393,8 @@ class Interpreter:
                   "Satyrn provides the same functionality as a typical notebook, but allows for branching.\n"
                   "Therefore, cells can run in parallel. Please type \'help\' for a list of commands. Thank you!\n"
                   "------------------------------------------------------------------------\n\n")
-        help_list = [(command, description) for command, description in zip(list(help_menu.keys()), list(help_menu.values()))]
+        help_list = [(command, description) for command, description in
+                     zip(list(help_menu.keys()), list(help_menu.values()))]
         for item in help_list:
             output += "\t" + item[0] + " :\n\t\t" + item[1] + "\n\n"
         return output
@@ -528,7 +557,7 @@ class Interpreter:
                     return
                 code = self.graph.get_cell(command[1]).content.strip()
                 if code:
-                    print("\n```\n" + code+ "\n```\n")
+                    print("\n```\n" + code + "\n```\n")
                 in_edges, out_edges = self.graph.get_in_out_edges(command[1])
                 if len(in_edges) > 0:
                     print("In Edges:")
@@ -542,9 +571,9 @@ class Interpreter:
                     print()
 
     def list_cells(self):
-        nodes, edges = self.graph.get_all_cells_edges()
+        nodes, _, edge_names = self.graph.get_all_cells_edges()
         print("Cells:", nodes)
-        print("Edges:", edges)
+        print("Edges:", edge_names)
 
     def set_stdout(self, command):
         """
@@ -563,6 +592,15 @@ class Interpreter:
         confirm = input("Are you sure you want to reset the graph? This will delete all nodes and variables. (y/n) ")
         if "y" in confirm:
             self.graph = Graph()
+
+    def save_graph(self, command):
+        """
+        :param command: command to be executed
+        """
+        if len(command) != 2:
+            print("swap takes 1 argument1: [filename]")
+            return
+        self.graph.save_graph(command[1])
 
     def run(self):
         # Main application loop
@@ -619,6 +657,9 @@ class Interpreter:
 
             elif command[0] == "reset_graph":
                 self.reset_graph()
+
+            elif command[0] == "save":
+                self.save_graph(command)
 
             elif ".satx" in command[0]:
                 self.run_file(command)

@@ -1,0 +1,14 @@
+cell root python y:
+x = 10
+
+;
+cell middle python y:
+x *= 22
+
+;
+cell bottom python y:
+print(x)
+
+;
+link root middle
+link middle bottom
