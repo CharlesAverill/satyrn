@@ -60,7 +60,7 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
     - If `cell_name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
 * `list`
-    - Prints a list of all cell and edge names in graph
+    - Prints a list of all cell names and edge pairs in graph
 * `reset_runtime`
     - Deletes all local variables created by cells.
 * `reset_graph`
