@@ -1,10 +1,10 @@
-import matplotlib.pyplot as plt
 import networkx as nx
+import matplotlib.pyplot as plt
 import io as StringIO
 import tkinter as tk
 
-import sys
 import contextlib
+import sys
 
 print(chr(27) + "[2J")
 
@@ -84,7 +84,7 @@ class Cell:
         yield stdout
         sys.stdout = old
 
-    def execute(self, stdout):
+    def exxecute(self, stdout):
         # Execute this cell's content
         if stdout == "internal":
             try:
@@ -381,12 +381,12 @@ class Interpreter:
             "display [cell_name]": "Displays graph. If cell_name defined, that cell's details will be printed out",
             "list": "Prints out names of all cells in graph",
             "reset_runtime": "Deletes all variables created within cells",
-            "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrn session",
+            "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrn_python session",
             "save [filename].satx": "Saves graph to .satx file",
-            "[filename].satx": "Executes satyrn code in specified file. File must have .satx extension. "
+            "[filename].satx": "Executes satyrn_python code in specified file. File must have .satx extension. "
                                "\n\t\tExamples of "
                                "syntax can be seen at https://github.com/CharlesAverill/satyrn/tree/master/examples ",
-            "quit": "Exits satyrn session"
+            "quit": "Exits satyrn_python session"
         }
         output = ("------------------------------------------------------------------------\n"
                   "Hi, and welcome to Satyrn.\n"
@@ -669,4 +669,9 @@ class Interpreter:
                 print("Syntax error: command \"" + command[0] + "\" not recognized.")
 
 
-i = Interpreter()
+def start():
+    Interpreter()
+
+
+if __name__ == '__main__':
+    start()

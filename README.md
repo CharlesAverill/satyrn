@@ -15,7 +15,7 @@
 
 # Satyrn
 
-![](media/cover.png?raw=true)
+![](satyrn_python/media/cover.png?raw=true)
 Satyrn is a command-line-based alternative to Jupyter notebooks.
 The backend is completely based on node networks, because I soon 
 plan to implement branching code graphs in order to provide the user
@@ -33,6 +33,7 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
 * `cell [cell_name] [content_type](python/markdown) [add_content](y/n)`
     - Creates cell with given parameters
     - All cells require unique names
+    - The first cell created will always be treated as the "root" cell, and will always be executed first in a complete execution call.
     - Set `content_type` to "python" for python cells
     - If `add_content` is "y", a text box will pop up. Input your python code here.
 * `remove [cell_name]`
@@ -67,7 +68,7 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
 * `save [filename].satx`
     - Saves graph to .satx file.
 * `[filename].satx`
-    - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](examples/syntax_example.satx) shows the basic syntax rules.
+    - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](satyrn_python/examples/syntax_example.satx) shows the basic syntax rules.
 
 ## Example
 Here, code written in [ ] brackets was typed into the text box popup.
