@@ -1,6 +1,6 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9b7ffe7dce94475e9fc5100096c3c8cf)](https://www.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CharlesAverill/satyrn&amp;utm_campaign=Badge_Grade)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-![PyPI](https://img.shields.io/pypi/v/satyrn-python)
+[![PyPI](https://img.shields.io/pypi/v/satyrn-python)](https://pypi.org/project/satyrn-python/)
 
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/CharlesAverill/satyrn/blob/master/LICENSE)
 [![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
