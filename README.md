@@ -26,8 +26,8 @@ worry-free backend multithreading.
 This project is based on [this JEP](https://github.com/jupyter/enhancement-proposals/pull/50) for the Jupyter ecosystem. I'm using this as a way to prepare for development of the features I've listed in the enhancement proposal. 
 
 ## Setup
-* Install requirements with `python -m pip install -r requirements.txt`
-* Run `python interpreter.py`
+- Run `python -m pip install satyrn-python`
+- Run `satyrn` in your terminal to open the SLI (satyrn command line)
 
 ## Commands
 * `quit` - Quits out of interpreter
