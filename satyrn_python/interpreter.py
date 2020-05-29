@@ -84,7 +84,7 @@ class Cell:
         yield stdout
         sys.stdout = old
 
-    def exxecute(self, stdout):
+    def execute(self, stdout):
         # Execute this cell's content
         if stdout == "internal":
             try:
@@ -147,7 +147,8 @@ class Graph:
         """
         cells = list(nx.get_node_attributes(self.graph, 'data').values())
 
-        if cell_index:
+        if cell_index is not None:
+            print(cells)
             output = cells[cell_index]
             return output
 
@@ -285,17 +286,39 @@ class Graph:
 
         return in_edges, out_edges
 
-    def execute_linear_list_of_cells(self, cells_list=None, stdout="internal", output_filename="stdout.txt"):
-        if not cells_list:
-            cells_list = self.get_all_cells_edges()[0]
+    def execute_linear_list_of_cells(self, cells_list, stdout="internal", output_filename="stdout.txt"):
+        std_file_out = ""
 
         for cell_name in cells_list:
             cell = self.get_cell(cell_name)
+
             if cell.content_type == "python":
-                cell_output = cell.execute(stdout)
-                if stdout == "external":
-                    with open(output_filename, 'w') as txt:
-                        txt.write(cell_output)
+                std_file_out += cell.execute(stdout)
+
+        if stdout == "external":
+            with open(output_filename, 'w') as txt:
+                txt.write(std_file_out)
+
+    def bfs_traversal_execute(self, stdout="internal", output_filename="stdout.txt"):
+        std_file_out = ""
+
+        root = self.get_cell("", 0)
+        std_file_out += root.execute(stdout)
+
+        neighbors = self.graph.neighbors(0)
+
+        while neighbors:
+            new_neighbors = []
+            for n in neighbors:
+                neighbor = self.get_cell(self.get_lookup_table()[n])
+                std_file_out += neighbor.execute(stdout)
+
+                new_neighbors.extend(self.graph.neighbors(n))
+            neighbors = new_neighbors
+
+        if stdout == "external":
+            with open(output_filename, 'w') as txt:
+                txt.write(std_file_out)
 
     def save_graph(self, filename):
         txtout = ""
@@ -528,19 +551,19 @@ class Interpreter:
         """
         :param command: command to be executed
         """
+        if ">>" in command:
+            cells_list = command[1:-2]
+            self.stdout_filename = command[-1]
+        else:
+            cells_list = command[1:]
         if len(command) > 1:
             try:
-                if ">>" in command:
-                    cells_list = command[1:-2]
-                    self.stdout_filename = command[-1]
-                else:
-                    cells_list = command[1:]
                 self.graph.execute_linear_list_of_cells(cells_list, self.stdout, self.stdout_filename)
             except Exception as e:
                 print("There was an error executing one of the cells")
                 print(e)
         else:
-            self.graph.execute_linear_list_of_cells(None, self.stdout)
+            self.graph.bfs_traversal_execute(self.stdout, self.stdout_filename)
 
     def display(self, command):
         """

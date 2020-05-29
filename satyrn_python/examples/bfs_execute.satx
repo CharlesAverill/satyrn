@@ -1,0 +1,14 @@
+cell a python y:
+x = 10
+;
+cell b python y;
+print(x)
+;
+cell c python y:
+print(x)
+;
+stdout external
+link a b
+link b c
+display
+execute
