@@ -18,10 +18,7 @@
 
 ![](satyrn_python/media/cover.png?raw=true)
 Satyrn is a command-line-based alternative to Jupyter notebooks.
-The backend is completely based on node networks, because I soon 
-plan to implement branching code graphs in order to provide the user
-with visual differentiation while writing code, and perhaps even 
-worry-free backend multithreading. 
+The backend is completely based on node networks, because it supports branching, multithreaded cell paths.
 
 This project is based on [this JEP](https://github.com/jupyter/enhancement-proposals/pull/50) for the Jupyter ecosystem. I'm using this as a way to prepare for development of the features I've listed in the enhancement proposal. 
 
