@@ -1,0 +1,9 @@
+cell a python y:
+print(1);
+cell b python y:
+print(2);
+cell c python y:
+print(3);
+link a b
+link b c
+link c a

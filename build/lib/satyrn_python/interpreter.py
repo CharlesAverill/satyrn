@@ -385,6 +385,8 @@ class Graph:
     def save_graph(self, filename):
         txtout = ""
 
+        filename = filename.replace("\"", "")
+
         lookup_table = self.get_lookup_table()
         cell_names, edges, _ = self.get_all_cells_edges()
         cells = [self.get_cell(cn) for cn in cell_names]
@@ -405,7 +407,7 @@ class Graph:
             name2 = lookup_table[e[1]]
             txtout += "link " + name1 + " " + name2 + "\n"
 
-        with open(filename, "w") as file:
+        with open(filename, "w+") as file:
             file.write(txtout)
 
 
@@ -563,10 +565,16 @@ class Interpreter:
             print("link takes 2 arguments: [cell_1] [cell_2]")
             return
 
-        name_1 = self.graph.name_to_idx(command[1])
-        name_2 = self.graph.name_to_idx(command[2])
+        idx1 = self.graph.name_to_idx(command[1])
+        idx2 = self.graph.name_to_idx(command[2])
 
-        self.graph.connect_cells(name_1, name_2)
+        if idx2 == 0:
+            confirm = input("WARNING: You are attempting to connect a node to your root node. This could cause unwanted"
+                            " recursive behavior. Are you sure? (y/n) ")
+            if "y" in confirm.lower():
+                self.graph.connect_cells(idx1, idx2)
+        else:
+            self.graph.connect_cells(idx1, idx2)
 
     def sever(self, command):
         """
@@ -686,7 +694,7 @@ class Interpreter:
         :param command: command to be executed
         """
         if len(command) != 2:
-            print("swap takes 1 argument1: [filename]")
+            print("save takes 1 argument1: [filename]")
             return
         self.graph.save_graph(command[1])
 
