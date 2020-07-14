@@ -1,0 +1,11 @@
+README.md
+setup.py
+satyrn_python/__init__.py
+satyrn_python/__main__.py
+satyrn_python/interpreter.py
+satyrn_python.egg-info/PKG-INFO
+satyrn_python.egg-info/SOURCES.txt
+satyrn_python.egg-info/dependency_links.txt
+satyrn_python.egg-info/entry_points.txt
+satyrn_python.egg-info/requires.txt
+satyrn_python.egg-info/top_level.txt

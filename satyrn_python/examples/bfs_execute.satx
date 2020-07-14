@@ -1,14 +1,44 @@
 cell a python y:
-x = 10
+import time
+time.sleep(5)
+for i in range(15):
+    print("a")
 ;
 cell b python y;
-print(x)
+time.sleep(5)
+for i in range(15):
+    print("b")
 ;
 cell c python y:
-print(x)
+time.sleep(5)
+for i in range(15):
+    print("c")
 ;
-stdout external
+cell d python y:
+time.sleep(5)
+for i in range(15):
+    print("d")
+;
+cell e python y;
+time.sleep(5)
+for i in range(15):
+    print("e")
+;
+cell f python y:
+time.sleep(5)
+for i in range(15):
+    print("f")
+;
+cell g python y:
+time.sleep(5)
+for i in range(15):
+    print("g")
+;
 link a b
-link b c
+link a c
+link a d
+link b e
+link c f
+link d g
 display
 execute

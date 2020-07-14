@@ -1,0 +1,3 @@
+[console_scripts]
+satyrn = satyrn_python.__main__:start
+

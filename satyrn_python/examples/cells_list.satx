@@ -1,7 +1,9 @@
 cell root python y:
+import time
 x = 10
 ;
 cell 22test python y:
+time.sleep(1)
 x *= 22
 ;
 cell 33test python y:
@@ -13,5 +15,4 @@ print(x)
 link root 22test
 link 22test 33test
 link 33test bottom
-display
 execute root 33test bottom
