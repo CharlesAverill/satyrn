@@ -24,7 +24,7 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
 
 ## Setup
 - Run `python -m pip install satyrn-python`
-- Run `satyrn` in your terminal to open the SLI (satyrn command line)
+- Run `satyrn` in your terminal to open the Satyrn CLI
 
 ## Commands
 * `quit` - Quits out of interpreter
