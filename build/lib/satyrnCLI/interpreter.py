@@ -545,9 +545,18 @@ class Interpreter:
         if len(command) != 3:
             print("link takes 2 arguments: [original_cell_name] [new_cell_name]")
             return
-        self.graph.get_cell(command[1]).name = command[2]
-        self.graph.names_to_indeces.update({command[2]: self.graph.names_to_indeces[command[1]]})
-        del self.graph.names_to_indeces[command[1]]
+
+        index = self.graph.names_to_indeces[command[1]]
+        og_name = self.graph.get_cell(command[1]).name
+
+        self.graph.get_cell(og_name).name = command[2]
+        self.graph.names_to_indeces.update({command[2]: index})
+        del self.graph.names_to_indeces[og_name]
+
+        for node, data in self.graph.graph.nodes(data=True):
+            if data['name'] == command[1]:
+                data['name'] = command[2]
+                break
 
     def remove_cell(self, command):
         """

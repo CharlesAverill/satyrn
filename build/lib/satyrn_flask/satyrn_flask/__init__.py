@@ -1,26 +1,23 @@
+import os, random, string, json, sys, contextlib, threading
+
+from flask import Flask, send_from_directory, render_template, request
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import io as StringIO
 import tkinter as tk
-
-import contextlib
-import sys
-
-import threading
 
 global global_vars
 global_vars = {}
 global local_vars
 local_vars = {}
 
-print(chr(27) + "[2J")
-
 """
 Structure Guide
 
 Cells, sometimes referred to as nodes, are data points that either hold markdown data or code. They also have names.
 
-The Graph is a collection of Cells. We use networkx as a backend for basic graph operations and add in methods to 
+The Graph is a collection of Cells. We use networkx as a backend for basic graph operations and add in methods to
 provide functionality specific to our needs.
 
 The Interpreter is the 'frontend' of the application, and provides a text-based interface for users to interact with
@@ -424,7 +421,7 @@ class Interpreter:
         self.stdout = "internal"
         self.stdout_filename = "stdout.txt"
         # Start loop
-        self.run()
+        # self.run()
 
     def run_file(self, command):
         """
@@ -467,12 +464,12 @@ class Interpreter:
             "display [cell_name]": "Displays graph. If cell_name defined, that cell's details will be printed out",
             "list": "Prints out names of all cells in graph",
             "reset_runtime": "Deletes all variables created within cells",
-            "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrnCLI session",
+            "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrn_python session",
             "save [filename].satx": "Saves graph to .satx file",
-            "[filename].satx": "Executes satyrnCLI code in specified file. File must have .satx extension. "
+            "[filename].satx": "Executes satyrn_python code in specified file. File must have .satx extension. "
                                "\n\t\tExamples of "
                                "syntax can be seen at https://github.com/CharlesAverill/satyrn/tree/master/examples ",
-            "quit": "Exits satyrnCLI session"
+            "quit": "Exits satyrn_python session"
         }
         output = ("------------------------------------------------------------------------\n"
                   "Hi, and welcome to Satyrn.\n"
@@ -527,7 +524,7 @@ class Interpreter:
         :param command: command to be executed
         """
         if len(command) != 2:
-            print("link takes 1 arguments: [cell_name]")
+            print("edit takes 1 argument: [cell_name]")
             return
 
         target_cell = self.graph.get_cell(command[1])
@@ -538,6 +535,10 @@ class Interpreter:
 
         target_cell.content = new_content
 
+    def set_cell_contents(self, command):
+        target_cell = self.graph.get_cell(command[1])
+        target_cell.content = command[2]
+
     def rename_cell(self, command):
         """
         :param command: command to be executed
@@ -545,9 +546,18 @@ class Interpreter:
         if len(command) != 3:
             print("link takes 2 arguments: [original_cell_name] [new_cell_name]")
             return
-        self.graph.get_cell(command[1]).name = command[2]
-        self.graph.names_to_indeces.update({command[2]: self.graph.names_to_indeces[command[1]]})
-        del self.graph.names_to_indeces[command[1]]
+
+        index = self.graph.names_to_indeces[command[1]]
+        og_name = self.graph.get_cell(command[1]).name
+
+        self.graph.get_cell(og_name).name = command[2]
+        self.graph.names_to_indeces.update({command[2]: index})
+        del self.graph.names_to_indeces[og_name]
+
+        for node, data in self.graph.graph.nodes(data=True):
+            if data['name'] == command[1]:
+                data['name'] = command[2]
+                break
 
     def remove_cell(self, command):
         """
@@ -567,14 +577,15 @@ class Interpreter:
 
         idx1 = self.graph.name_to_idx(command[1])
         idx2 = self.graph.name_to_idx(command[2])
-
+        """
         if idx2 == 0:
             confirm = input("WARNING: You are attempting to connect a node to your root node. This could cause unwanted"
                             " recursive behavior. Are you sure? (y/n) ")
             if "y" in confirm.lower():
                 self.graph.connect_cells(idx1, idx2)
         else:
-            self.graph.connect_cells(idx1, idx2)
+        """
+        self.graph.connect_cells(idx1, idx2)
 
     def sever(self, command):
         """
@@ -698,75 +709,130 @@ class Interpreter:
             return
         self.graph.save_graph(command[1])
 
-    def run(self):
-        # Main application loop
-        while True:
-            command = self.read_input()
+interpreter = Interpreter()
 
-            if len(command) == 0:
-                continue
+def new_name():
+    letters_and_digits = string.ascii_letters + string.digits
+    result_str = ''.join((random.choice(letters_and_digits) for i in range(16)))
+    return result_str
 
-            elif command[0] == "help":
-                print(self.help_menu())
+def create_app(test_config=None):
+    # create and configure the app
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(
+        SECRET_KEY='dev'
+    )
 
-            elif command[0] == "quit":
-                break
+    interpreter.create_cell(["create_cell", "root", "python", "n"])
 
-            elif command[0] == "cell":
-                self.create_cell(command)
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
 
-            elif command[0] == "edit":
-                self.edit_cell(command)
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
 
-            elif command[0] == "rename":
-                self.rename_cell(command)
+    @app.route("/")
+    def index():
+        return render_template("index.html")
 
-            elif command[0] == "remove":
-                self.remove_cell(command)
+    @app.route("/style.css")
+    def syle_css():
+        return render_template("style.css")
 
-            elif command[0] == "link":
-                self.link(command)
+    @app.route("/script.js")
+    def script_js():
+        return render_template("script.js")
 
-            elif command[0] == "sever":
-                self.sever(command)
+    @app.route("/create_cell/", methods=["GET"])
+    def create_cell():
+        name = new_name()
+        interpreter.create_cell(["create_cell", name, "python", "n"])
+        return name
 
-            elif command[0] == "merge":
-                self.merge(command)
+    @app.route("/destroy_cell/", methods=["POST"])
+    def destroy_cell():
+        cell_name = request.get_json()
 
-            elif command[0] == "swap":
-                self.swap(command)
+        initial_length = len(interpreter.graph.graph.nodes())
 
-            elif command[0] == "execute":
-                self.execute(command)
+        interpreter.remove_cell(["remove", cell_name])
 
-            elif command[0] == "display":
-                self.display(command)
+        success = "false"
+        if initial_length == len(interpreter.graph.graph.nodes()):
+            success = "true"
 
-            elif command[0] == "list":
-                self.list_cells()
+        return success
 
-            elif command[0] == "stdout":
-                self.set_stdout(command)
+    @app.route("/edit_cell/", methods=["POST"])
+    def edit_cell():
+        data = request.get_json()
+        cell_name = data['name']
+        content = data['content']
 
-            elif command[0] == "reset_runtime":
-                self.reset_runtime()
+        interpreter.set_cell_contents(['edit_cell', cell_name, content])
 
-            elif command[0] == "reset_graph":
-                self.reset_graph()
+        return "true"
 
-            elif command[0] == "save":
-                self.save_graph(command)
+    @app.route("/rename_cell/", methods=["POST"])
+    def rename_cell():
+        data = request.get_json()
+        old_name = data['old_name']
+        new_name = data['new_name']
 
-            elif ".satx" in command[0]:
-                self.run_file(command)
+        interpreter.rename_cell(['edit_cell', old_name, new_name])
 
-            else:
-                print("Syntax error: command \"" + command[0] + "\" not recognized.")
+        return "true"
 
+    @app.route("/recursion_check/", methods=["POST"])
+    def recursion_check():
+        data = request.get_json()
+        cell_name = data['cell_name']
 
-def start():
-    Interpreter()
+        nodes, _, edge_names = interpreter.graph.get_all_cells_edges()
 
+        for e in edge_names:
+            if e[0] == cell_name:
+                return "warning"
 
-if __name__ == '__main__':
-    start()
+        return "safe"
+
+    @app.route("/root_has_outputs/", methods=["POST"])
+    def root_output_check():
+        c = 0
+
+        nodes, _, edge_names = interpreter.graph.get_all_cells_edges()
+        for e in edge_names:
+            if e[0] == "root":
+                c += 1
+
+        if c > 0:
+            return "safe"
+        return "warning"
+
+    @app.route("/link_cells/", methods=["POST"])
+    def link_cells():
+        data = request.get_json()
+        first = data['first']
+        second = data['second']
+
+        if(first == second):
+            return "false"
+
+        interpreter.link(['link', first, second])
+
+        return "true"
+
+    @app.route("/bfs_execute/", methods=["POST"])
+    def bfs_execute():
+        interpreter.execute(["execute"])
+
+        return "true"
+
+    return app

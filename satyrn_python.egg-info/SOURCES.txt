@@ -1,8 +1,11 @@
 README.md
 setup.py
-satyrn_python/__init__.py
-satyrn_python/__main__.py
-satyrn_python/interpreter.py
+satyrnCLI/__init__.py
+satyrnCLI/__main__.py
+satyrnCLI/interpreter.py
+satyrn_flask/__init__.py
+satyrn_flask/run_frontend.py
+satyrn_flask/satyrn_flask/__init__.py
 satyrn_python.egg-info/PKG-INFO
 satyrn_python.egg-info/SOURCES.txt
 satyrn_python.egg-info/dependency_links.txt

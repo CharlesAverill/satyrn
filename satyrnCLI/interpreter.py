@@ -467,12 +467,12 @@ class Interpreter:
             "display [cell_name]": "Displays graph. If cell_name defined, that cell's details will be printed out",
             "list": "Prints out names of all cells in graph",
             "reset_runtime": "Deletes all variables created within cells",
-            "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrn_python session",
+            "reset_graph": "Deletes all variables and cells. Equivalent to restarting satyrnCLI session",
             "save [filename].satx": "Saves graph to .satx file",
-            "[filename].satx": "Executes satyrn_python code in specified file. File must have .satx extension. "
+            "[filename].satx": "Executes satyrnCLI code in specified file. File must have .satx extension. "
                                "\n\t\tExamples of "
                                "syntax can be seen at https://github.com/CharlesAverill/satyrn/tree/master/examples ",
-            "quit": "Exits satyrn_python session"
+            "quit": "Exits satyrnCLI session"
         }
         output = ("------------------------------------------------------------------------\n"
                   "Hi, and welcome to Satyrn.\n"

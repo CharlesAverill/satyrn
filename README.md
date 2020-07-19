@@ -16,17 +16,18 @@
 
 # Satyrn
 
-![](satyrn_python/media/cover.png?raw=true)
+![](satyrnCLI/media/cover.png?raw=true)
 Satyrn is a command-line-based alternative to Jupyter notebooks.
 The backend is completely based on node networks, because it supports branching, multithreaded cell paths.
 
-This project is based on [this JEP](https://github.com/jupyter/enhancement-proposals/pull/50) for the Jupyter ecosystem. <s>I'm using this as a way to prepare for development of the features I've listed in the enhancement proposal.</s> At the moment, I plan to make Satyrn a standalone, outside of the Jupyter ecosystem.
+This project is based on [this JEP](https://github.com/jupyter/enhancement-proposals/pull/50) for the Jupyter ecosystem. <s>I'm using this as a way to prepare for development of the features I've listed in the enhancement proposal.</s> The Satyrn team is developing a web-based UI.
 
 ## Setup
 - Run `python -m pip install satyrn-python`
-- Run `satyrn` in your terminal to open the Satyrn CLI
+- Run `satyrnCLI` in your terminal to open the Satyrn CLI
+- Run `satyrn` in your terminal to open the Satyrn UI (unstable)
 
-## Commands
+## CLI Commands
 * `quit` - Quits out of interpreter
 * `cell [cell_name] [content_type](python/markdown) [add_content](y/n)`
     - Creates cell with given parameters
@@ -66,9 +67,9 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
 * `save [filename].satx`
     - Saves graph to .satx file.
 * `[filename].satx`
-    - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](satyrn_python/examples/syntax_example.satx) shows the basic syntax rules.
+    - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](satyrnCLI/examples/syntax_example.satx) shows the basic syntax rules.
 
-## Example
+## CLI Example
 Here, code written in [ ] brackets was typed into the text box popup.
 ```
 ♄: create_cell root python y

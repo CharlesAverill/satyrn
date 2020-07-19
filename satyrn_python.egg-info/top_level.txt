@@ -1,1 +1,2 @@
-satyrn_python
+satyrnCLI
+satyrn_flask

@@ -5,13 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='satyrn-python',
-    version='0.6.2',
-    entry_points={"console_scripts": ["satyrn = satyrn_python.__main__:start"]},
+    version='0.6.8',
+    entry_points={"console_scripts": ["satyrnCLI = satyrnCLI.__main__:start",
+                                      "satyrn = satyrn_flask.run_frontend:run"]},
     author="Charles Averill",
     author_email="charlesaverill20@gmail.com",
     description="A command-line based alternative to Jupyter notebooks",
     long_description=long_description,
-    install_requires=['networkx', 'matplotlib'],
+    install_requires=['networkx', 'matplotlib', 'flask'],
     long_description_content_type="text/markdown",
     url="https://github.com/CharlesAverill/satyrn/",
     packages=setuptools.find_packages(),

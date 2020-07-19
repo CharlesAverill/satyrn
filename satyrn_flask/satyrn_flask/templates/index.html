@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Satyrn</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="icon" type="image/png" href="../static/icon.png">
+</head>
+
+<body id="scene">
+
+    <!-- Draggables Begin-->
+    <div id="draggable" class="root">
+            <h6 class="label">root</h6>
+        <div class="draggable">
+            <div class="highlightBlue"></div>
+            <textarea class="textarea_root" spellcheck="false"></textarea>
+        </div>
+    </div>
+    <!-- Draggables End-->
+
+    <!--Context Menu Begin-->
+    <ul class='custom-menu'>
+        <li data-action="new_cell">Create Cell</li>
+        <li data-action="destroy_cell">Destroy Cell</li>
+        <li data-action="link_cell">Link Cell</li>
+        <li data-action="bfs_execute">Run All</li>
+        <li data-action="duplicateNode">Duplicate Cell</li>
+    </ul>
+    <!--Context Menu End-->
+
+    <!--Scripts Begin-->
+    <script src='https://unpkg.com/panzoom@9.2.4/dist/panzoom.min.js'></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="script.js"></script>
+    <!--Scripts End-->
+    </body>
+
+</html>
