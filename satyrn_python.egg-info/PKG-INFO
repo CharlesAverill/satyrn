@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: satyrn-python
-Version: 0.6.8
-Summary: A command-line based alternative to Jupyter notebooks
+Version: 0.7.51
+Summary: A Notebook alternative that supports branching code
 Home-page: https://github.com/CharlesAverill/satyrn/
 Author: Charles Averill
 Author-email: charlesaverill20@gmail.com

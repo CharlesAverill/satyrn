@@ -153,6 +153,7 @@ class Graph:
         :param cell_name: Name of cell
         :return: Corresponding index of provided cell name
         """
+        cell_name = cell_name.strip()
         if cell_name not in self.get_all_cells_edges()[0]:
             print("Cell \"" + cell_name + "\" does not exist")
             return -1
@@ -180,6 +181,7 @@ class Graph:
         :param new_cell: Cell object to be added to graph
         """
         if new_cell.name in list(self.names_to_indeces.keys()):
+            print(new_cell.name)
             print("All cells must have unique names")
             return
         else:
@@ -357,7 +359,7 @@ class Graph:
             new_neighbors = []
             processes = []
             for n in neighbors:
-                neighbor_cell = self.get_cell(self.get_lookup_table()[n])
+                neighbor_cell = self.get_cell(self.get_lookup_table()[n].strip())
                 neighbor_cell.stdout = stdout
 
                 neighbor = threading.Thread(target=neighbor_cell.execute)
@@ -406,6 +408,31 @@ class Graph:
 
         with open(filename, "w+") as file:
             file.write(txtout)
+
+    def get_satx_as_txt(self):
+        txtout = ""
+
+        lookup_table = self.get_lookup_table()
+        cell_names, edges, _ = self.get_all_cells_edges()
+        cells = [self.get_cell(cn) for cn in cell_names]
+
+        for c in cells:
+            if c.content:
+                fill_with_code = "y:\n"
+            else:
+                fill_with_code = "n\n"
+            temp_text = "cell " + c.name + " " + c.content_type + " " + fill_with_code
+            if fill_with_code == "y:\n":
+                temp_text += c.content + ";\n"
+
+            txtout += temp_text
+
+        for e in edges:
+            name1 = lookup_table[e[0]]
+            name2 = lookup_table[e[1]]
+            txtout += "link " + name1 + " " + name2 + "\n"
+
+        return txtout
 
 
 class Interpreter:
@@ -518,6 +545,7 @@ class Interpreter:
                 content = ti.text_input().strip()
 
         self.graph.add_cell(Cell(name, content_type, content))
+        print(self.list_cells())
 
     def edit_cell(self, command):
         """
@@ -688,6 +716,7 @@ class Interpreter:
             return
         self.stdout = command[1]
 
+    @staticmethod
     def reset_runtime(self):
         # Delete all runtime variables
         global global_vars
@@ -709,12 +738,15 @@ class Interpreter:
             return
         self.graph.save_graph(command[1])
 
+
 interpreter = Interpreter()
+
 
 def new_name():
     letters_and_digits = string.ascii_letters + string.digits
     result_str = ''.join((random.choice(letters_and_digits) for i in range(16)))
     return result_str
+
 
 def create_app(test_config=None):
     # create and configure the app
@@ -758,7 +790,7 @@ def create_app(test_config=None):
 
     @app.route("/destroy_cell/", methods=["POST"])
     def destroy_cell():
-        cell_name = request.get_json()
+        cell_name = request.get_json().strip()
 
         initial_length = len(interpreter.graph.graph.nodes())
 
@@ -773,8 +805,10 @@ def create_app(test_config=None):
     @app.route("/edit_cell/", methods=["POST"])
     def edit_cell():
         data = request.get_json()
-        cell_name = data['name']
-        content = data['content']
+        cell_name = data['name'].strip()
+        content = data['content'].strip()
+
+        print(cell_name + " " + content)
 
         interpreter.set_cell_contents(['edit_cell', cell_name, content])
 
@@ -783,8 +817,8 @@ def create_app(test_config=None):
     @app.route("/rename_cell/", methods=["POST"])
     def rename_cell():
         data = request.get_json()
-        old_name = data['old_name']
-        new_name = data['new_name']
+        old_name = data['old_name'].strip()
+        new_name = data['new_name'].strip()
 
         interpreter.rename_cell(['edit_cell', old_name, new_name])
 
@@ -793,7 +827,7 @@ def create_app(test_config=None):
     @app.route("/recursion_check/", methods=["POST"])
     def recursion_check():
         data = request.get_json()
-        cell_name = data['cell_name']
+        cell_name = data['cell_name'].strip()
 
         nodes, _, edge_names = interpreter.graph.get_all_cells_edges()
 
@@ -819,10 +853,10 @@ def create_app(test_config=None):
     @app.route("/link_cells/", methods=["POST"])
     def link_cells():
         data = request.get_json()
-        first = data['first']
-        second = data['second']
+        first = data['first'].strip()
+        second = data['second'].strip()
 
-        if(first == second):
+        if (first == second):
             return "false"
 
         interpreter.link(['link', first, second])
@@ -834,5 +868,46 @@ def create_app(test_config=None):
         interpreter.execute(["execute"])
 
         return "true"
+
+    @app.route("/shutdown/", methods=["POST"])
+    def shutdown():
+        funct = request.environ.get('werkzeug.server.shutdown')
+        if funct is None:
+            raise RuntimeError("Not running with the Werkzeug Server")
+        funct()
+
+        return "done"
+
+    @app.route("/get_satx_text/", methods=["POST"])
+    def get_satx_text():
+        satx_txt = interpreter.graph.get_satx_as_txt()
+        return satx_txt
+
+    @app.route("/reset_runtime/", methods=["POST"])
+    def reset_runtime():
+        interpreter.reset_runtime()
+        return "done"
+
+    @app.route("/dupe_cell/", methods=["POST"])
+    def dupe_cell():
+        data = request.get_json()
+        cell_name = data['cell_name'].strip()
+
+        og_cell = interpreter.graph.get_cell(cell_name)
+
+        new_cell = Cell(og_cell.name + "-copy", og_cell.content_type, og_cell.content, og_cell.stdout)
+        interpreter.graph.add_cell(new_cell)
+
+        return {'cell_name': new_cell.name,
+                'content': new_cell.content,
+                'content_type': new_cell.content_type}
+
+    @app.route("/graph_has_name/", methods=["POST"])
+    def check_for_graph_has_name():
+        cell_name = request.get_json().strip()
+
+        if cell_name in interpreter.graph.get_all_cells_edges()[0]:
+            return "true"
+        return "false"
 
     return app

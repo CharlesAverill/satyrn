@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="bef0d794-f423-4073-ad07-40c850c74536" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../electron/Icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/Run.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/css/main.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/js/app.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/__main__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/bfs_execute.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/cells_list.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/exception_catch.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/merge.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/recursive.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/remove.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/rename.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/saved_graph.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/stdout.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/swap.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/examples/syntax.satx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/interpreter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/media/cover.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/scripts/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../electron/views/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/.idea/jquery.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/script.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jquery/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/satyrn_flask.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/satyrn_flask/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/satyrn_flask/interpreter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/satyrn_flask/static/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/satyrn_flask/templates/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/satyrn_flask/templates/script.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.sh" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1epp8nFzW25XwMrF6aK4KIxVljC" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bef0d794-f423-4073-ad07-40c850c74536" name="Default Changelist" comment="" />
+      <created>1595028231870</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1595028231870</updated>
+      <workItem from="1595028237225" duration="16000" />
+    </task>
+    <servers />
+  </component>
+</project>

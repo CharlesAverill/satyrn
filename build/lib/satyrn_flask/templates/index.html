@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Satyrn</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="icon" type="image/png" href="../static/icon.png">
+</head>
+
+<body id="scene">
+
+    <ul class="nav">
+        <li class="button-dropdown">
+            <a class="dropdown-toggle">File</a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a action="new_graph">
+                        New Graph
+                    </a>
+                </li>
+                <li>
+                    <a action="open_graph">
+                        Open Graph
+                    </a>
+                </li>
+                <li>
+                    <a action="copy_graph">
+                        Make a Copy...
+                    </a>
+                </li>
+                <li>
+                    <a action="save_graph_as">
+                        Save as...
+                    </a>
+                </li>
+                <li>
+                    <a action="rename_graph">
+                        Rename...
+                    </a>
+                </li>
+                <li>
+                    <a action="close_halt_graph">
+                        Close and Halt
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="button-dropdown">
+            <a class="dropdown-toggle">Edit</a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a action="cut_cell">
+                        Cut Cell
+                    </a>
+                </li>
+                <li>
+                    <a action="dupe_cell">
+                        Duplicate Cell
+                    </a>
+                </li>
+                <li>
+                    <a action="delete_cell">
+                        Delete Cell
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="button-dropdown">
+            <a class="dropdown-toggle">Cell</a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a action="run_all">
+                        Run All
+                    </a>
+                </li>
+                <li>
+                    <a action="run_cell">
+                        Run Cell
+                    </a>
+                </li>
+                <li>
+                    <a action="set_as_md">
+                        Set as Markdown
+                    </a>
+                </li>
+                <li>
+                    <a action="set_as_py">
+                        Set as Python
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="button-dropdown">
+            <a class="dropdown-toggle">Kernel</a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a action="interrupt">
+                        Interrupt
+                    </a>
+                </li>
+                <li>
+                    <a action="restart_and_run">
+                        Restart & Run All
+                    </a>
+                </li>
+                <li>
+                    <a action="shutdown">
+                        Shutdown
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <!-- Draggables Begin -->
+    <div id="draggable" class="root">
+            <h6 class="label">root</h6>
+        <div class="draggable">
+            <div class="highlightBlue"></div>
+            <textarea class="textarea_root" spellcheck="false"></textarea>
+        </div>
+    </div>
+    <!-- Draggables End-->
+
+    <!--Context Menu Begin-->
+    <ul class='custom-menu'>
+        <li data-action="new_cell">Create Cell</li>
+        <li data-action="destroy_cell">Destroy Cell</li>
+        <li data-action="link_cell">Link Cell</li>
+        <li data-action="bfs_execute">Run All</li>
+        <li data-action="duplicateNode">Duplicate Cell</li>
+    </ul>
+    <!--Context Menu End-->
+
+    <!--Scripts Begin-->
+    <script src='https://unpkg.com/panzoom@9.2.4/dist/panzoom.min.js'></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        jQuery(document).ready(function (e) {
+            function t(t) {
+                e(t).bind("click", function (t) {
+                    t.preventDefault();
+                    e(this).parent().fadeOut()
+                })
+            }
+            e(".dropdown-toggle").click(function () {
+                var t = e(this).parents(".button-dropdown").children(".dropdown-menu").is(":hidden");
+                e(".button-dropdown .dropdown-menu").hide();
+                e(".button-dropdown .dropdown-toggle").removeClass("active");
+                if (t) {
+                    e(this).parents(".button-dropdown").children(".dropdown-menu").toggle().parents(".button-dropdown").children(".dropdown-toggle").addClass("active")
+                }
+            });
+            e(document).bind("click", function (t) {
+                var n = e(t.target);
+                if (!n.parents().hasClass("button-dropdown")) e(".button-dropdown .dropdown-menu").hide();
+            });
+            e(document).bind("click", function (t) {
+                var n = e(t.target);
+                if (!n.parents().hasClass("button-dropdown")) e(".button-dropdown .dropdown-toggle").removeClass("active");
+            })
+        });
+    </script>
+    <script src="script.js"></script>
+    <!--Scripts End-->
+    </body>
+
+</html>

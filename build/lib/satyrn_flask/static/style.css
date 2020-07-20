@@ -74,7 +74,7 @@
     white-space: nowrap;
     background: #f5f6fa;
     color: #333;
-//border-radius: 5px;
+    //border-radius: 5px;
     padding: 0;
 }
 
@@ -94,7 +94,7 @@
 .nav {
     display: block;
     font: 13px Helvetica, Tahoma, serif;
-    #text-transform: uppercase;
+    text-transform: uppercase;
     margin: 0;
     padding: 0;
 }

@@ -3,14 +3,6 @@ $(function () {
     $("#draggable").draggable({ snap: "#draggable", grid: [ 30, 30 ] });
 });
 
-// Hide navbar items when clicked
-$(document).on("click", "a", function(){
-    var cl = $(this).attr("class");
-    if(typeof cl == 'undefined'){
-        $(".button-dropdown .dropdown-menu").hide();
-    }
-})
-
 //panzoom scene
 var element = document.querySelector('#scene');
 
@@ -76,48 +68,13 @@ $(document).on("click", "a", function(){
                     document.body.removeChild(dwnld_ele);
                 }
             });
-            break;
-        case "reset_runtime":
-            if(confirm("Resetting the runtime will destroy all variables. Are you sure?")){
-                $.ajax({
-                    type : "POST",
-                    url : '/reset_runtime/',
-                    complete: function (s) {
-                        alert("Runtime has been reset")
-                    }
-                });
-            }
-            break;
-        case "dupe_cell":
-            if(clicked_textarea != ""){
-                $.ajax({
-                    type : "POST",
-                    url : '/dupe_cell/',
-                    dataType: "json",
-                    data: JSON.stringify({'cell_name': clicked_textarea,
-                        'content': '',
-                        'content_type': ''}),
-                    contentType: "application/json",
-                    success: function (data) {
-                        $("#scene").append('<div id="draggable" class="'.concat(data['cell_name'], '"><h6 class="label">' + data['cell_name'] + '</h6><div class="draggable"><div class="highlightBlue"></div><textarea class="textarea_' + data['content'] + '" spellcheck="false"></textarea></div></div>'))
 
-                        $(".".concat(data['cell_name'])).css("top", (Math.ceil(pageY / 30 )*30)-4 );
-                        $(".".concat(data['cell_name'])).css("left", (Math.ceil(pageX / 30 )*30)-4 );
-
-                        //Grid system
-                        $(".".concat(data['cell_name'])).draggable({ snap: ".".concat(data['cell_name']), grid: [ 30, 30 ] });
-                    }
-                });
-            }
             break;
     }
 })
 
 //store class of last right-clicked cell
 var right_clicked_cell;
-
-var pageX;
-var pageY;
 
 //context menu
 // Trigger action when the contexmenu is about to be shown
@@ -145,9 +102,6 @@ $("#scene").on("contextmenu", "#draggable",function (event) {
         top: event.pageY + "px",
         left: event.pageX + "px"
     });
-
-    pageX = event.pageX;
-    pageY = event.pageY;
 });
 
 //store class of left-clicked textarea
@@ -165,20 +119,23 @@ var attempting_to_link = false;
 
 //when a textarea is clicked
 $(document).on("click", "textarea", (function(){
+    //if it's a cell name textarea
+    if($(this).attr("class") == "transparent_text"){
+        clicked_textarea = $(this).val();
+        renaming = true;
+    }
+    else{
+        renaming = false;
+    }
     started_ta_edit = true;
-    clicked_textarea = $(this).attr("class").substring(9);
 }));
 
 //linking logic
-$(document).on("click", "#draggable", (function(event){
-    clicked_textarea = $(this).attr("class").substring(0, $(this).attr("class").indexOf("ui-draggable") - 1);
-
-    pageX = event.pageX;
-    pageY = event.pageY;
-
+$(document).on("click", "#draggable", (function(){
     if(attempting_to_link){
         attempting_to_link = false;
         $("textarea").removeAttr("disabled");
+        clicked_textarea = $(this).attr("class").substring(0, $(this).attr("class").indexOf("ui-draggable") - 1);
 
         var continue_with_link = true;
 
@@ -228,67 +185,48 @@ $(document).bind("mousedown", function (e) {
     }
 });
 
-$(document).on("click", "h6", function(){
-    var old_name = $(this).text();
-    console.log(old_name);
-    var new_name = prompt("Rename cell: ");
-    has_changed = true;
-
-    var h6 = $(this);
-
-    $.ajax({
-        type : "POST",
-        url : '/graph_has_name/',
-        dataType: "json",
-        data: JSON.stringify(new_name),
-        contentType: "application/json",
-        success: function (success) {
-            if(success == "true"){
-                alert("Another cell already has this name. Please choose another.");
-            }
-            else{
-                $.ajax({
-                    type : "POST",
-                    url : '/rename_cell/',
-                    dataType: "json",
-                    data: JSON.stringify({'old_name': old_name,
-                        'new_name': new_name}),
-                    contentType: "application/json",
-                    success: function (success) {
-                        if(success == "false"){
-                            alert("Couldn't rename cell " + right_clicked_cell);
-                        }
-                        else{
-                            h6.html(new_name);
-                            $("." + old_name).attr('class', new_name + " " + $("." + old_name).attr('class').replace(old_name, ""));
-                            $(".textarea_" + old_name).addClass("textarea_" + new_name).removeClass("textarea_" + old_name);
-                        }
-                    }
-                });
-                clicked_textarea = new_name;
-            }
-        }
-    });
-})
-
 $(document).on("input propertychange", 'textarea', function() {
     currentVal = $(this).val();
-    $.ajax({
-        type : "POST",
-        url : '/edit_cell/',
-        dataType: "json",
-        data: JSON.stringify({'name': clicked_textarea,
-            'content': currentVal}),
-        contentType: "application/json",
-        success: function (success) {
-            if(success == "false"){
-                alert("Couldn't edit cell " + right_clicked_cell);
+
+    ta_class = $(this).attr("class").substring(9);
+
+    if(renaming){
+        has_changed = true;
+        $.ajax({
+            type : "POST",
+            url : '/rename_cell/',
+            dataType: "json",
+            data: JSON.stringify({'old_name': clicked_textarea,
+                'new_name': currentVal}),
+            contentType: "application/json",
+            success: function (success) {
+                if(success == "false"){
+                    alert("Couldn't rename cell " + right_clicked_cell);
+                }
+                else{
+                    clicked_textarea = currentVal;
+                }
             }
-            else{
-                var succ = true;
+        });
+    }
+    else{
+        $.ajax({
+            type : "POST",
+            url : '/edit_cell/',
+            dataType: "json",
+            data: JSON.stringify({'name': ta_class,
+                'content': currentVal}),
+            contentType: "application/json",
+            success: function (success) {
+                if(success == "false"){
+                    alert("Couldn't edit cell " + right_clicked_cell);
+                }
+                else{
+                    var succ = true;
+                }
             }
-        }
-    });
+        });
+    }
 
     started_ta_edit = false;
 });
@@ -320,10 +258,17 @@ $(".custom-menu li").click(function (event) {
                 url : '/create_cell/',
                 dataType: "text",
                 success: function (data) {
-                    $("#scene").append('<div id="draggable" class="'.concat(data, '"><h6 class="label">' + data + '</h6><div class="draggable"><div class="highlightBlue"></div><textarea class="textarea_' + data + '" spellcheck="false"></textarea></div></div>'))
+                    $("#scene").append('<div id="draggable" class="'.concat(data, '"><textarea class="transparent_text" rows=1 spellcheck="false" maxlength=25\n' +
+                        '            style="border: none;\n' +
+                        '                    background-color: transparent;\n' +
+                        '                    border-color: Transparent;\n' +
+                        '                    resize: none;\n' +
+                        '                    outline: none;\n' +
+                        '\n' +
+                        '                    color:white;">' + data + '</textarea><div class="draggable"><div class="highlightBlue"></div><textarea class="textarea_' + data + '" spellcheck="false"></textarea></div></div>'))
 
-                    $(".".concat(data)).css("top", (Math.ceil(pageY / 30 )*30)-4 );
-                    $(".".concat(data)).css("left", (Math.ceil(pageX / 30 )*30)-4 );
+                    $(".".concat(data)).css("top", (Math.ceil(event.pageY / 30 )*30)-4 );
+                    $(".".concat(data)).css("left", (Math.ceil(event.pageX / 30 )*30)-4 );
 
                     //Grid system
                     $(".".concat(data)).draggable({ snap: ".".concat(data), grid: [ 30, 30 ] });

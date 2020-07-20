@@ -1,4 +1,4 @@
-import platform, os, webbrowser, time, multiprocessing
+import os, webbrowser, time, multiprocessing
 
 
 def run():
@@ -17,15 +17,8 @@ def run():
     except ImportError as e:
         os.system("python3 -m pip install --upgrade matplotlib")
 
-    system = platform.system()
-
-    if system == "Linux" or system == "Darwin":
-        os.system("export FLASK_APP=satyrn_flask.satyrn_flask")
-        os.system("export FLASK_ENV=development")
-
-    elif system == "Windows":
-        os.system("set FLASK_APP=satyrn_flask.satyrn_flask")
-        os.system("set FLASK_ENV=development")
+    os.environ["FLASK_APP"] = "satyrn_flask.satyrn_flask"
+    os.environ["FLASK_ENV"] = "development"
 
     p = multiprocessing.Process(target=os.system, args=("flask run", ))
     p.start()

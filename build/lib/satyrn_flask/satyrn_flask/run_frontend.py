@@ -1,4 +1,4 @@
-import os, webbrowser, time, multiprocessing
+import platform, os, webbrowser, time, multiprocessing
 
 
 def run():
