@@ -22,6 +22,13 @@ The backend is completely based on node networks, because it supports branching,
 
 This project is based on [this JEP](https://github.com/jupyter/enhancement-proposals/pull/50) for the Jupyter ecosystem. <s>I'm using this as a way to prepare for development of the features I've listed in the enhancement proposal.</s> The Satyrn team is developing a web-based UI.
 
+## Contributors
+- [Charles Averill](https://github.com/CharlesAverill) - Creator, back- & front-end feature integration
+- [Merkie](https://githuh.com/Merkie) - frontend design
+- [syrinsaya](https://github.com/syrinsaya) - UI design
+
+[Join the dev team!](https://discord.gg/AEZtttJ)
+
 ## Setup
 - Run `python -m pip install satyrn-python`
 - Run `satyrnCLI` in your terminal to open the Satyrn CLI
