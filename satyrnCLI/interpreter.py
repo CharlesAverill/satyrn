@@ -697,6 +697,7 @@ class Interpreter:
         confirm = input("Are you sure you want to reset the graph? This will delete all nodes and variables. (y/n) ")
         if "y" in confirm:
             self.graph = Graph()
+            self.reset_runtime()
 
     def save_graph(self, command):
         """

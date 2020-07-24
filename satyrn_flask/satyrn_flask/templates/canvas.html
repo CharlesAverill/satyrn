@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="../static/canvas_style.css">
+</head>
+
+<body id="scene">
+
+    <div id="dynamic_cell_output" style="color: white;">
+
+    </div>
+
+    <!--Context Menu Begin-->
+    <ul class='custom-menu'>
+        <li data-action="new_cell">Create Cell</li>
+        <li data-action="destroy_cell">Destroy Cell</li>
+        <li data-action="link_cell">Link Cell</li>
+        <li data-action="bfs_execute">Run All</li>
+        <li data-action="dupe_cell">Duplicate Cell</li>
+    </ul>
+    <!--Context Menu End-->
+
+    <!--Scripts Begin-->
+    <script src='https://unpkg.com/panzoom@9.2.4/dist/panzoom.min.js'></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script>
+        /*
+        var update = false;
+        function update_dco(){
+            if(update){
+                $.ajax({
+                    url: "/dynamic_cell_output/",
+                    type: "GET",
+                    success: function(response){
+                        console.log(response.substring(0, 14));
+                        if(response.substring(0, 14) == "done_executing"){
+                            update = false;
+                            console.log(response);
+                            $("#dynamic_cell_output").html(response.substring(15));
+                        }
+                        else{
+                            $("#dynamic_cell_output").html(response);
+                        }
+                    }
+                });
+                setTimeout(update_dco, 1000);
+            }
+        }
+        update_dco();
+
+        $(document).on("click", "a", function() {
+            console.log("bruhhhhh");
+            var action = $(this).attr("action");
+            if(action == "run_all"){
+                update = true;
+                update_dco();
+            }
+        });
+         */
+    </script>
+    <!--Scripts End-->
+</body>
+
+</html>

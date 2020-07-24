@@ -2,20 +2,6 @@ import os, webbrowser, time, multiprocessing
 
 
 def run():
-    try:
-        import flask
-    except ImportError as e:
-        os.system("python3 -m pip install --upgrade flask")
-
-    try:
-        import networkx
-    except ImportError as e:
-        os.system("python3 -m pip install --upgrade networkx")
-
-    try:
-        import matplotlib
-    except ImportError as e:
-        os.system("python3 -m pip install --upgrade matplotlib")
 
     os.environ["FLASK_APP"] = "satyrn_flask.satyrn_flask"
     os.environ["FLASK_ENV"] = "development"

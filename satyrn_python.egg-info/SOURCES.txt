@@ -11,10 +11,15 @@ satyrn_flask/__pycache__/__init__.cpython-37.pyc
 satyrn_flask/__pycache__/run_frontend.cpython-37.pyc
 satyrn_flask/satyrn_flask/.DS_Store
 satyrn_flask/satyrn_flask/__init__.py
+satyrn_flask/satyrn_flask/run_frontend.py
 satyrn_flask/satyrn_flask/__pycache__/__init__.cpython-37.pyc
 satyrn_flask/satyrn_flask/__pycache__/interpreter.cpython-37.pyc
+satyrn_flask/satyrn_flask/static/canvas_style.css
+satyrn_flask/satyrn_flask/static/cover.png
 satyrn_flask/satyrn_flask/static/icon.png
-satyrn_flask/satyrn_flask/static/style.css
+satyrn_flask/satyrn_flask/static/index_style.css
+satyrn_flask/satyrn_flask/templates/canvas.html
+satyrn_flask/satyrn_flask/templates/dco.html
 satyrn_flask/satyrn_flask/templates/index.html
 satyrn_flask/satyrn_flask/templates/script.js
 satyrn_python.egg-info/PKG-INFO

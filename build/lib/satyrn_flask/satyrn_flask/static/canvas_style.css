@@ -1,0 +1,104 @@
+.draggable {
+    width: 240px;
+    height: 360px;
+    position: absolute;
+    background-color: #3c4352;
+    padding-bottom: 5px;
+}
+
+.transparent_background_textarea {
+    margin-top:20px;
+    margin-left: 5%;
+    width:90%;
+    height:93%;
+    float: bottom;
+
+    border: none;
+    background-color: transparent;
+    border-color: Transparent;
+    resize: none;
+    outline: none;
+
+    color:white;
+}
+
+.draggable textarea {
+    margin-top:20px;
+    margin-left: 5%;
+    width:90%;
+    height:93%;
+    float: bottom;
+
+    border: none;
+    background-color: transparent;
+    border-color: Transparent;
+    resize: none;
+    outline: none;
+
+    color:white;
+}
+
+.label {
+    color:white;
+    font: 13px Helvetica, Tahoma, serif;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.highlightRoot {
+    width: 100%;
+    height: 3%;
+    position: absolute;
+    top: 0px;
+    background-color: #4cd137;
+}
+
+.highlightBlue {
+    width: 100%;
+    height: 3%;
+    position: absolute;
+    top: 0px;
+    background-color: #19ceda;
+}
+
+.highlightGreen {
+    width: 100%;
+    height: 3%;
+    position: absolute;
+    top: 0px;
+    background-color: #568259;
+}
+
+#scene {
+    background: #2f3640;
+    background-image: radial-gradient(#353b48 3px, transparent 0);
+    background-size: 30px 30px;
+    background-position: -19px -19px;
+}
+
+.custom-menu {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 5px solid #dcdde1;
+    white-space: nowrap;
+    background: #f5f6fa;
+    color: #333;
+    //border-radius: 5px;
+    padding: 0;
+}
+
+/* Each of the items in the list */
+.custom-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+    list-style-type: none;
+    transition: all .3s ease;
+    user-select: none;
+    font: 13px Helvetica, Tahoma, serif;
+}
+
+.custom-menu li:hover {
+    background-color: #dcdde1;
+}
