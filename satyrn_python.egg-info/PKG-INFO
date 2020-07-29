@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: satyrn-python
-Version: 0.7.7
+Version: 0.7.8.2
 Summary: A Notebook alternative that supports branching code
 Home-page: https://github.com/CharlesAverill/satyrn/
 Author: Charles Averill
@@ -29,6 +29,13 @@ Description: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9b7ffe7
         The backend is completely based on node networks, because it supports branching, multithreaded cell paths.
         
         This project is based on [this JEP](https://github.com/jupyter/enhancement-proposals/pull/50) for the Jupyter ecosystem. <s>I'm using this as a way to prepare for development of the features I've listed in the enhancement proposal.</s> The Satyrn team is developing a web-based UI.
+        
+        ## Contributors
+        - [Charles Averill](https://github.com/CharlesAverill) - Creator, back- & front-end feature integration
+        - [Merkie](https://githuh.com/Merkie) - frontend design
+        - [syrinsaya](https://github.com/syrinsaya) - UI design
+        
+        [Join the dev team!](https://discord.gg/AEZtttJ)
         
         ## Setup
         - Run `python -m pip install satyrn-python`

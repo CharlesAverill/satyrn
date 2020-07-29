@@ -1,5 +1,7 @@
 var filename = "Untitled.SATX";
 var num_cells = 1;
+var is_executing = false;
+var just_finished = false;
 
 $(window).load(function () {
     $.ajax({
@@ -22,13 +24,23 @@ $(window).load(function () {
                 if(names.length == 0){
                     return;
                 }
-                for(var i = 0; i < num_cells; i++){
-                    $("iframe").contents().find("#draggable").remove();
-                }
-                num_cells = 0;
+                removeDraggables();
                 for(var i = 0; i < names.length; i++){
                     create_cell($("iframe").contents(), names[i], contents[i], content_types[i]);
                 }
+
+                $.ajax({
+                    type : "GET",
+                    url : "/dynamic_cell_output/",
+                    success: function (data) {
+                        if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
+                            is_executing = false;
+                            just_finished = true;
+                            data = data.substring(28);
+                        }
+                        updateDCO(data);
+                    }
+                });
             }
         }
     });
@@ -63,16 +75,26 @@ $("#file-input").change(function(e){
                     alert("Loading error: names and contents are not congruent")
                 }
                 else{
-                    for(var i = 0; i < num_cells; i++){
-                        $("iframe").contents().find("#draggable").remove();
-                    }
-                    num_cells = 0;
-
+                    removeDraggables();
                     for(var i = 0; i < names.length; i++){
                         create_cell($("iframe").contents(), names[i], contents[i], content_types[i]);
                     }
 
                     $("#file-input").val(null);
+                    /*
+                    $.ajax({
+                        type : "GET",
+                        url : "/dynamic_cell_output/",
+                        success: function (data) {
+                            if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
+                                is_executing = false;
+                                just_finished = true;
+                                data = data.substring(28);
+                            }
+                            updateDCO(data);
+                        }
+                    });
+                    */
                 }
             }
         });
@@ -98,6 +120,25 @@ $("#graph_name_p").on("click", function(){
 
 $("iframe").load(function(){
     var doc = $(this).contents();
+
+    $(doc).delegate('textarea', 'keydown', function(e) {
+        var keyCode = e.keyCode || e.which;
+
+        if (keyCode == 9) {
+            e.preventDefault();
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+
+            // set textarea value to: text before caret + tab + text after caret
+            $(this).val($(this).val().substring(0, start)
+                + "\t"
+                + $(this).val().substring(end));
+
+            // put caret at right position again
+            this.selectionStart =
+                this.selectionEnd = start + 1;
+        }
+    });
 
     //panzoom scene
     //var element = doc.querySelector('#scene');
@@ -184,7 +225,7 @@ $("iframe").load(function(){
                     type : "POST",
                     url : '/root_has_outputs/',
                     complete: function (s) {
-                        if(s['responseText'] == "warning"){
+                        if(s['responseText'] == "warning" && num_cells > 1){
                             if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
                                 bfs_execute();
                             }
@@ -212,6 +253,19 @@ $("iframe").load(function(){
                         create_cell(doc, data['cell_name'], data['content'], data['content_type']);
                     }
                 });
+                break;
+            case "child_cell":
+                $.ajax({
+                    type : "POST",
+                    url : '/child_cell/',
+                    dataType: "json",
+                    data: JSON.stringify({'parent_name': right_clicked_cell}),
+                    contentType: "application/json",
+                    complete: function(data){
+                        create_cell(doc, data['responseText'], "", "python");
+                    }
+                });
+                break;
         }
 
         // Hide it AFTER the action was triggered
@@ -232,7 +286,7 @@ $("iframe").load(function(){
     //when a textarea is clicked
     doc.on("click", "textarea", (function(){
         started_ta_edit = true;
-        clicked_textarea = $(this).attr("class").substring(9);
+        clicked_textarea = $(this).attr("id").substring(9);
     }));
 
     //linking logic
@@ -296,6 +350,9 @@ $("iframe").load(function(){
     doc.on("click", "h6", function(){
         var old_name = $(this).text();
         var new_name = prompt("Rename cell: ");
+        if(new_name == null){
+            return;
+        }
         if(new_name.length < 1){
             alert("Please use a longer cell name");
             return;
@@ -329,7 +386,7 @@ $("iframe").load(function(){
                             else{
                                 h6.html(new_name);
                                 doc.find("." + old_name).attr('class', new_name + " " + doc.find("." + old_name).attr('class').replace(old_name, ""));
-                                doc.find(".textarea_" + old_name).addClass("textarea_" + new_name).removeClass("textarea_" + old_name);
+                                doc.find("#textarea_" + old_name).attr("id", "textarea_" + new_name);
                             }
                         }
                     });
@@ -338,25 +395,6 @@ $("iframe").load(function(){
             }
         });
     })
-
-    doc.on("input propertychange", 'textarea', function() {
-        currentVal = $(this).val();
-        $.ajax({
-            type : "POST",
-            url : '/edit_cell/',
-            dataType: "json",
-            data: JSON.stringify({'name': clicked_textarea,
-                'content': currentVal}),
-            contentType: "application/json",
-            success: function (success) {
-                if(success == "false"){
-                    alert("Couldn't edit cell " + right_clicked_cell);
-                }
-            }
-        });
-
-        started_ta_edit = false;
-    });
 });
 
 $(document).on("click", ".shutdown", function(){
@@ -449,7 +487,7 @@ $(document).on("click", "a", function(){
                     data: JSON.stringify({'cell_name': clicked_textarea}),
                     contentType: "application/json",
                     success: function (data) {
-                        var ele = $("iframe").contents().find(".textarea_" + clicked_textarea).prev();
+                        var ele = $("iframe").contents().find("#textarea_" + clicked_textarea).prev();
                         ele.removeClass().addClass("highlightGreen");
                     }
                 });
@@ -464,7 +502,7 @@ $(document).on("click", "a", function(){
                     data: JSON.stringify({'cell_name': clicked_textarea}),
                     contentType: "application/json",
                     success: function (data) {
-                        var ele = $("iframe").contents().find(".textarea_" + clicked_textarea).prev();
+                        var ele = $("iframe").contents().find("#textarea_" + clicked_textarea).prev();
                         ele.removeClass().addClass("highlightBlue");
                     }
                 });
@@ -529,6 +567,8 @@ var started_ta_edit = false;
 var attempting_to_link = false;
 
 function bfs_execute(){
+    is_executing = true;
+    just_finished = false;
     $.ajax({
         type : "POST",
         url : '/bfs_execute/',
@@ -540,35 +580,39 @@ function bfs_execute(){
     });
 }
 
-function create_cell(doc, name, content, contentType){
-
+function create_cell(doc, name, content="\n\n\n", contentType){
     if(num_cells == 0){
         pageX = 0;
         pageY = 0;
     }
 
-    var colorClass = "";
-    switch(contentType){
-        case "python":
-            colorClass = "Blue";
-            break;
-        case "markdown":
-            colorClass = "Green";
-            break;
-        case "root":
-            colorClass = "Root";
-            break;
-    }
+    var colorClass = contentType == "python" ? "Blue" : "Green";
 
-    //    var new_ele = '<div id="draggable" class="' + name + '"><h6 class="label">' + name + '</h6><div class="draggable"><div class="' + colorClass + '"</div><textarea class="textarea_' + name + '" spellcheck="false">' + content + '</textarea></div></div>'
+    doc.find("#scene").append('<div id="draggable" class="'.concat(name, '">' +
+        '<div style="display: inline-block; margin-right: 10px;">' +
+            '<h6 class="label" id="running_' + name + '" style="width: auto">[ ]</h6>' +
+        '</div>' +
+        '<div style="display: inline-block;">' +
+            '<h6 class="label">' + name + '</h6>' +
+        '</div>' +
+        '<div class="draggable" style="border-radius: 5px;">' +
+            '<div id="textarea_' + name + '" class="highlight' + colorClass + '" style="border-radius: 5px;"></div>' +
+        '</div></div>'))
 
-    doc.find("#scene").append('<div id="draggable" class="'.concat(name, '"><h6 class="label">' + name + '</h6><div class="draggable" style="border-radius: 5px;"><div class="highlight' + colorClass + '" style="border-radius: 5px;"></div><textarea class="textarea_' + name + '" spellcheck="false">' + content + '</textarea></div></div>'))
-
-    doc.find(".".concat(name)).css("top", (Math.ceil(pageY / 30 )*30)-4 );
-    doc.find(".".concat(name)).css("left", (Math.ceil(pageX / 30 )*30)-4 );
+    doc.find(".".concat(name)).css("top", (Math.ceil(pageY / 30 )*30)+10 );
+    doc.find(".".concat(name)).css("left", (Math.ceil(pageX / 30 )*30)+10 );
 
     //Grid system
     doc.find(".".concat(name)).draggable({ snap: ".".concat(name), grid: [ 30, 30 ] });
+
+    //Codemirror
+    var cm = add_codemirror_editor(document.getElementById("canvas").contentWindow.document,"#textarea_" +  name, content, contentType);
+    $('.CodeMirror').resizable({
+        resize: function() {
+            cm.setSize($(this).width(), $(this).height());
+        }
+    });
+    doc.find(".CodeMirror").css("margin-top", "11px");
 
     num_cells += 1;
 }
@@ -584,4 +628,84 @@ function shutdown(){
             }
         });
     }
+}
+
+function removeDraggables(){
+    for(var i = 0; i < num_cells; i++){
+        $("iframe").contents().find("#draggable").remove();
+    }
+    num_cells = 0;
+}
+
+function updateDCO(appended_string){
+    $("#dynamic_code_output").val(appended_string);
+}
+
+window.setInterval(function(){
+    if(is_executing){
+        $.ajax({
+            type : "GET",
+            url : "/dynamic_cell_output/",
+            success: function (data) {
+                if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
+                    is_executing = false;
+                    just_finished = true;
+                    data = data.substring(28);
+                }
+                updateDCO(data);
+            }
+        });
+    }
+    else if(just_finished){
+        $.ajax({
+            type : "GET",
+            url : "/dynamic_cell_output/",
+            success: function (data) {
+                if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
+                    data = data.substring(28);
+                }
+                updateDCO(data);
+            }
+        });
+        just_finished = false;
+        is_executing = false;
+    }
+}, 50);
+
+function add_codemirror_editor(doc, ta_id, value='\n\n', contentType){
+    var cm = CodeMirror(doc.querySelector(ta_id), {
+        lineNumbers: true,
+        tabSize: 4,
+        indentUnit: 4,
+        value: value,
+        mode: contentType,
+        theme: 'rubyblue'
+    });
+    cm.on("change", function(){
+        currentVal = cm.getValue();
+        $.ajax({
+            type : "POST",
+            url : '/edit_cell/',
+            dataType: "json",
+            data: JSON.stringify({'name': clicked_textarea,
+                'content': currentVal}),
+            contentType: "application/json",
+            success: function (success) {
+                if(success == "false"){
+                    alert("Couldn't edit cell " + right_clicked_cell);
+                }
+            },
+            statusCode: {
+                500: function() {
+                    if(confirm("It seems there was a disconnect. Do you want to reconnect?")){
+                        location.reload();
+                    }
+                }
+            }
+        });
+
+        started_ta_edit = false;
+    });
+
+    return cm;
 }

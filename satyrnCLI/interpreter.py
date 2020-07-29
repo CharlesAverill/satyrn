@@ -3,15 +3,13 @@ import matplotlib.pyplot as plt
 import io as StringIO
 import tkinter as tk
 
-import contextlib
-import sys
+from contextlib import redirect_stdout
 
 import threading
+import sys
 
-global global_vars
-global_vars = {}
-global local_vars
-local_vars = {}
+global exec_vars
+exec_vars = {}
 
 print(chr(27) + "[2J")
 
@@ -86,43 +84,34 @@ class Cell():
     def get_copy(self):
         return Cell(self.name, self.content_type, self.content, self.stdout)
 
-    @contextlib.contextmanager
-    def stdoutIO(self, stdout=None):
-        old = sys.stdout
-        if stdout is None:
-            stdout = StringIO.StringIO()
-        sys.stdout = stdout
-        yield stdout
-        sys.stdout = old
-
-    def get_vars(self):
-        return self.self_globals, self.self_locals
-
     def execute(self):
         # Execute this cell's content
 
-        gcopy = global_vars.copy()
-        lcopy = local_vars.copy()
+        if not self.content_type == "python":
+            return
+
+        global exec_vars
+        ex_vars_copy = exec_vars.copy()
 
         if self.stdout == "internal":
             try:
-                exec(self.content, gcopy, lcopy)
+                exec(self.content, ex_vars_copy)
             except Exception as e:
                 print("Exception occurred in cell " + self.name)
                 print(e)
         elif self.stdout == "external":
             try:
-                with self.stdoutIO() as s:
-                    exec(self.content, gcopy, lcopy)
-                    self.output = s.getvalue()
+                f = StringIO()
+                with redirect_stdout(f):
+                    exec(self.content, ex_vars_copy)
+                self.output = f.getvalue()
             except Exception as e:
                 print("Exception occurred in cell " + self.name)
                 print(e)
         else:
             print("stdout setting \"" + self.stdout + "\" not recognized. Please use internal/external.")
 
-        global_vars.update(gcopy)
-        local_vars.update(lcopy)
+        exec_vars.update(ex_vars_copy)
 
     def __str__(self):
         return self.name + "\n\n" + "```\n" + self.content + "```\n"
@@ -136,10 +125,8 @@ class Graph:
         # Dict to keep track of cell names vs networkx node names
         self.names_to_indeces = {}
         # Dictionaries for variables created by cells
-        global global_vars
-        global_vars = {}
-        global local_vars
-        local_vars = {}
+        global exec_vars
+        exec_vars = {}
         # TextIO object
         self.ti = TextIO()
 
@@ -688,10 +675,8 @@ class Interpreter:
 
     def reset_runtime(self):
         # Delete all runtime variables
-        global global_vars
-        global_vars = {}
-        global local_vars
-        local_vars = {}
+        global exec_vars
+        exec_vars = {}
 
     def reset_graph(self):
         confirm = input("Are you sure you want to reset the graph? This will delete all nodes and variables. (y/n) ")

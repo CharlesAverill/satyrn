@@ -4,16 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Satyrn</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="../static/index_style.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/jquery-ui.css">
+    <link rel="stylesheet" href="../static/index.style.css">
+    <link rel="stylesheet" href="../static/bootstrap.min.css">
     <link rel="icon" type="image/png" href="../static/icon.png">
 </head>
 
 <body id="idx_body" >
-    <script src='https://unpkg.com/panzoom@9.2.4/dist/panzoom.min.js'></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src='panzoom.min.js'></script>
+    <script src="jquery-1.12.4.js"></script>
+    <script src="jquery-ui.js"></script>
 
     <input id="file-input" type="file" name="name" style="display: none;" accept=".SATX, .satx"/>
 
@@ -78,8 +78,14 @@
     </nav>
 
     <div>
-        <iframe id="canvas" src="canvas.html" name="targetframe" allowTransparency="false" scrolling="yes" frameborder="0" height="1000" width="100%" style="border-radius: 10px;"></iframe>
+        <iframe id="canvas" src="canvas.html" name="targetframe" allowTransparency="false" scrolling="yes" frameborder="0" height="1000" style="border-radius: 10px; width: 75%;"></iframe>
+        <textarea id="dynamic_code_output" style="height: 994px; width: 24.1%; border-radius: 10px;" spellcheck="false" frameborder="0" readonly></textarea>
     </div>
+
+    <script src="./codemirror/lib/codemirror.js"></script>
+    <script src="../static/python.js"></script>
+    <script src="../static/markdown.js"></script>
+
     <script src="script.js"></script>
 </body>
 </html>
