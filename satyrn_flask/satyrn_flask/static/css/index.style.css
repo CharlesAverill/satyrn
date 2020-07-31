@@ -1,7 +1,13 @@
 #idx_body {
     background-color: #111f51;
-    padding-left: 50px;
-    padding-right: 50px;
+    padding-left: 100px;
+    padding-right: 100px;
+}
+
+#execution_status {
+    float: right;
+    color: white;
+    margin-right: 50px;
 }
 
 nav {
@@ -18,6 +24,7 @@ nav .main-menu {
 nav .main-menu > li {
     width: 100px;
     text-align: center;
+    cursor: pointer;
 }
 
 nav .main-menu > li:hover .sub-menu {
@@ -42,7 +49,7 @@ nav .main-menu > li > a:hover {
 nav .main-menu > li .sub-menu {
     position: absolute;
     list-style: none;
-    width: 150px;
+    width: 200px;
     background: #27292d;
     text-align: left;
     transform: translateY(25px);
@@ -52,6 +59,11 @@ nav .main-menu > li .sub-menu {
     transition: .4s;
     padding-left: 0px; !important;
     border-radius: 5px;
+    cursor: pointer;
+}
+
+nav .main-menu > li .sub-menu li:hover{
+    background: #37393d;
 }
 
 nav .main-menu > li .sub-menu::before {
@@ -76,4 +88,5 @@ nav .main-menu > li .sub-menu li > a {
     color: white;
     text-decoration: none;
     font-size: small;
+    cursor: pointer;
 }

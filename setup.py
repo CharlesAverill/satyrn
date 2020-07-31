@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='satyrn-python',
-    version='0.7.8.2',
+    version='0.8.0',
     entry_points={"console_scripts": ["satyrnCLI = satyrnCLI.__main__:start",
                                       "satyrn = satyrn_flask.run_frontend:run"]},
     author="Charles Averill",

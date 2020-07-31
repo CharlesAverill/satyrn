@@ -218,6 +218,7 @@ class Graph:
             del self.names_to_indeces[cell_name]
         else:
             print("Cell \"" + cell_name + "\" does not exist.")
+            return -1
 
     def connect_cells(self, idx1, idx2):
         """
@@ -341,8 +342,6 @@ class Graph:
             cell.stdout = stdout
 
             p = threading.Thread(target=cell.execute)
-
-            print(cell.content_type)
 
             if cell.content_type == "python":
                 p.start()
@@ -690,7 +689,9 @@ class Interpreter:
         """
         to_remove = command[1:]
         for cell in to_remove:
-            self.graph.remove_cell(cell)
+            i = self.graph.remove_cell(cell)
+            if i == -1:
+                return -1
 
     def link(self, command):
         """
@@ -843,7 +844,7 @@ interpreter = Interpreter()
 
 def new_name():
     letters_and_digits = string.ascii_letters + string.digits
-    result_str = ''.join((random.choice(letters_and_digits) for i in range(16)))
+    result_str = ''.join((random.choice(letters_and_digits) for i in range(5)))
     return result_str
 
 def create_app(test_config=None):
@@ -892,7 +893,11 @@ def create_app(test_config=None):
     def bootstrap_style():
         return render_template("bootstrap.min.css")
 
-    @app.route("/static/bootstrap.min.css.map")
+    @app.route("/gh-buttons.css")
+    def gh_buttons():
+        return render_template("gh-buttons.css")
+
+    @app.route("/static/css/bootstrap.min.css.map")
     def bootstrap_map():
         return "idk why this is here but this hides an error"
 
@@ -936,22 +941,26 @@ def create_app(test_config=None):
     def create_cell():
         name = new_name()
         interpreter.create_cell(["create_cell", name, "python", "n"])
-        print(name)
         return name
 
     @app.route("/destroy_cell/", methods=["POST"])
     def destroy_cell():
         cell_name = request.get_json().strip()
 
+        cell = interpreter.graph.get_cell(cell_name)
+
         initial_length = len(interpreter.graph.graph.nodes())
 
-        interpreter.remove_cell(["remove", cell_name])
+        output = interpreter.remove_cell(["remove", cell_name])
 
         success = "false"
-        if initial_length == len(interpreter.graph.graph.nodes()):
+        if not initial_length == len(interpreter.graph.graph.nodes()):
             success = "true"
 
-        return success
+        return {'success': success,
+                'name': cell.name,
+                'content': cell.content,
+                'content_type': cell.content_type}
 
     @app.route("/edit_cell/", methods=["POST"])
     def edit_cell():
@@ -1127,5 +1136,18 @@ def create_app(test_config=None):
 
         return child_name
 
+    @app.route("/individual_execute/", methods=["POST"])
+    def individual_execute():
+        cell_name = request.get_json()['cell_name'].strip()
+        with redirect_stdout(interpreter.std_capture):
+            interpreter.execute(["execute", cell_name])
+
+        return "true"
+
+    @app.route("/clear_output/", methods=["POST"])
+    def clear_dco():
+        interpreter.std_capture = StringIO()
+
+        return "true"
 
     return app

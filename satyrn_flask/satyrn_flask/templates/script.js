@@ -3,6 +3,13 @@ var num_cells = 1;
 var is_executing = false;
 var just_finished = false;
 
+setup_keyboard_shortcuts(document);
+
+var last_deleted_cell = {'name': '',
+                         'content': '',
+                         'content_type': ''
+};
+
 $(window).load(function () {
     $.ajax({
         type : "POST",
@@ -121,6 +128,8 @@ $("#graph_name_p").on("click", function(){
 $("iframe").load(function(){
     var doc = $(this).contents();
 
+    setup_keyboard_shortcuts(doc);
+
     $(doc).delegate('textarea', 'keydown', function(e) {
         var keyCode = e.keyCode || e.which;
 
@@ -210,11 +219,17 @@ $("iframe").load(function(){
                     dataType: "json",
                     data: JSON.stringify(right_clicked_cell),
                     contentType: "application/json",
-                    success: function (success) {
+                    complete: function (o) {
+                        var output = o.responseJSON;
+
+                        var success = output['success']
                         if(success == "false"){
                             alert("Couldn't remove cell " + right_clicked_cell);
                         }
                         else{
+                            last_deleted_cell['name'] = output['name'];
+                            last_deleted_cell['content'] = output['content'];
+                            last_deleted_cell['content_type'] = output['content_type'];
                             doc.find("div").remove("." + right_clicked_cell);
                         }
                     }
@@ -266,6 +281,19 @@ $("iframe").load(function(){
                     }
                 });
                 break;
+            case "individual_execute":
+                $.ajax({
+                    type : "POST",
+                    url : '/individual_execute/',
+                    dataType: "json",
+                    data: JSON.stringify({'cell_name': right_clicked_cell}),
+                    contentType: "application/json",
+                    complete: function(){
+                        is_executing = true;
+                        just_finished = false;
+                    }
+                });
+                break;
         }
 
         // Hide it AFTER the action was triggered
@@ -280,6 +308,9 @@ $("iframe").load(function(){
 
             // Hide it
             doc.find(".custom-menu").hide(100);
+
+            right_clicked_cell = "";
+            clicked_textarea = "";
         }
     });
 
@@ -402,8 +433,15 @@ $(document).on("click", ".shutdown", function(){
 })
 
 //Navbar stuff
-$(document).on("click", "a", function(){
-    var attr = $(this).attr("action");
+$(document).on("click", "a, li", function(){
+    var attr = "";
+    var child = $(this).children()[0];
+    if(child === 'undefined'){
+        attr = $(this).attr("action");
+    }
+    else{
+        attr = $(child).attr("action");
+    }
 
     switch(attr){
         case "shutdown":
@@ -414,7 +452,7 @@ $(document).on("click", "a", function(){
                 type : "POST",
                 url : '/root_has_outputs/',
                 complete: function (s) {
-                    if(s['responseText'] == "warning"){
+                    if(s['responseText'] == "warning" && num_cells > 1){
                         if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
                             bfs_execute();
                         }
@@ -435,7 +473,6 @@ $(document).on("click", "a", function(){
                 contentType: "application/json",
                 complete: function (s) {
                     satx_text = s['responseText'];
-                    console.log(satx_text);
 
                     var dwnld_ele = document.createElement('a');
                     dwnld_ele.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURI(satx_text));
@@ -487,8 +524,20 @@ $(document).on("click", "a", function(){
                     data: JSON.stringify({'cell_name': clicked_textarea}),
                     contentType: "application/json",
                     success: function (data) {
-                        var ele = $("iframe").contents().find("#textarea_" + clicked_textarea).prev();
+                        var ele = $("iframe").contents().find("#textarea_" + clicked_textarea);
                         ele.removeClass().addClass("highlightGreen");
+
+                        for(var i = 0; i < codemirrors.length; i++){
+                            var dict = codemirrors[i];
+                            var n = dict['name'];
+                            if(n != clicked_textarea){
+                                continue;
+                            }
+                            var cm = dict['codemirror'];
+                            cm.setOption("mode", "markdown");
+                        }
+
+                        console.log(codemirrors);
                     }
                 });
             }
@@ -502,8 +551,18 @@ $(document).on("click", "a", function(){
                     data: JSON.stringify({'cell_name': clicked_textarea}),
                     contentType: "application/json",
                     success: function (data) {
-                        var ele = $("iframe").contents().find("#textarea_" + clicked_textarea).prev();
+                        var ele = $("iframe").contents().find("#textarea_" + clicked_textarea);
                         ele.removeClass().addClass("highlightBlue");
+
+                        for(var i = 0; i < codemirrors.length; i++){
+                            var dict = codemirrors[i];
+                            var n = dict['name'];
+                            if(n != clicked_textarea){
+                                continue;
+                            }
+                            var cm = dict['codemirror'];
+                            cm.setOption("mode", "python");
+                        }
                     }
                 });
             }
@@ -530,7 +589,7 @@ $(document).on("click", "a", function(){
                             type : "POST",
                             url : '/root_has_outputs/',
                             complete: function (s) {
-                                if(s['responseText'] == "warning"){
+                                if(s['responseText'] == "warning" && num_cells > 1){
                                     if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
                                         bfs_execute();
                                     }
@@ -543,6 +602,38 @@ $(document).on("click", "a", function(){
                     }
                 });
             }
+            break;
+        case "clear_dco":
+            $.ajax({
+                type : "POST",
+                url : '/clear_output/',
+                complete: function () {
+                    updateDCO("");
+                }
+            });
+            break;
+        case "run_cell":
+            $.ajax({
+                type : "POST",
+                url : '/individual_execute/',
+                dataType: "json",
+                data: JSON.stringify({'cell_name': clicked_textarea}),
+                contentType: "application/json",
+                complete: function(){
+                    is_executing = true;
+                    just_finished = false;
+                }
+            });
+            break;
+        case "create_cell":
+            $.ajax({
+                type : "GET",
+                url : '/create_cell/',
+                dataType: "text",
+                success: function (data) {
+                    create_cell($("iframe").contents(), data, "", "python");
+                }
+            });
             break;
     }
 })
@@ -580,6 +671,8 @@ function bfs_execute(){
     });
 }
 
+var codemirrors = [];
+
 function create_cell(doc, name, content="\n\n\n", contentType){
     if(num_cells == 0){
         pageX = 0;
@@ -614,6 +707,10 @@ function create_cell(doc, name, content="\n\n\n", contentType){
     });
     doc.find(".CodeMirror").css("margin-top", "11px");
 
+    var dict = {'name': name, codemirror: cm};
+
+    codemirrors.push(dict);
+
     num_cells += 1;
 }
 
@@ -641,7 +738,48 @@ function updateDCO(appended_string){
     $("#dynamic_code_output").val(appended_string);
 }
 
-window.setInterval(function(){
+const throttle = (callback, delay) => {
+    let throttleTimeout = null;
+    let storedEvent = null;
+
+    const throttledEventHandler = event => {
+        storedEvent = event;
+
+        const shouldHandleEvent = !throttleTimeout;
+
+        if (shouldHandleEvent) {
+            callback(storedEvent);
+
+            storedEvent = null;
+
+            throttleTimeout = setTimeout(() => {
+                throttleTimeout = null;
+
+                if (storedEvent) {
+                    throttledEventHandler(storedEvent);
+                }
+            }, delay);
+        }
+    };
+
+    return throttledEventHandler;
+};
+
+const debounce = (func, wait) => {
+    let timeout;
+
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
+
+var throttle_func = throttle(function() {
     if(is_executing){
         $.ajax({
             type : "GET",
@@ -670,7 +808,42 @@ window.setInterval(function(){
         just_finished = false;
         is_executing = false;
     }
-}, 50);
+}, 2000);
+
+var debounce_func = debounce(function(){
+    if(is_executing){
+        $.ajax({
+            type : "GET",
+            url : "/dynamic_cell_output/",
+            success: function (data) {
+                if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
+                    is_executing = false;
+                    just_finished = true;
+                    data = data.substring(28);
+                }
+                updateDCO(data);
+            }
+        });
+    }
+    else if(just_finished){
+        $.ajax({
+            type : "GET",
+            url : "/dynamic_cell_output/",
+            success: function (data) {
+                if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
+                    data = data.substring(28);
+                }
+                updateDCO(data);
+            }
+        });
+        just_finished = false;
+        is_executing = false;
+    }
+}, 500);
+
+window.setInterval(function(){
+    debounce_func();
+}, 1000);
 
 function add_codemirror_editor(doc, ta_id, value='\n\n', contentType){
     var cm = CodeMirror(doc.querySelector(ta_id), {
@@ -708,4 +881,91 @@ function add_codemirror_editor(doc, ta_id, value='\n\n', contentType){
     });
 
     return cm;
+}
+
+function setup_keyboard_shortcuts(doc){
+    $(doc).bind('keyup', 'Ctrl+return', function(){
+        if(clicked_textarea == ""){
+            return;
+        }
+        $.ajax({
+            type : "POST",
+            url : '/individual_execute/',
+            dataType: "json",
+            data: JSON.stringify({'cell_name': clicked_textarea}),
+            contentType: "application/json",
+            complete: function(){
+                is_executing = true;
+                just_finished = false;
+            }
+        });
+    });
+    $(doc).bind('keyup', 'Ctrl+r', function(){
+        bfs_execute();
+    });
+    $(doc).bind('keyup', 'Ctrl+s', function(){
+        var satx_text = "";
+        $.ajax({
+            type : "POST",
+            url : '/get_satx_text/',
+            dataType: "json",
+            data: JSON.stringify({'text': ""}),
+            contentType: "application/json",
+            complete: function (s) {
+                satx_text = s['responseText'];
+
+                var dwnld_ele = document.createElement('a');
+                dwnld_ele.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURI(satx_text));
+                dwnld_ele.setAttribute('download', filename);
+
+                dwnld_ele.style.display = 'none';
+                document.body.appendChild(dwnld_ele);
+                dwnld_ele.click();
+                document.body.removeChild(dwnld_ele);
+            }
+        });
+    });
+    $(doc).bind('keyup', 'Ctrl+c', function(){
+        console.log("Interrupt");
+    });
+    $(doc).bind('keyup', 'Ctrl+d', function(){
+        $.ajax({
+            type : "POST",
+            url : '/dupe_cell/',
+            dataType: "json",
+            data: JSON.stringify({'cell_name': clicked_textarea,
+                'content': '',
+                'content_type': ''}),
+            contentType: "application/json",
+            success: function (data) {
+                create_cell(doc, data['cell_name'], data['content'], data['content_type']);
+            }
+        });
+    });
+    $(doc).bind('keyup', 'Ctrl+backspace', function(){
+        if(clicked_textarea == ""){
+            return;
+        }
+        $.ajax({
+            type : "POST",
+            url : '/destroy_cell/',
+            dataType: "json",
+            data: JSON.stringify(clicked_textarea),
+            contentType: "application/json",
+            complete: function (o) {
+                var output = o.responseJSON;
+                var success = output['success']
+                console.log(output);
+                if(success == "false"){
+                    alert("Couldn't remove cell " + clicked_textarea);
+                }
+                else{
+                    last_deleted_cell['name'] = output['name'];
+                    last_deleted_cell['content'] = output['content'];
+                    last_deleted_cell['content_type'] = output['content_type'];
+                    doc.find("div").remove("." + clicked_textarea);
+                }
+            }
+        });
+    });
 }
