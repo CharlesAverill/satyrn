@@ -80,11 +80,11 @@ This project is based on [this JEP](https://github.com/jupyter/enhancement-propo
 ## CLI Example
 Here, code written in [ ] brackets was typed into the text box popup.
 ```
-♄: create_cell root python y
+♄: cell root python y
 [x = 10]
-♄: create_cell mid python y
+♄: cell mid python y
 [x *= 22]
-♄: create_cell bottom python y
+♄: cell bottom python y
 [print(x)]
 ♄: link root mid
 ♄: link mid bottom
