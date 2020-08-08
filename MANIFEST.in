@@ -1,1 +1,1 @@
-recursive-include satyrn_flask *
+recursive-include satyrn_python *

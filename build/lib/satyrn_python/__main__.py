@@ -1,4 +1,2 @@
-from .interpreter import start
-
-if __name__ == "__main__":
-    start()
+from .interpreter import start_cli
+from .run_frontend import run_frontend
