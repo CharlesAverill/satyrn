@@ -38,4 +38,4 @@ def run_frontend():
 
 
 if __name__ == "__main__":
-    run()
+    run_frontend()

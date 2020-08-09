@@ -12,6 +12,8 @@ satyrn_python.egg-info/dependency_links.txt
 satyrn_python.egg-info/entry_points.txt
 satyrn_python.egg-info/requires.txt
 satyrn_python.egg-info/top_level.txt
+satyrn_python/__pycache__/app.cpython-37.pyc
+satyrn_python/__pycache__/interpreter.cpython-37.pyc
 satyrn_python/static/.DS_Store
 satyrn_python/static/cover.png
 satyrn_python/static/icon.png
