@@ -21,6 +21,7 @@ satyrn_python/static/python.js
 satyrn_python/static/css/bootstrap.min.css
 satyrn_python/static/css/canvas_style.css
 satyrn_python/static/css/codemirror.css
+satyrn_python/static/css/font.css
 satyrn_python/static/css/gh-buttons.css
 satyrn_python/static/css/index.style.css
 satyrn_python/static/css/jquery-ui.css

@@ -51,6 +51,10 @@ def create_app(test_config=None):
     def index_style():
         return render_template("index_style.css")
 
+    @app.route("/font.css")
+    def font_style():
+        return render_template("font.css")
+
     @app.route("/rubyblue.css")
     def rubyblue():
         return render_template("rubyblue.css")

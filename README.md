@@ -20,8 +20,11 @@
 Satyrn is an alternative to Jupyter notebooks that supports branching code cells.
 
 ## Contributors
-- [Charles Averill](https://github.com/CharlesAverill) - Creator, back- & front-end feature integration
-- [Merkie](https://githuh.com/Merkie) - frontend design
+- [Charles Averill](https://github.com/CharlesAverill) - Author, back- & front-end feature integration
+- [Nathan Huckleberry](https://github.com/Nathan-Huckleberry) - Networking, optimization
+- [Tristan Wiesepape](https://github.com/qwetboy10) - Networking, optimization
+- [Ronak Malik](https://github.com/BeyondPerception) - Networking, optimization
+- [Merkie](https://githuh.com/Merkie) - Frontend design
 - [syrinsaya](https://github.com/syrinsaya) - UI design
 
 [Join the dev Discord!](https://discord.gg/AEZtttJ)
