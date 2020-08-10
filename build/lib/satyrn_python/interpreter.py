@@ -57,7 +57,7 @@ class TextIO:
         return self.user_input
 
 
-class Cell():
+class Cell:
 
     def __init__(self,
                  name_,
@@ -75,6 +75,9 @@ class Cell():
         self.content = content_
         self.stdout = stdout
         self.output = ""
+
+        self.top = 10
+        self.left = 10
 
     def get_copy(self):
         return Cell(self.name, self.content_type, self.content, self.stdout)

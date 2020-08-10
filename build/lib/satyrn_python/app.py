@@ -5,7 +5,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 
 from flask import Flask, render_template, request
-from .interpreter import Interpreter
+from .interpreter import Interpreter, Cell
 
 interpreter = Interpreter()
 
@@ -16,7 +16,7 @@ def new_name():
     return result_str
 
 
-def create_app(test_config=None):
+def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.root_path = os.path.dirname(os.path.abspath(__file__)[:-6])
@@ -25,13 +25,6 @@ def create_app(test_config=None):
     )
 
     interpreter.create_cell(["create_cell", "root", "python", "n"])
-
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
 
     # ensure the instance folder exists
     try:
@@ -47,69 +40,9 @@ def create_app(test_config=None):
     def canvas():
         return render_template("canvas.html")
 
-    @app.route("/index_style.css")
-    def index_style():
-        return render_template("index_style.css")
-
-    @app.route("/font.css")
-    def font_style():
-        return render_template("font.css")
-
-    @app.route("/rubyblue.css")
-    def rubyblue():
-        return render_template("rubyblue.css")
-
-    @app.route("/canvas_style.css")
-    def canvas_style():
-        return render_template("canvas_style.css")
-
-    @app.route("/bootstrap.min.css")
-    def bootstrap_style():
-        return render_template("bootstrap.min.css")
-
-    @app.route("/gh-buttons.css")
-    def gh_buttons():
-        return render_template("gh-buttons.css")
-
-    @app.route("/static/css/bootstrap.min.css.map")
-    def bootstrap_map():
-        return "idk why this is here but this hides an error"
-
-    @app.route("/script.js")
-    def script_js():
-        return render_template("script.js")
-
-    @app.route("/jquery-1.12.4.js")
-    def jquery_js():
-        return render_template("jquery-1.12.4.js")
-
-    @app.route("/jquery-ui.js")
-    def jquery_ui_js():
-        return render_template("jquery-ui.js")
-
-    @app.route("/jquery-ui.css")
-    def jquery_ui_css():
-        return render_template("jquery-ui.css")
-
-    @app.route("/panzoom.min.js")
-    def panzoom_js():
-        return render_template("panzoom.min.js")
-
-    @app.route("/codemirror.css")
-    def codemirror_css():
-        return render_template("codemirror.css")
-
-    @app.route("/codemirror/lib/codemirror.js")
-    def codemirror_js():
-        return render_template("codemirror/lib/codemirror.js")
-
-    @app.route("/python.js")
-    def py_js():
-        return render_template("python.js")
-
-    @app.route("/markdown.js")
-    def md_js():
-        return render_template("markdown.js")
+    @app.route("/static/<string:static_file>")
+    def static_handling(static_file):
+        return render_template(static_file)
 
     @app.route("/create_cell/", methods=["GET"])
     def create_cell():
@@ -125,7 +58,7 @@ def create_app(test_config=None):
 
         initial_length = len(interpreter.graph.graph.nodes())
 
-        output = interpreter.remove_cell(["remove", cell_name])
+        interpreter.remove_cell(["remove", cell_name])
 
         success = "false"
         if not initial_length == len(interpreter.graph.graph.nodes()):
@@ -149,13 +82,13 @@ def create_app(test_config=None):
     @app.route("/rename_cell/", methods=["POST"])
     def rename_cell():
         data = request.get_json()
-        old_name = data['old_name'].strip()
-        new_name = data['new_name'].strip()
+        old = data['old_name'].strip()
+        new = data['new_name'].strip()
 
-        if new_name in interpreter.graph.get_all_cells_edges()[0]:
+        if new in interpreter.graph.get_all_cells_edges()[0]:
             return "false"
 
-        interpreter.rename_cell(['edit_cell', old_name, new_name])
+        interpreter.rename_cell(['edit_cell', old, new])
 
         return "true"
 
@@ -194,7 +127,7 @@ def create_app(test_config=None):
         first = data['first'].strip()
         second = data['second'].strip()
 
-        if (first == second):
+        if first == second:
             return "false"
 
         interpreter.link(['link', first, second])
@@ -266,6 +199,8 @@ def create_app(test_config=None):
         contents = []
         content_types = []
         outputs = []
+        lefts = []
+        tops = []
 
         for cn in cell_names:
             cell = interpreter.graph.get_cell(cn)
@@ -273,11 +208,15 @@ def create_app(test_config=None):
             contents.append(cell.content)
             content_types.append(cell.content_type)
             outputs.append(cell.output)
+            lefts.append(cell.left)
+            tops.append(cell.top)
 
         return {'names': names,
                 'contents': contents,
                 'content_types': content_types,
-                'links': links}
+                'links': links,
+                'lefts': lefts,
+                'tops': tops}
 
     @app.route("/set_as_md/", methods=["POST"])
     def set_as_md():

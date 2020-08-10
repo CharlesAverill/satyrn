@@ -1,11 +1,25 @@
 import setuptools
+from bs4 import BeautifulSoup
+
+version = '0.8.4.6'
+
+with open("satyrn_python/templates/index.html", "r") as read_index:
+    html = read_index.read()
+    soup = BeautifulSoup(html, features="lxml")
+
+    version_tag = soup.find("p", {'id': "version"})
+
+    version_tag.string.replace_with(version)
+
+with open("satyrn_python/templates/index.html", "w+") as write_index:
+    write_index.write(str(soup.prettify()))
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='satyrn_python',
-    version='0.8.4.4',
+    version=version,
     entry_points={"console_scripts": ["satyrnCLI = satyrn_python.__main__:start_cli",
                                       "satyrn = satyrn_python.__main__:run_frontend"]},
     author="Charles Averill",

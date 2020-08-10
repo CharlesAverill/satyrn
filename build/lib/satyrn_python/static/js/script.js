@@ -619,6 +619,9 @@ $(document).on("click", "a, li", function(){
             });
             break;
         case "run_cell":
+            if(clicked_textarea === ""){
+                return;
+            }
             $.ajax({
                 type : "POST",
                 url : '/individual_execute/',
