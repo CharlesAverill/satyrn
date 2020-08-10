@@ -63,35 +63,31 @@ class Cell:
                  name_,
                  content_type_="python",
                  content_=" ",
-                 stdout="internal"):
+                 stdout_="internal",
+                 top_=10,
+                 left_=10):
         """
         :param name_: The cell's name
-        :param graph_: The cell's parent graph
         :param content_type_: The type of content in the cell (markdown or python)
         :param content_: The contents of the cell, either markdown or python code
+        :param stdout_: Whether the cell prints its output (internal) or saves it to a file (external)
+        :param top_: Cell's top position for the frontend
+        :param left_: Cell's left position for the frontend
         """
         self.name = name_
         self.content_type = content_type_
         self.content = content_
-        self.stdout = stdout
+        self.stdout = stdout_
         self.output = ""
 
-        self.top = 10
-        self.left = 10
+        self.top = top_
+        self.left = left_
 
     def get_copy(self):
-        return Cell(self.name, self.content_type, self.content, self.stdout)
-
-    """
-    @contextlib.contextmanager
-    def stdoutIO(self, stdout=None):
-        old = sys.stdout
-        if stdout is None:
-            stdout = StringIO.StringIO()
-        sys.stdout = stdout
-        yield stdout
-        sys.stdout = old
-    """
+        output_cell = Cell(self.name, self.content_type, self.content, self.stdout)
+        output_cell.top = self.top
+        output_cell.left = self.left
+        return output_cell
 
     def execute(self):
         # Execute this cell's content
@@ -143,10 +139,6 @@ class Graph:
     def get_lookup_table(self):
         return {idx: moniker for moniker, idx in
                 zip(list(self.names_to_indeces.keys()), list(self.names_to_indeces.values()))}
-
-    def update_vars(self, new_globals, new_locals):
-        self.exec_globals.update(new_globals)
-        self.exec_locals.update(new_locals)
 
     def name_to_idx(self, cell_name):
         """

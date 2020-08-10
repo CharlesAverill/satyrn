@@ -6,6 +6,9 @@ import webbrowser
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 
 from .app import create_app
+from .interpreter import Interpreter
+
+interpreter = Interpreter()
 
 
 def delayed_browser_open():
@@ -15,12 +18,12 @@ def delayed_browser_open():
 
 
 def run_frontend():
-    print("Initiating CherryPy server...")
+    print("Initializing CherryPy server...")
 
     os.environ["FLASK_APP"] = "satyrnUI.satyrnUI"
     os.environ["FLASK_ENV"] = "production"
 
-    d = PathInfoDispatcher({'/': create_app()})
+    d = PathInfoDispatcher({'/': create_app(interpreter)})
     server = WSGIServer(('0.0.0.0', 20787), d)
 
     try:
@@ -30,7 +33,6 @@ def run_frontend():
         print("Hosting at http://localhost:20787/")
 
         server.start()
-        webbrowser.open("http://localhost:20787/")
     except KeyboardInterrupt:
         print("Stopping CherryPy server...")
         server.stop()

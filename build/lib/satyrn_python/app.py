@@ -4,10 +4,8 @@ import string
 from contextlib import redirect_stdout
 from io import StringIO
 
-from flask import Flask, render_template, request
-from .interpreter import Interpreter, Cell
-
-interpreter = Interpreter()
+from flask import Flask, render_template, request, send_file
+from .interpreter import Cell
 
 
 def new_name():
@@ -16,7 +14,7 @@ def new_name():
     return result_str
 
 
-def create_app():
+def create_app(interpreter):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.root_path = os.path.dirname(os.path.abspath(__file__)[:-6])
@@ -42,6 +40,8 @@ def create_app():
 
     @app.route("/static/<string:static_file>")
     def static_handling(static_file):
+        if str(static_file).endswith(".png"):
+            return send_file("static/" + static_file, mimetype="img/png")
         return render_template(static_file)
 
     @app.route("/create_cell/", methods=["GET"])
