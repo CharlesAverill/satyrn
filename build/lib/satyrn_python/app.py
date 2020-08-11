@@ -14,7 +14,7 @@ def new_name():
     return result_str
 
 
-def create_app(interpreter):
+def create_app(interpreter, client_instance):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.root_path = os.path.dirname(os.path.abspath(__file__)[:-6])
@@ -147,8 +147,20 @@ def create_app(interpreter):
 
     @app.route("/get_satx_text/", methods=["POST"])
     def get_satx_text():
-        satx_txt = interpreter.graph.get_satx_as_txt()
-        return satx_txt
+        data = request.get_json()
+        names = data['names']
+        lefts = data['lefts']
+        tops = data['tops']
+
+        satx_text = interpreter.graph.get_satx_as_txt()
+        satx_text += "\n<!--SATYRN_POSITIONING_START-->"
+
+        for i in range(len(names)):
+            satx_text += "\n" + names[i] + lefts[i] + " " + tops[i]
+
+        satx_text += "\n<!--SATYRN_POSITIONING_END-->"
+
+        return satx_text
 
     @app.route("/reset_runtime/", methods=["POST"])
     def reset_runtime():
@@ -162,12 +174,13 @@ def create_app(interpreter):
 
         og_cell = interpreter.graph.get_cell(cell_name)
 
-        new_cell = Cell(og_cell.name + "-copy", og_cell.content_type, og_cell.content, og_cell.stdout)
-        interpreter.graph.add_cell(new_cell)
+        interpreter.create_cell(['cell', og_cell.name + "-copy", og_cell.content_type, "n"])
+        interpreter.graph.get_cell(og_cell.name + "-copy").content = og_cell.content
+        interpreter.graph.get_cell(og_cell.name + "-copy").stdout = og_cell.stdout
 
-        return {'cell_name': new_cell.name,
-                'content': new_cell.content,
-                'content_type': new_cell.content_type}
+        return {'cell_name': og_cell.name + "-copy",
+                'content': og_cell.content,
+                'content_type': og_cell.content_type}
 
     @app.route("/graph_has_name/", methods=["POST"])
     def check_for_graph_has_name():
@@ -190,6 +203,7 @@ def create_app(interpreter):
             interpreter.reset_graph(False)
             raw = request.get_json()['file_contents']
             content = raw.split("\n")
+            interpreter.filename = request.get_json()['filename']
             interpreter.run_string(content)
 
         cell_names = interpreter.graph.get_all_cells_edges()[0]
@@ -202,16 +216,18 @@ def create_app(interpreter):
         lefts = []
         tops = []
 
-        for cn in cell_names:
-            cell = interpreter.graph.get_cell(cn)
-            names.append(cn)
-            contents.append(cell.content)
-            content_types.append(cell.content_type)
-            outputs.append(cell.output)
-            lefts.append(cell.left)
-            tops.append(cell.top)
+        with interpreter.lock:
+            for cn in cell_names:
+                cell = interpreter.graph.get_cell(cn)
+                names.append(cn)
+                contents.append(cell.content)
+                content_types.append(cell.content_type)
+                outputs.append(cell.output)
+                lefts.append(cell.left)
+                tops.append(cell.top)
 
-        return {'names': names,
+        return {'graph_fn': interpreter.filename,
+                'names': names,
                 'contents': contents,
                 'content_types': content_types,
                 'links': links,
@@ -221,20 +237,23 @@ def create_app(interpreter):
     @app.route("/set_as_md/", methods=["POST"])
     def set_as_md():
         cell_name = request.get_json()['cell_name']
-        interpreter.graph.get_cell(cell_name).content_type = "markdown"
+        with interpreter.lock:
+            interpreter.graph.get_cell(cell_name).content_type = "markdown"
 
         return "true"
 
     @app.route("/set_as_py/", methods=["POST"])
     def set_as_py():
         cell_name = request.get_json()['cell_name']
-        interpreter.graph.get_cell(cell_name).content_type = "python"
+        with interpreter.lock:
+            interpreter.graph.get_cell(cell_name).content_type = "python"
 
         return "true"
 
     @app.route("/reset_graph/", methods=["POST"])
     def reset_graph():
         interpreter.reset_graph(False)
+        interpreter.filename = "Untitled.SATX"
         interpreter.create_cell(["create_cell", "root", "python", "n"])
         return "true"
 
@@ -266,5 +285,13 @@ def create_app(interpreter):
     def get_py_text():
         py_txt = interpreter.graph.get_py_file()
         return py_txt
+
+    @app.route("/set_filename/", methods=["POST"])
+    def set_fn():
+        interpreter.filename = request.get_json()['filename']
+
+    @app.route("/get_filename/", methods=["GET"])
+    def get_fn():
+        return interpreter.filename
 
     return app

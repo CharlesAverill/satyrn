@@ -5,11 +5,14 @@
     #background-color: #3c4352;
     padding-bottom: 5px;
 }
-/*
-h6{
-    width: 240px;
+
+#draggable {
+    width: 300px !important;
 }
- */
+
+h6{
+    cursor: pointer;
+}
 
 .transparent_background_textarea {
     margin-top:20px;

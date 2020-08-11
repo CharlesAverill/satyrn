@@ -475,6 +475,10 @@ class Interpreter:
         # Start loop
         self.std_capture = StringIO()
 
+        self.filename = "Untitled.SATX"
+
+        self.lock = threading.Lock()
+
     def run_file(self, command):
         """
         :param command: command to be executed
@@ -491,9 +495,11 @@ class Interpreter:
         self.input_type = "file"
 
         reading_dco_output = False
+        reading_positioning = False
 
         while len(content) > 0:
             command = content.pop(0).split(" ")
+            print(command)
 
             if "<!--SATYRN_DCO_START-->" in command[0]:
                 reading_dco_output = True
@@ -504,6 +510,19 @@ class Interpreter:
 
             if reading_dco_output:
                 self.std_capture.write(" ".join(command) + "\n")
+                continue
+
+            if "<!--SATYRN_POSITIONING_START-->" in command[0]:
+                reading_positioning = True
+                continue
+
+            if "<!--SATYRN_POSITIONING_END-->" in command[0]:
+                reading_positioning = False
+                continue
+
+            if reading_positioning:
+                self.graph.get_cell(command[0]).left = command[1]
+                self.graph.get_cell(command[0]).top = command[2]
                 continue
 
             if len(command) == 0 or command == '':
@@ -619,77 +638,81 @@ class Interpreter:
         """
         :param command: command to be executed
         """
-        keywords = ["help", "quit", "cell", "link", "sever",
-                    "execute", "display", "remove", "reset_runtime",
-                    "edit", "swap", "list", "reset_graph", "merge", "save"]
+        with self.lock:
+            keywords = ["help", "quit", "cell", "link", "sever",
+                        "execute", "display", "remove", "reset_runtime",
+                        "edit", "swap", "list", "reset_graph", "merge", "save"]
 
-        if len(command) != 4:
-            print("create_cell takes 3 arguments: [name] [content_type] [add_content]")
-            return
+            if len(command) != 4:
+                print("create_cell takes 3 arguments: [name] [content_type] [add_content]")
+                return
 
-        name = command[1]
-        if name in keywords:
-            print("\"" + name + "\" is a restricted keyword and cannot be used for a cell name.")
-            return
+            name = command[1]
+            if name in keywords:
+                print("\"" + name + "\" is a restricted keyword and cannot be used for a cell name.")
+                return
 
-        if ".satx" in name:
-            print("Cell names cannot include \".satx\"")
-            return
+            if ".satx" in name:
+                print("Cell names cannot include \".satx\"")
+                return
 
-        content_type = command[2]
-        content = ""
+            content_type = command[2]
+            content = ""
 
-        if "y" in command[3]:
-            if self.input_type == "file":
-                temp = ""
-                while ";" not in temp:
-                    content += temp
-                    temp = self.file.pop(0) + "\n"
-            else:
-                ti = TextIO()
-                content = ti.text_input().strip()
+            if "y" in command[3]:
+                if self.input_type == "file":
+                    temp = ""
+                    while ";" not in temp:
+                        content += temp
+                        temp = self.file.pop(0) + "\n"
+                else:
+                    ti = TextIO()
+                    content = ti.text_input().strip()
 
-        self.graph.add_cell(Cell(name, content_type, content))
+            self.graph.add_cell(Cell(name, content_type, content.strip()))
 
     def edit_cell(self, command):
         """
         :param command: command to be executed
         """
-        if len(command) != 2:
-            print("edit takes 1 argument: [cell_name]")
-            return
+        with self.lock:
+            if len(command) != 2:
+                print("edit takes 1 argument: [cell_name]")
+                return
 
-        target_cell = self.graph.get_cell(command[1])
-        old_content = target_cell.content
+            target_cell = self.graph.get_cell(command[1])
+            old_content = target_cell.content
 
-        ti = TextIO()
-        new_content = ti.text_input(old_content).strip()
+            ti = TextIO()
+            new_content = ti.text_input(old_content).strip()
 
-        target_cell.content = new_content
+            target_cell.content = new_content
 
     def set_cell_contents(self, command):
-        target_cell = self.graph.get_cell(command[1])
-        target_cell.content = command[2]
+        with self.lock:
+            target_cell = self.graph.get_cell(command[1])
+            target_cell.content = command[2]
 
     def rename_cell(self, command):
         """
         :param command: command to be executed
         """
-        if len(command) != 3:
-            print("link takes 2 arguments: [original_cell_name] [new_cell_name]")
-            return
+        with self.lock:
+            if len(command) != 3:
+                print("link takes 2 arguments: [original_cell_name] [new_cell_name]")
+                return
 
-        index = self.graph.names_to_indeces[command[1]]
-        og_name = self.graph.get_cell(command[1]).name
+            index = self.graph.names_to_indeces[command[1]]
+            og_name = self.graph.get_cell(command[1]).name
 
-        self.graph.get_cell(og_name).name = command[2]
-        self.graph.names_to_indeces.update({command[2]: index})
-        del self.graph.names_to_indeces[og_name]
+            self.graph.get_cell(og_name).name = command[2]
+            self.graph.names_to_indeces.update({command[2]: index})
+            del self.graph.names_to_indeces[og_name]
 
-        for node, data in self.graph.graph.nodes(data=True):
-            if data['name'] == command[1]:
-                data['name'] = command[2]
-                break
+            for node, data in self.graph.graph.nodes(data=True):
+                if data['name'] == command[1]:
+                    data['name'] = command[2]
+                    break
 
     def remove_cell(self, command):
         """
@@ -705,21 +728,22 @@ class Interpreter:
         """
         :param command: command to be executed
         """
-        if len(command) != 3:
-            print("link takes 2 arguments: [cell_1] [cell_2]")
-            return
+        with self.lock:
+            if len(command) != 3:
+                print("link takes 2 arguments: [cell_1] [cell_2]")
+                return
 
-        idx1 = self.graph.name_to_idx(command[1])
-        idx2 = self.graph.name_to_idx(command[2])
-        """
-        if idx2 == 0:
-            confirm = input("WARNING: You are attempting to connect a node to your root node. This could cause unwanted"
-                            " recursive behavior. Are you sure? (y/n) ")
-            if "y" in confirm.lower():
-                self.graph.connect_cells(idx1, idx2)
-        else:
-        """
-        self.graph.connect_cells(idx1, idx2)
+            idx1 = self.graph.name_to_idx(command[1])
+            idx2 = self.graph.name_to_idx(command[2])
+            """
+            if idx2 == 0:
+                confirm = input("WARNING: You are attempting to connect a node to your root node. This could cause unwanted"
+                                " recursive behavior. Are you sure? (y/n) ")
+                if "y" in confirm.lower():
+                    self.graph.connect_cells(idx1, idx2)
+            else:
+            """
+            self.graph.connect_cells(idx1, idx2)
 
     def sever(self, command):
         """
@@ -765,19 +789,20 @@ class Interpreter:
         """
         :param command: command to be executed
         """
-        if ">>" in command:
-            cells_list = command[1:-2]
-            self.stdout_filename = command[-1]
-        else:
-            cells_list = command[1:]
-        if len(cells_list) >= 1:
-            try:
-                self.graph.execute_linear_list_of_cells(cells_list, self.stdout, self.stdout_filename)
-            except Exception as e:
-                print("There was an error executing one of the cells")
-                print(e)
-        else:
-            self.graph.bfs_traversal_execute(self.stdout, self.stdout_filename)
+        with self.lock:
+            if ">>" in command:
+                cells_list = command[1:-2]
+                self.stdout_filename = command[-1]
+            else:
+                cells_list = command[1:]
+            if len(cells_list) >= 1:
+                try:
+                    self.graph.execute_linear_list_of_cells(cells_list, self.stdout, self.stdout_filename)
+                except Exception as e:
+                    print("There was an error executing one of the cells")
+                    print(e)
+            else:
+                self.graph.bfs_traversal_execute(self.stdout, self.stdout_filename)
 
     def display(self, command):
         """
@@ -824,11 +849,12 @@ class Interpreter:
 
     def reset_runtime(self):
         # Delete all runtime variables
-        global exec_vars
-        exec_vars = {}
+        with self.lock:
+            global exec_vars
+            exec_vars = {}
 
     def reset_graph(self, ask=True):
-        if (ask):
+        if ask:
             confirm = input(
                 "Are you sure you want to reset the graph? This will delete all nodes and variables. (y/n) ")
             if "y" in confirm:
