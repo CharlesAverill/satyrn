@@ -19,6 +19,20 @@
 ![Satyrn](https://github.com/CharlesAverill/satyrn/blob/master/media/cover.png?raw=true)
 Satyrn is an alternative to Jupyter notebooks that supports branching code cells.
 
+## What that means
+Code in Satyrn is executed in "Cells", which are small blocks of code that should perform a few small functions, but share variables, functions, imports, etc. Splitting code into these Cells allows users to run lots of "setup" cells and then play around with a cell that depends on the setup to function. This prevents users from having to run lengthy code over and over again. A similar application is Jupyter's Notebook.
+
+
+Most code is executed as a list of instructions,
+```python
+print(1)
+print(2)
+print(3)
+```
+However, Satyrn's code execution is different. Code inside of cells still executes normally, but cells are not necessarily linked linearly. One cell, which we'll call "root", can have two "Children", "childA" and "childB". Because root is the parent, it will run first. But because childA and childB are siblings on the same level in the heirarchy, they will be run <b>simultaneously</b>. This is particularly useful in situations like data analysis, where lots of data must be preprocessed before they can be used. If you have multiple sets of data to preprocess, why not preprocess them simultaneously instead of waiting for them to finish 1-by-1?
+
+Satyrn is also a great tool for collaboration. While using the GUI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. <b>Use caution when working with Satyrn on public networks.</b>
+
 ## Contributors
 - [Charles Averill](https://github.com/CharlesAverill) - Author, back- & front-end feature integration
 - [Nathan Huckleberry](https://github.com/Nathan-Huckleberry) - Networking, optimization
