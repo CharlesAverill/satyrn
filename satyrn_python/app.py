@@ -5,7 +5,6 @@ from contextlib import redirect_stdout
 from io import StringIO
 
 from flask import Flask, render_template, request, send_file
-from .interpreter import Cell
 
 
 def new_name():
@@ -77,7 +76,7 @@ def create_app(interpreter, client_instance):
 
         interpreter.set_cell_contents(['edit_cell', cell_name, content])
 
-        return "true"
+        return "200"
 
     @app.route("/rename_cell/", methods=["POST"])
     def rename_cell():
@@ -86,11 +85,12 @@ def create_app(interpreter, client_instance):
         new = data['new_name'].strip()
 
         if new in interpreter.graph.get_all_cells_edges()[0]:
-            return "false"
+            print("500")
+            return "500"
 
         interpreter.rename_cell(['edit_cell', old, new])
 
-        return "true"
+        return "200"
 
     @app.route("/recursion_check/", methods=["POST"])
     def recursion_check():
@@ -101,9 +101,9 @@ def create_app(interpreter, client_instance):
 
         for e in edge_names:
             if e[0] == cell_name:
-                return "warning"
+                return "500"
 
-        return "safe"
+        return "200"
 
     @app.route("/root_has_outputs/", methods=["POST"])
     def root_output_check():
@@ -117,9 +117,9 @@ def create_app(interpreter, client_instance):
                 c += 1
 
         if c > 0:
-            return "safe"
+            return "200"
 
-        return "warning"
+        return "500"
 
     @app.route("/link_cells/", methods=["POST"])
     def link_cells():
@@ -128,18 +128,18 @@ def create_app(interpreter, client_instance):
         second = data['second'].strip()
 
         if first == second:
-            return "false"
+            return "500"
 
         interpreter.link(['link', first, second])
 
-        return "true"
+        return "200"
 
     @app.route("/bfs_execute/", methods=["POST"])
     def bfs_execute():
         interpreter.std_capture = StringIO()
         with redirect_stdout(interpreter.std_capture):
             interpreter.execute(["execute"])
-        return "true"
+        return "200"
 
     @app.route("/shutdown/", methods=["POST"])
     def shutdown():
@@ -165,7 +165,7 @@ def create_app(interpreter, client_instance):
     @app.route("/reset_runtime/", methods=["POST"])
     def reset_runtime():
         interpreter.reset_runtime()
-        return "done"
+        return "200"
 
     @app.route("/dupe_cell/", methods=["POST"])
     def dupe_cell():
@@ -187,8 +187,8 @@ def create_app(interpreter, client_instance):
         cell_name = request.get_json().strip()
 
         if cell_name in interpreter.graph.get_all_cells_edges()[0]:
-            return "true"
-        return "false"
+            return "200"
+        return "500"
 
     @app.route("/dynamic_cell_output/", methods=["GET"])
     def get_dynamic_cell_output():
@@ -240,7 +240,7 @@ def create_app(interpreter, client_instance):
         with interpreter.lock:
             interpreter.graph.get_cell(cell_name).content_type = "markdown"
 
-        return "true"
+        return "200"
 
     @app.route("/set_as_py/", methods=["POST"])
     def set_as_py():
@@ -248,14 +248,14 @@ def create_app(interpreter, client_instance):
         with interpreter.lock:
             interpreter.graph.get_cell(cell_name).content_type = "python"
 
-        return "true"
+        return "200"
 
     @app.route("/reset_graph/", methods=["POST"])
     def reset_graph():
         interpreter.reset_graph(False)
         interpreter.filename = "Untitled.SATX"
         interpreter.create_cell(["create_cell", "root", "python", "n"])
-        return "true"
+        return "200"
 
     @app.route("/child_cell/", methods=["POST"])
     def add_child():
@@ -273,13 +273,13 @@ def create_app(interpreter, client_instance):
         with redirect_stdout(interpreter.std_capture):
             interpreter.execute(["execute", cell_name])
 
-        return "true"
+        return "200"
 
     @app.route("/clear_output/", methods=["POST"])
     def clear_dco():
         interpreter.std_capture = StringIO()
 
-        return "true"
+        return "200"
 
     @app.route("/get_py_text/", methods=["POST"])
     def get_py_text():
@@ -293,5 +293,19 @@ def create_app(interpreter, client_instance):
     @app.route("/get_filename/", methods=["GET"])
     def get_fn():
         return interpreter.filename
+
+    @app.route("/update_position/", methods=["POST"])
+    def update_position():
+        data = request.get_json()
+        name = data['cell_name'].strip()
+        top = data['top']
+        left = data['left']
+
+        with interpreter.lock:
+            cell = interpreter.graph.get_cell(name)
+            cell.top = top
+            cell.left = left
+
+        return "200"
 
     return app

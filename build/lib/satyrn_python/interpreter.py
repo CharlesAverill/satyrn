@@ -588,11 +588,11 @@ class Interpreter:
     def read_input(self):
         # Read input from stdin or external file. Returns list of command params.
         if self.input_type == "live" or len(self.file) == 0:
-            usr = input("♄: ").strip()
+            usr = input(u'\u2644' + ": ").strip()
             self.input_type = "live"
         else:
             usr = self.file.pop(0).strip()
-            print("♄: " + usr)
+            print(u'\u2644' + ": " + usr)
 
         usr = usr.lower()
         return usr.split()
@@ -942,6 +942,9 @@ class Interpreter:
 
 
 def start_cli():
-    print(chr(27) + "[2J")
+    import os
+    with open(os.path.abspath(__file__)[:-15] + "/asciiart.txt") as asciiart:
+        print("".join(asciiart.readlines()))
+    print("Thank you for using Satyrn! For issues and updates visit https://GitHub.com/CharlesAverill/satyrn\n")
     interpreter = Interpreter()
     interpreter.run()

@@ -19,6 +19,11 @@ def delayed_browser_open():
 
 
 def run_frontend():
+    with open(os.path.abspath(__file__)[:-16] + "/asciiart.txt") as asciiart:
+        print("".join(asciiart.readlines()))
+
+    print("Thank you for using Satyrn! For issues and updates visit https://GitHub.com/CharlesAverill/satyrn\n")
+
     print("Initializing CherryPy server...")
 
     os.environ["FLASK_APP"] = "satyrnUI.satyrnUI"

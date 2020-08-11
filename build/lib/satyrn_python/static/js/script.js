@@ -11,6 +11,12 @@ var last_deleted_cell = {'name': '',
 };
 
 $(window).load(function () {
+    if(location.hostname === "localhost"){
+        console.log("This is the host machine");
+    }
+    else{
+        console.log("This is a client machine");
+    }
     $.ajax({
         type : "POST",
         url : "/load_graph/",
@@ -49,16 +55,16 @@ $(window).load(function () {
                             data = data.substring(28);
                         }
                         updateDCO(data);
+
+                        $("#graph_name_p").text(graph_fn);
+                        filename = graph_fn;
+
+                        if(!window.location.hash) {
+                            window.location = window.location + '#loaded';
+                            window.location.reload();
+                        }
                     }
                 });
-
-                $("#graph_name_p").text(graph_fn);
-                filename = graph_fn;
-
-                if(!window.location.hash) {
-                    window.location = window.location + '#loaded';
-                    window.location.reload();
-                }
             }
         }
     });
@@ -165,17 +171,9 @@ $("#graph_name_p").on("click", function(){
 
 $("iframe").load(function(){
     var doc = $(this).contents();
+    var contentwindow_doc = document.getElementById('canvas').contentWindow.document;
 
     setup_keyboard_shortcuts(doc);
-
-    $("#draggable").draggable({
-        start: function(){
-            console.log("start\n" + clicked_textarea);
-        },
-        stop: function() {
-            console.log("stop\n" + clicked_textarea);
-        }
-    });
 
     $(doc).delegate('textarea', 'keydown', function(e) {
         var keyCode = e.keyCode || e.which;
@@ -214,7 +212,11 @@ $("iframe").load(function(){
 
     //Make initial panel draggable
     $(function () {
-        doc.find("#draggable").draggable({ snap: "#draggable", grid: [ 30, 30 ] });
+        doc.find("#draggable").draggable({
+            snap: "#draggable",
+            grid: [ 30, 30 ],
+            scroll: true
+        });
     });
 
     //context menu
@@ -231,8 +233,6 @@ $("iframe").load(function(){
         var cl = $(this).attr("class");
 
         right_clicked_cell = cl.substring(0, cl.indexOf("ui-draggable") - 1);
-        console.log(right_clicked_cell);
-        console.log(cl);
 
         // Show contextmenu
         doc.find(".custom-menu").finish().toggle(100).
@@ -276,7 +276,7 @@ $("iframe").load(function(){
                         var output = o.responseJSON;
 
                         var success = output['success']
-                        if(success == "false"){
+                        if(success == "500"){
                             alert("Couldn't remove cell " + right_clicked_cell);
                         }
                         else{
@@ -412,7 +412,7 @@ $("iframe").load(function(){
                         'second': clicked_textarea}),
                     contentType: "application/json",
                     success: function (success) {
-                        if(success == "false"){
+                        if(success == "500"){
                             alert("Couldn't link cells " + right_clicked_cell + " and " + clicked_textarea);
                         }
                     }
@@ -451,7 +451,7 @@ $("iframe").load(function(){
             data: JSON.stringify(new_name),
             contentType: "application/json",
             success: function (success) {
-                if(success == "true"){
+                if(success == "200"){
                     alert("Another cell already has this name. Please choose another.");
                 }
                 else{
@@ -463,7 +463,7 @@ $("iframe").load(function(){
                             'new_name': new_name}),
                         contentType: "application/json",
                         success: function (success) {
-                            if(!success){
+                            if(success == "500"){
                                 alert("Couldn't rename cell \"" + old_name + "\" to \"" + new_name + "\", another cell already has this name");
                             }
                             else{
@@ -602,8 +602,6 @@ $(document).on("click", "a, li", function(){
                             var cm = dict['codemirror'];
                             cm.setOption("mode", "markdown");
                         }
-
-                        console.log(codemirrors);
                     }
                 });
             }
@@ -755,12 +753,32 @@ function bfs_execute(){
         type : "POST",
         url : '/bfs_execute/',
         success: function (success) {
-            if(success == "false"){
+            if(success == "500"){
                 alert("There was an error with the execution");
             }
         }
     });
 }
+
+function update_positions(){
+    $("#canvas").contents().find(".ui-draggable").each( function(){
+        var cell_name = $(this).attr("class").substring(0, $(this).attr("class").indexOf("ui-draggable"));
+        var top = $(this).css("top");
+        var left = $(this).css("left");
+
+        $.ajax({
+            type : "POST",
+            url : '/update_position/',
+            data : JSON.stringify({
+                'cell_name': cell_name,
+                'top' : top,
+                'left' : left
+            }),
+            dataType: "json",
+            contentType: "application/json",
+        });
+    });
+};
 
 var codemirrors = [];
 
@@ -787,7 +805,11 @@ function create_cell(doc, name, content="", contentType, top=(Math.ceil(pageY / 
     doc.find(".".concat(name)).css("left", left );
 
     //Grid system
-    doc.find(".".concat(name)).draggable({ snap: ".".concat(name), grid: [ 30, 30 ] });
+    doc.find(".".concat(name)).draggable({
+        snap: ".".concat(name),
+        grid: [ 30, 30 ],
+        scroll: true
+    });
 
     //Codemirror
     var cm = add_codemirror_editor(document.getElementById("canvas").contentWindow.document,"#textarea_" +  name, content, contentType);
@@ -803,6 +825,39 @@ function create_cell(doc, name, content="", contentType, top=(Math.ceil(pageY / 
     codemirrors.push(dict);
 
     num_cells += 1;
+
+    //make it draggable
+    $(function () {
+        doc.find("." + name).draggable({
+            snap: "#draggable",
+            grid: [ 30, 30 ],
+            stop: function() {
+                var t = 10;
+                var l = 10;
+                $(doc).find(".ui-draggable").each( function(){
+                    var cell_name = $(this).attr("class").substring(0, $(this).attr("class").indexOf("ui-draggable"));
+                    if(cell_name.trim() == name.trim()){
+                        t = $(this).css("top");
+                        l = $(this).css("left");
+                    }
+                });
+                $.ajax({
+                    type : "POST",
+                    url : '/update_position/',
+                    data : JSON.stringify({
+                        'cell_name': name,
+                        'top' : t,
+                        'left' : l
+                    }),
+                    dataType: "json",
+                    contentType: "application/json"
+                });
+            },
+            scroll: true
+        });
+    });
+
+    update_positions();
 }
 
 function shutdown(){
@@ -958,7 +1013,7 @@ function add_codemirror_editor(doc, ta_id, value='\n\n', contentType){
                 'content': currentVal}),
             contentType: "application/json",
             success: function (success) {
-                if(success == "false"){
+                if(success == "500"){
                     alert("Couldn't edit cell " + right_clicked_cell);
                 }
             },
@@ -1049,8 +1104,8 @@ function setup_keyboard_shortcuts(doc){
             complete: function (o) {
                 var output = o.responseJSON;
                 var success = output['success']
-                console.log(output);
-                if(success == "false"){
+
+                if(success == "500"){
                     alert("Couldn't remove cell " + clicked_textarea);
                 }
                 else{

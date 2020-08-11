@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: satyrn-python
-Version: 0.8.4.7
+Version: 0.8.6
 Summary: A Notebook alternative that supports branching code
 Home-page: https://github.com/CharlesAverill/satyrn/
 Author: Charles Averill
 Author-email: charlesaverill20@gmail.com
 License: UNKNOWN
-Description: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9b7ffe7dce94475e9fc5100096c3c8cf)](https://www.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CharlesAverill/satyrn&amp;utm_campaign=Badge_Grade)
+Description: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5f7ad54d352245df9099321c281b2db2)](https://app.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&utm_medium=referral&utm_content=CharlesAverill/satyrn&utm_campaign=Badge_Grade_Dashboard)
         [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
         [![PyPI](https://img.shields.io/pypi/v/satyrn-python)](https://pypi.org/project/satyrn-python/)
         
@@ -24,8 +24,22 @@ Description: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9b7ffe7
         
         # Satyrn
         
-        ![Satyrn](media/cover.png?raw=true)
+        ![Satyrn](https://github.com/CharlesAverill/satyrn/blob/master/satyrn_python/static/cover.png?raw=true)
         Satyrn is an alternative to Jupyter notebooks that supports branching code cells.
+        
+        ## What that means
+        Code in Satyrn is executed in "Cells", which are small blocks of code that should perform a few small functions, but share variables, functions, imports, etc. Splitting code into these Cells allows users to run lots of "setup" cells and then play around with a cell that depends on the setup to function. This prevents users from having to run lengthy code over and over again. A similar application is Jupyter's Notebook.
+        
+        
+        Most code is executed as a list of instructions,
+        ```python
+        print(1)
+        print(2)
+        print(3)
+        ```
+        However, Satyrn's code execution is different. Code inside of cells still executes normally, but cells are not necessarily linked linearly. One cell, which we'll call "root", can have two "Children", "childA" and "childB". Because root is the parent, it will run first. But because childA and childB are siblings on the same level in the heirarchy, they will be run <b>simultaneously</b>. This is particularly useful in situations like data analysis, where lots of data must be preprocessed before they can be used. If you have multiple sets of data to preprocess, why not preprocess them simultaneously instead of waiting for them to finish 1-by-1?
+        
+        Satyrn is also a great tool for collaboration. While using the UI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. <b>Use caution when working with Satyrn on public networks.</b>
         
         ## Contributors
         - [Charles Averill](https://github.com/CharlesAverill) - Author, back- & front-end feature integration
