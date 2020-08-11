@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5f7ad54d352245df9099321c281b2db2)](https://app.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&utm_medium=referral&utm_content=CharlesAverill/satyrn&utm_campaign=Badge_Grade_Dashboard)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9b7ffe7dce94475e9fc5100096c3c8cf)](https://www.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CharlesAverill/satyrn&amp;utm_campaign=Badge_Grade)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![PyPI](https://img.shields.io/pypi/v/satyrn-python)](https://pypi.org/project/satyrn-python/)
