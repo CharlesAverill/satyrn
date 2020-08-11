@@ -13,7 +13,7 @@ def new_name():
     return result_str
 
 
-def create_app(interpreter, client_instance):
+def create_app(interpreter):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.root_path = os.path.dirname(os.path.abspath(__file__)[:-6])

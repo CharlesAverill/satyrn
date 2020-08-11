@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: satyrn-python
-Version: 0.8.6
+Version: 0.8.7.2
 Summary: A Notebook alternative that supports branching code
 Home-page: https://github.com/CharlesAverill/satyrn/
 Author: Charles Averill
@@ -53,8 +53,16 @@ Description: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5f7ad54
         
         ## Setup
         - Run `python -m pip install satyrn-python`
-        - Run `satyrnCLI` in your terminal to open the Satyrn CLI
-        - Run `satyrn` in your terminal to open the Satyrn UI (unstable)
+        - Run `satyrn` to open the UI (unstable)
+        - Run `satyrn cli` to open the CLI
+        
+        ## Command Line Arguments
+        - `cli` - Starts the CLI instead of the UI
+        - `ui` - Starts the UI (Default behavior)
+        - `-h --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
+        your Satyrn instance
+        - `-p=n --port=n` - Designates the port for the UI to run on
+        - `-q --quiet` - Quiet startup + shutdown
         
         ## CLI Commands
         * `quit` - Quits out of interpreter

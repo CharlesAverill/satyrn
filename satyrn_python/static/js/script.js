@@ -151,15 +151,15 @@ function create_cell(doc, name, content="", contentType, top=(Math.ceil(pageY / 
 
     var colorClass = contentType == "python" ? "Blue" : "Green";
 
-    doc.find("#scene").append("<div id="draggable" class="".concat(name, "">" +
-        "<div style="display: inline-block; margin-right: 10px;">" +
-            "<h6 class="label" id="running_" + name + "" style="width: auto">[ ]</h6>" +
+    doc.find("#scene").append("<div id='draggable' class='".concat(name, "'>" +
+        "<div style='display: inline-block; margin-right: 10px;'>" +
+            "<h6 class='label' id='running_" + name + "' style='width: auto'>[ ]</h6>" +
         "</div>" +
-        "<div style="display: inline-block;">" +
-            "<h6 class="label">" + name + "</h6>" +
+        "<div style='display: inline-block;'>" +
+            "<h6 class='label'>" + name + "</h6>" +
         "</div>" +
-        "<div class="draggable" style="border-radius: 5px;">" +
-            "<div id="textarea_" + name + "" class="highlight" + colorClass + "" style="border-radius: 5px;"></div>" +
+        "<div class='draggable' style='border-radius: 5px;'>" +
+            "<div id='textarea_" + name + "' class='highlight" + colorClass + "' style='border-radius: 5px;'></div>" +
         "</div></div>"))
 
     doc.find(".".concat(name)).css("top", top );

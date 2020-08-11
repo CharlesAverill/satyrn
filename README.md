@@ -31,7 +31,7 @@ print(3)
 ```
 However, Satyrn's code execution is different. Code inside of cells still executes normally, but cells are not necessarily linked linearly. One cell, which we'll call "root", can have two "Children", "childA" and "childB". Because root is the parent, it will run first. But because childA and childB are siblings on the same level in the heirarchy, they will be run <b>simultaneously</b>. This is particularly useful in situations like data analysis, where lots of data must be preprocessed before they can be used. If you have multiple sets of data to preprocess, why not preprocess them simultaneously instead of waiting for them to finish 1-by-1?
 
-Satyrn is also a great tool for collaboration. While using the UI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. <b>Use caution when working with Satyrn on public networks.</b>
+Satyrn is also a great tool for collaboration. While using the UI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. If you desire more security, the `--hidden` command line argument will hide your Satyrn instance from the network. <b>Use caution when working with Satyrn on public networks.</b>
 
 ## Contributors
 - [Charles Averill](https://github.com/CharlesAverill) - Author, back- & front-end feature integration
@@ -45,8 +45,16 @@ Satyrn is also a great tool for collaboration. While using the UI, the graph sta
 
 ## Setup
 - Run `python -m pip install satyrn-python`
-- Run `satyrnCLI` in your terminal to open the Satyrn CLI
-- Run `satyrn` in your terminal to open the Satyrn UI (unstable)
+- Run `satyrn` to open the UI (unstable)
+- Run `satyrn cli` to open the CLI
+
+## Command Line Arguments
+- `cli` - Starts the CLI instead of the UI
+- `ui` - Starts the UI (Default behavior)
+- `-h --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
+your Satyrn instance
+- `-p=n --port=n` - Designates the port for the UI to run on
+- `-q --quiet` - Quiet startup + shutdown
 
 ## CLI Commands
 * `quit` - Quits out of interpreter

@@ -1,2 +1,1 @@
-from .interpreter import start_cli
-from .run_frontend import run_frontend
+from .entry_point import start_cli, start_ui

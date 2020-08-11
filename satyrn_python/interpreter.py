@@ -931,12 +931,3 @@ class Interpreter:
 
             else:
                 print("Syntax error: command \"" + command[0] + "\" not recognized.")
-
-
-def start_cli():
-    import os
-    with open(os.path.abspath(__file__)[:-15] + "/asciiart.txt") as asciiart:
-        print("".join(asciiart.readlines()))
-    print("Thank you for using Satyrn! For issues and updates visit https://GitHub.com/CharlesAverill/satyrn\n")
-    interpreter = Interpreter()
-    interpreter.run()

@@ -2,7 +2,6 @@
     width: 300px;
     height: 30px;
     position: absolute;
-    #background-color: #3c4352;
     padding-bottom: 5px;
 }
 
@@ -93,7 +92,6 @@ h6{
     white-space: nowrap;
     background: #f5f6fa;
     color: #333;
-    //border-radius: 5px;
     padding: 0;
 }
 

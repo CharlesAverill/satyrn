@@ -1,7 +1,7 @@
 import setuptools
 from bs4 import BeautifulSoup
 
-version = '0.8.6'
+version = '0.8.7.2'
 
 with open("satyrn_python/templates/index.html", "r") as read_index:
     html = read_index.read()
@@ -20,8 +20,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name='satyrn_python',
     version=version,
-    entry_points={"console_scripts": ["satyrnCLI = satyrn_python.__main__:start_cli",
-                                      "satyrn = satyrn_python.__main__:run_frontend"]},
+    entry_points={"console_scripts": ["satyrnCLI = satyrn_python.entry_point:main"]},
     author="Charles Averill",
     author_email="charlesaverill20@gmail.com",
     description="A Notebook alternative that supports branching code",
