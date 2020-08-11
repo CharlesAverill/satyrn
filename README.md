@@ -16,7 +16,7 @@
 
 # Satyrn
 
-![Satyrn](media/cover.png?raw=true)
+![Satyrn](https://github.com/CharlesAverill/satyrn/blob/master/media/cover.png?raw=true)
 Satyrn is an alternative to Jupyter notebooks that supports branching code cells.
 
 ## Contributors
