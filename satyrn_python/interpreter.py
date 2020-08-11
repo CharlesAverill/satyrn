@@ -735,14 +735,6 @@ class Interpreter:
 
             idx1 = self.graph.name_to_idx(command[1])
             idx2 = self.graph.name_to_idx(command[2])
-            """
-            if idx2 == 0:
-                confirm = input("WARNING: You are attempting to connect a node to your root node. This could cause unwanted"
-                                " recursive behavior. Are you sure? (y/n) ")
-                if "y" in confirm.lower():
-                    self.graph.connect_cells(idx1, idx2)
-            else:
-            """
             self.graph.connect_cells(idx1, idx2)
 
     def sever(self, command):
