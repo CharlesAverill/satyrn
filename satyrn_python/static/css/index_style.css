@@ -57,7 +57,7 @@ nav .main-menu > li .sub-menu {
     opacity: 0;
     visibility: hidden;
     transition: .4s;
-    padding-left: 0px; !important;
+    padding-left: 0px !important;
     border-radius: 5px;
     cursor: pointer;
 }
