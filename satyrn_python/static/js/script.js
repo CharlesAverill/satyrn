@@ -1,13 +1,244 @@
 var filename = "Untitled.SATX";
-var num_cells = 1;
+var numCells = 1;
 var is_executing = false;
 var just_finished = false;
+var codemirrors = [];
+
+function setup_keyboard_shortcuts(doc){
+    $(doc).bind("keyup", "Ctrl+return", function(){
+        if(clicked_textarea == ""){
+            return;
+        }
+        $.ajax({
+            type : "POST",
+            url : "/individual_execute/",
+            dataType: "json",
+            data: JSON.stringify({"cell_name": clicked_textarea}),
+            contentType: "application/json",
+            complete: function(){
+                is_executing = true;
+                just_finished = false;
+            }
+        });
+    });
+    $(doc).bind("keyup", "Ctrl+r", function(){
+        bfs_execute();
+    });
+    $(doc).bind("keyup", "Ctrl+s", function(){
+        var satx_text = "";
+        $.ajax({
+            type : "POST",
+            url : "/get_satx_text/",
+            dataType: "json",
+            data: JSON.stringify({"text": ""}),
+            contentType: "application/json",
+            complete: function (s) {
+                satx_text = s["responseText"];
+
+                var dwnld_ele = document.createElement("a");
+                dwnld_ele.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURI(satx_text));
+                dwnld_ele.setAttribute("download", filename);
+
+                dwnld_ele.style.display = "none";
+                document.body.appendChild(dwnld_ele);
+                dwnld_ele.click();
+                document.body.removeChild(dwnld_ele);
+            }
+        });
+    });
+    $(doc).bind("keyup", "Ctrl+c", function(){
+        console.log("Interrupt");
+    });
+    $(doc).bind("keyup", "Ctrl+d", function(){
+        $.ajax({
+            type : "POST",
+            url : "/dupe_cell/",
+            dataType: "json",
+            data: JSON.stringify({"cell_name": clicked_textarea,
+                "content": "",
+                "content_type": ""}),
+            contentType: "application/json",
+            success: function (data) {
+                create_cell(doc, data["cell_name"], data["content"], data["content_type"]);
+            }
+        });
+    });
+    $(doc).bind("keyup", "Ctrl+backspace", function(){
+        if(clicked_textarea == ""){
+            return;
+        }
+        $.ajax({
+            type : "POST",
+            url : "/destroy_cell/",
+            dataType: "json",
+            data: JSON.stringify(clicked_textarea),
+            contentType: "application/json",
+            complete: function (o) {
+                var output = o.responseJSON;
+                var success = output["success"]
+
+                if(success == "500"){
+                    alert("Couldn't remove cell " + clicked_textarea);
+                }
+                else{
+                    last_deleted_cell["name"] = output["name"];
+                    last_deleted_cell["content"] = output["content"];
+                    last_deleted_cell["content_type"] = output["content_type"];
+                    doc.find("div").remove("." + clicked_textarea);
+                }
+            }
+        });
+    });
+}
+
+function removeDraggables(){
+    for(var i = 0; i < numCells; i++){
+        $("iframe").contents().find("#draggable").remove();
+    }
+    numCells = 0;
+}
+
+function updateDCO(appended_string){
+    var textarea = $("#dynamic_code_output")
+    textarea.val(appended_string);
+    if(textarea.length)
+       textarea.scrollTop(textarea[0].scrollHeight - textarea.height());
+}
+
+function add_codemirror_editor(doc, ta_id, value="\n\n", contentType){
+    var cm = CodeMirror(doc.querySelector(ta_id), {
+        lineNumbers: true,
+        tabSize: 4,
+        indentUnit: 4,
+        value: value,
+        mode: contentType,
+        theme: "rubyblue"
+    });
+    cm.on("change", function(){
+        currentVal = cm.getValue();
+        $.ajax({
+            type : "POST",
+            url : "/edit_cell/",
+            dataType: "json",
+            data: JSON.stringify({"name": clicked_textarea,
+                "content": currentVal}),
+            contentType: "application/json",
+            success: function (success) {
+                if(success == "500"){
+                    alert("Couldn't edit cell " + right_clicked_cell);
+                }
+            },
+            statusCode: {
+                500: function() {
+                    if(confirm("It seems there was a disconnect. Do you want to reconnect?")){
+                        location.reload();
+                    }
+                }
+            }
+        });
+
+        started_ta_edit = false;
+    });
+
+    return cm;
+}
+
+function create_cell(doc, name, content="", contentType, top=(Math.ceil(pageY / 30 )*30)+10, left=(Math.ceil(pageX / 30 )*30)+10){
+    if(numCells == 0){
+        pageX = 0;
+        pageY = 0;
+    }
+
+    var colorClass = contentType == "python" ? "Blue" : "Green";
+
+    doc.find("#scene").append("<div id="draggable" class="".concat(name, "">" +
+        "<div style="display: inline-block; margin-right: 10px;">" +
+            "<h6 class="label" id="running_" + name + "" style="width: auto">[ ]</h6>" +
+        "</div>" +
+        "<div style="display: inline-block;">" +
+            "<h6 class="label">" + name + "</h6>" +
+        "</div>" +
+        "<div class="draggable" style="border-radius: 5px;">" +
+            "<div id="textarea_" + name + "" class="highlight" + colorClass + "" style="border-radius: 5px;"></div>" +
+        "</div></div>"))
+
+    doc.find(".".concat(name)).css("top", top );
+    doc.find(".".concat(name)).css("left", left );
+
+    //Grid system
+    doc.find(".".concat(name)).draggable({
+        snap: ".".concat(name),
+        grid: [ 30, 30 ],
+        scroll: true
+    });
+
+    //Codemirror
+    var cm = add_codemirror_editor(document.getElementById("canvas").contentWindow.document,"#textarea_" +  name, content, contentType);
+    $(".CodeMirror").resizable({
+        resize: function() {
+            cm.setSize($(this).width(), $(this).height());
+        }
+    });
+    doc.find(".CodeMirror").css("margin-top", "11px");
+
+    var dict = {"name": name, codemirror: cm};
+
+    codemirrors.push(dict);
+
+    numCells += 1;
+
+    //make it draggable
+    $(function () {
+        doc.find("." + name).draggable({
+            snap: "#draggable",
+            grid: [ 30, 30 ],
+            stop: function() {
+                var t = 10;
+                var l = 10;
+                $(doc).find(".ui-draggable").each( function(){
+                    var cell_name = $(this).attr("class").substring(0, $(this).attr("class").indexOf("ui-draggable"));
+                    if(cell_name.trim() == name.trim()){
+                        t = $(this).css("top");
+                        l = $(this).css("left");
+                    }
+                });
+                $.ajax({
+                    type : "POST",
+                    url : "/update_position/",
+                    data : JSON.stringify({
+                        "cell_name": name,
+                        "top" : t,
+                        "left" : l
+                    }),
+                    dataType: "json",
+                    contentType: "application/json"
+                });
+            },
+            scroll: true
+        });
+    });
+
+    update_positions();
+}
+
+function shutdown(){
+    if(confirm("This will close the connection. Are you sure?")){
+        $.ajax({
+            type : "POST",
+            url : "/shutdown/",
+            complete: function (s) {
+                alert("Connection has been closed");
+                $("#connected_p").text("Disconnected");
+            }
+        });
+    }
+}
 
 setup_keyboard_shortcuts(document);
 
-var last_deleted_cell = {'name': '',
-                         'content': '',
-                         'content_type': ''
+var last_deleted_cell = {"name": "",
+                         "content": "",
+                         "content_type": ""
 };
 
 $(window).load(function () {
@@ -21,23 +252,23 @@ $(window).load(function () {
         type : "POST",
         url : "/load_graph/",
         dataType: "json",
-        data: JSON.stringify({'file_contents': '',
-            'load_from_file': false}),
+        data: JSON.stringify({"file_contents": "",
+            "load_from_file": false}),
         contentType: "application/json",
         success: function (data) {
-            var names = data['names'];
-            var contents = data['contents'];
-            var content_types = data['content_types'];
-            var links = data['links'];
-            var tops = data['tops'];
-            var lefts = data['lefts'];
-            var graph_fn = data['graph_fn']
+            var names = data["names"];
+            var contents = data["contents"];
+            var content_types = data["content_types"];
+            var links = data["links"];
+            var tops = data["tops"];
+            var lefts = data["lefts"];
+            var graph_fn = data["graph_fn"];
 
-            if(names.length != contents.length){
+            if(names.length !== contents.length){
                 alert("Loading error: names and contents are not congruent")
             }
             else{
-                if(names.length == 0){
+                if(names.length === 0){
                     return;
                 }
                 removeDraggables();
@@ -60,7 +291,7 @@ $(window).load(function () {
                         filename = graph_fn;
 
                         if(!window.location.hash) {
-                            window.location = window.location + '#loaded';
+                            window.location = window.location + "#loaded";
                             window.location.reload();
                         }
                     }
@@ -73,7 +304,7 @@ $(window).load(function () {
         type : "GET",
         url : "/get_filename/",
         success: function (data) {
-            graph_fn = data['responseText'];
+            var graph_fn = data["responseText"];
             $("#graph_name_p").text(graph_fn);
             filename = graph_fn;
         }
@@ -96,19 +327,19 @@ $("#file-input").change(function(e){
             type : "POST",
             url : "/load_graph/",
             dataType: "json",
-            data: JSON.stringify({'file_contents': file_contents,
-                                    'load_from_file': true,
-                                    'filename': filename}),
+            data: JSON.stringify({"file_contents": file_contents,
+                                    "load_from_file": true,
+                                    "filename": filename}),
             contentType: "application/json",
             success: function (data) {
-                var names = data['names'];
-                var contents = data['contents'];
-                var content_types = data['content_types'];
-                var links = data['links'];
-                var graph_fn = data['graph_fn']
+                var names = data["names"];
+                var contents = data["contents"];
+                var content_types = data["content_types"];
+                var links = data["links"];
+                var graph_fn = data["graph_fn"]
 
                 if(names.length != contents.length){
-                    alert("Loading error: names and contents are not congruent")
+                    alert("Loading error: names and contents are not congruent");
                 }
                 else{
                     removeDraggables();
@@ -136,7 +367,7 @@ $("#file-input").change(function(e){
                     filename = graph_fn;
 
                     if(!window.location.hash){
-                        window.location = window.location + '#loaded';
+                        window.location = window.location + "#loaded";
                     }
                     window.location.reload();
                 }
@@ -159,8 +390,8 @@ $("#graph_name_p").on("click", function(){
 
         $.ajax({
             type : "GET",
-            url : '/set_filename/',
-            data : json.stringify({'filename': filename}),
+            url : "/set_filename/",
+            data : json.stringify({"filename": filename}),
             dataType: "text"
         });
     }
@@ -171,14 +402,14 @@ $("#graph_name_p").on("click", function(){
 
 $("iframe").load(function(){
     var doc = $(this).contents();
-    var contentwindow_doc = document.getElementById('canvas').contentWindow.document;
+    var contentwindow_doc = document.getElementById("canvas").contentWindow.document;
 
     setup_keyboard_shortcuts(doc);
 
-    $(doc).delegate('textarea', 'keydown', function(e) {
+    $(doc).delegate("textarea", "keydown", function(e) {
         var keyCode = e.keyCode || e.which;
 
-        if (keyCode == 9) {
+        if (keyCode === 9) {
             e.preventDefault();
             var start = this.selectionStart;
             var end = this.selectionEnd;
@@ -197,8 +428,8 @@ $("iframe").load(function(){
     //panzoom scene
     /*
     var pz_element;
-    document.querySelectorAll('iframe').forEach( item =>
-        pz_element = item.contentWindow.document.body.querySelectorAll('#a')
+    document.querySelectorAll("iframe").forEach( item =>
+        pz_element = item.contentWindow.document.body.querySelectorAll("#a")
     )
 
 
@@ -258,7 +489,7 @@ $("iframe").load(function(){
             case "new_cell":
                 $.ajax({
                     type : "GET",
-                    url : '/create_cell/',
+                    url : "/create_cell/",
                     dataType: "text",
                     success: function (data) {
                         create_cell(doc, data, "", "python");
@@ -268,21 +499,21 @@ $("iframe").load(function(){
             case "destroy_cell":
                 $.ajax({
                     type : "POST",
-                    url : '/destroy_cell/',
+                    url : "/destroy_cell/",
                     dataType: "json",
                     data: JSON.stringify(right_clicked_cell),
                     contentType: "application/json",
                     complete: function (o) {
                         var output = o.responseJSON;
 
-                        var success = output['success']
+                        var success = output["success"]
                         if(success == "500"){
                             alert("Couldn't remove cell " + right_clicked_cell);
                         }
                         else{
-                            last_deleted_cell['name'] = output['name'];
-                            last_deleted_cell['content'] = output['content'];
-                            last_deleted_cell['content_type'] = output['content_type'];
+                            last_deleted_cell["name"] = output["name"];
+                            last_deleted_cell["content"] = output["content"];
+                            last_deleted_cell["content_type"] = output["content_type"];
                             doc.find("div").remove("." + right_clicked_cell);
                         }
                     }
@@ -291,9 +522,9 @@ $("iframe").load(function(){
             case "bfs_execute":
                 $.ajax({
                     type : "POST",
-                    url : '/root_has_outputs/',
+                    url : "/root_has_outputs/",
                     complete: function (s) {
-                        if(s['responseText'] == "warning" && num_cells > 1){
+                        if(s["responseText"] == "warning" && numCells > 1){
                             if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
                                 bfs_execute();
                             }
@@ -311,35 +542,35 @@ $("iframe").load(function(){
             case "dupe_cell":
                 $.ajax({
                     type : "POST",
-                    url : '/dupe_cell/',
+                    url : "/dupe_cell/",
                     dataType: "json",
-                    data: JSON.stringify({'cell_name': right_clicked_cell,
-                        'content': '',
-                        'content_type': ''}),
+                    data: JSON.stringify({"cell_name": right_clicked_cell,
+                        "content": "",
+                        "content_type": ""}),
                     contentType: "application/json",
                     success: function (data) {
-                        create_cell(doc, data['cell_name'], data['content'], data['content_type']);
+                        create_cell(doc, data["cell_name"], data["content"], data["content_type"]);
                     }
                 });
                 break;
             case "child_cell":
                 $.ajax({
                     type : "POST",
-                    url : '/child_cell/',
+                    url : "/child_cell/",
                     dataType: "json",
-                    data: JSON.stringify({'parent_name': right_clicked_cell}),
+                    data: JSON.stringify({"parent_name": right_clicked_cell}),
                     contentType: "application/json",
                     complete: function(data){
-                        create_cell(doc, data['responseText'], "", "python");
+                        create_cell(doc, data["responseText"], "", "python");
                     }
                 });
                 break;
             case "individual_execute":
                 $.ajax({
                     type : "POST",
-                    url : '/individual_execute/',
+                    url : "/individual_execute/",
                     dataType: "json",
-                    data: JSON.stringify({'cell_name': right_clicked_cell}),
+                    data: JSON.stringify({"cell_name": right_clicked_cell}),
                     contentType: "application/json",
                     complete: function(){
                         is_executing = true;
@@ -391,12 +622,12 @@ $("iframe").load(function(){
 
             $.ajax({
                 type : "POST",
-                url : '/recursion_check/',
+                url : "/recursion_check/",
                 dataType: "json",
-                data: JSON.stringify({'cell_name': clicked_textarea}),
+                data: JSON.stringify({"cell_name": clicked_textarea}),
                 contentType: "application/json",
                 complete: function (s) {
-                    if(s['responseText'] == "warning"){
+                    if(s["responseText"] == "warning"){
                         if(!confirm("Linking to a cell with output links can cause undesired recursion. Are you sure?")){
                             continue_with_link = false;
                         }
@@ -406,10 +637,10 @@ $("iframe").load(function(){
             if(continue_with_link) {
                 $.ajax({
                     type : "POST",
-                    url : '/link_cells/',
+                    url : "/link_cells/",
                     dataType: "json",
-                    data: JSON.stringify({'first': right_clicked_cell,
-                        'second': clicked_textarea}),
+                    data: JSON.stringify({"first": right_clicked_cell,
+                        "second": clicked_textarea}),
                     contentType: "application/json",
                     success: function (success) {
                         if(success == "500"){
@@ -446,7 +677,7 @@ $("iframe").load(function(){
 
         $.ajax({
             type : "POST",
-            url : '/graph_has_name/',
+            url : "/graph_has_name/",
             dataType: "json",
             data: JSON.stringify(new_name),
             contentType: "application/json",
@@ -457,10 +688,10 @@ $("iframe").load(function(){
                 else{
                     $.ajax({
                         type : "POST",
-                        url : '/rename_cell/',
+                        url : "/rename_cell/",
                         dataType: "json",
-                        data: JSON.stringify({'old_name': old_name,
-                            'new_name': new_name}),
+                        data: JSON.stringify({"old_name": old_name,
+                            "new_name": new_name}),
                         contentType: "application/json",
                         success: function (success) {
                             if(success == "500"){
@@ -468,7 +699,7 @@ $("iframe").load(function(){
                             }
                             else{
                                 h6.html(new_name);
-                                doc.find("." + old_name).attr('class', new_name + " " + doc.find("." + old_name).attr('class').replace(old_name, ""));
+                                doc.find("." + old_name).attr("class", new_name + " " + doc.find("." + old_name).attr("class").replace(old_name, ""));
                                 doc.find("#textarea_" + old_name).attr("id", "textarea_" + new_name);
                             }
                         }
@@ -488,7 +719,7 @@ $(document).on("click", ".shutdown", function(){
 $(document).on("click", "a, li", function(){
     var attr = "";
     var child = $(this).children()[0];
-    if(child === 'undefined'){
+    if(child === "undefined"){
         attr = $(this).attr("action");
     }
     else{
@@ -502,9 +733,9 @@ $(document).on("click", "a, li", function(){
         case "run_all":
             $.ajax({
                 type : "POST",
-                url : '/root_has_outputs/',
+                url : "/root_has_outputs/",
                 complete: function (s) {
-                    if(s['responseText'] == "warning" && num_cells > 1){
+                    if(s["responseText"] == "warning" && numCells > 1){
                         if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
                             bfs_execute();
                         }
@@ -516,35 +747,35 @@ $(document).on("click", "a, li", function(){
             });
             break;
         case "save_graph_as":
-            var dict = {'names': [], 'tops': [], 'lefts': []};
+            var dict = {"names": [], "tops": [], "lefts": []};
             var doc = $("iframe").contents();
 
             $(doc).find(".ui-draggable").each( function(){
                 var cell_name = $(this).attr("class").substring(0, $(this).attr("class").indexOf("ui-draggable"));
                 var top = $(this).css("top");
                 var left = $(this).css("left");
-                dict['names'].push(cell_name);
-                dict['tops'].push(top);
-                dict['lefts'].push(left);
+                dict["names"].push(cell_name);
+                dict["tops"].push(top);
+                dict["lefts"].push(left);
             });
 
             var satx_text = "";
             $.ajax({
                 type : "POST",
-                url : '/get_satx_text/',
+                url : "/get_satx_text/",
                 dataType: "json",
                 data: JSON.stringify(dict),
                 contentType: "application/json",
                 complete: function (s) {
                     filename = $("#graph_name_p").text()
 
-                    satx_text = s['responseText'];
+                    satx_text = s["responseText"];
 
-                    var dwnld_ele = document.createElement('a');
-                    dwnld_ele.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURI(satx_text));
-                    dwnld_ele.setAttribute('download', filename);
+                    var dwnld_ele = document.createElement("a");
+                    dwnld_ele.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURI(satx_text));
+                    dwnld_ele.setAttribute("download", filename);
 
-                    dwnld_ele.style.display = 'none';
+                    dwnld_ele.style.display = "none";
                     document.body.appendChild(dwnld_ele);
                     dwnld_ele.click();
                     document.body.removeChild(dwnld_ele);
@@ -555,7 +786,7 @@ $(document).on("click", "a, li", function(){
             if(confirm("Resetting the runtime will destroy all variables. Are you sure?")){
                 $.ajax({
                     type : "POST",
-                    url : '/reset_runtime/',
+                    url : "/reset_runtime/",
                     complete: function (s) {
                         alert("Runtime has been reset")
                     }
@@ -566,28 +797,28 @@ $(document).on("click", "a, li", function(){
             if(clicked_textarea != ""){
                 $.ajax({
                     type : "POST",
-                    url : '/dupe_cell/',
+                    url : "/dupe_cell/",
                     dataType: "json",
-                    data: JSON.stringify({'cell_name': clicked_textarea,
-                        'content': '',
-                        'content_type': ''}),
+                    data: JSON.stringify({"cell_name": clicked_textarea,
+                        "content": "",
+                        "content_type": ""}),
                     contentType: "application/json",
                     success: function (data) {
-                        create_cell($("iframe").contents(), data['cell_name'], data['content'], data['content_type']);
+                        create_cell($("iframe").contents(), data["cell_name"], data["content"], data["content_type"]);
                     }
                 });
             }
             break;
         case "load_graph":
-            $('#file-input').trigger('click');
+            $("#file-input").trigger("click");
             break;
         case "set_as_md":
             if(clicked_textarea != ""){
                 $.ajax({
                     type : "POST",
-                    url : '/set_as_md/',
+                    url : "/set_as_md/",
                     dataType: "json",
-                    data: JSON.stringify({'cell_name': clicked_textarea}),
+                    data: JSON.stringify({"cell_name": clicked_textarea}),
                     contentType: "application/json",
                     success: function (data) {
                         var ele = $("iframe").contents().find("#textarea_" + clicked_textarea);
@@ -595,11 +826,11 @@ $(document).on("click", "a, li", function(){
 
                         for(var i = 0; i < codemirrors.length; i++){
                             var dict = codemirrors[i];
-                            var n = dict['name'];
+                            var n = dict["name"];
                             if(n != clicked_textarea){
                                 continue;
                             }
-                            var cm = dict['codemirror'];
+                            var cm = dict["codemirror"];
                             cm.setOption("mode", "markdown");
                         }
                     }
@@ -610,9 +841,9 @@ $(document).on("click", "a, li", function(){
             if(clicked_textarea != ""){
                 $.ajax({
                     type : "POST",
-                    url : '/set_as_py/',
+                    url : "/set_as_py/",
                     dataType: "json",
-                    data: JSON.stringify({'cell_name': clicked_textarea}),
+                    data: JSON.stringify({"cell_name": clicked_textarea}),
                     contentType: "application/json",
                     success: function (data) {
                         var ele = $("iframe").contents().find("#textarea_" + clicked_textarea);
@@ -620,11 +851,11 @@ $(document).on("click", "a, li", function(){
 
                         for(var i = 0; i < codemirrors.length; i++){
                             var dict = codemirrors[i];
-                            var n = dict['name'];
+                            var n = dict["name"];
                             if(n != clicked_textarea){
                                 continue;
                             }
-                            var cm = dict['codemirror'];
+                            var cm = dict["codemirror"];
                             cm.setOption("mode", "python");
                         }
                     }
@@ -635,7 +866,7 @@ $(document).on("click", "a, li", function(){
             if(confirm("Resetting the graph will destroy all cells and variables. Are you sure?")){
                 $.ajax({
                     type : "POST",
-                    url : '/reset_graph/',
+                    url : "/reset_graph/",
                     complete: function (s) {
                         alert("Graph has been reset. Tab will now reload.");
                         location.reload();
@@ -647,13 +878,13 @@ $(document).on("click", "a, li", function(){
             if(confirm("Resetting the runtime will destroy all variables. Are you sure?")){
                 $.ajax({
                     type : "POST",
-                    url : '/reset_runtime/',
+                    url : "/reset_runtime/",
                     complete: function (s) {
                         $.ajax({
                             type : "POST",
-                            url : '/root_has_outputs/',
+                            url : "/root_has_outputs/",
                             complete: function (s) {
-                                if(s['responseText'] == "warning" && num_cells > 1){
+                                if(s["responseText"] == "warning" && numCells > 1){
                                     if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
                                         bfs_execute();
                                     }
@@ -670,7 +901,7 @@ $(document).on("click", "a, li", function(){
         case "clear_dco":
             $.ajax({
                 type : "POST",
-                url : '/clear_output/',
+                url : "/clear_output/",
                 complete: function () {
                     updateDCO("");
                 }
@@ -682,9 +913,9 @@ $(document).on("click", "a, li", function(){
             }
             $.ajax({
                 type : "POST",
-                url : '/individual_execute/',
+                url : "/individual_execute/",
                 dataType: "json",
-                data: JSON.stringify({'cell_name': clicked_textarea}),
+                data: JSON.stringify({"cell_name": clicked_textarea}),
                 contentType: "application/json",
                 complete: function(){
                     is_executing = true;
@@ -695,7 +926,7 @@ $(document).on("click", "a, li", function(){
         case "create_cell":
             $.ajax({
                 type : "GET",
-                url : '/create_cell/',
+                url : "/create_cell/",
                 dataType: "text",
                 success: function (data) {
                     create_cell($("iframe").contents(), data, "", "python");
@@ -706,18 +937,18 @@ $(document).on("click", "a, li", function(){
             var satx_text = "";
             $.ajax({
                 type : "POST",
-                url : '/get_py_text/',
+                url : "/get_py_text/",
                 dataType: "json",
-                data: JSON.stringify({'text': ""}),
+                data: JSON.stringify({"text": ""}),
                 contentType: "application/json",
                 complete: function (s) {
-                    satx_text = s['responseText'];
+                    satx_text = s["responseText"];
 
-                    var dwnld_ele = document.createElement('a');
-                    dwnld_ele.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURI(satx_text));
-                    dwnld_ele.setAttribute('download', filename.substring(0, filename.length - 4) + "py");
+                    var dwnld_ele = document.createElement("a");
+                    dwnld_ele.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURI(satx_text));
+                    dwnld_ele.setAttribute("download", filename.substring(0, filename.length - 4) + "py");
 
-                    dwnld_ele.style.display = 'none';
+                    dwnld_ele.style.display = "none";
                     document.body.appendChild(dwnld_ele);
                     dwnld_ele.click();
                     document.body.removeChild(dwnld_ele);
@@ -737,9 +968,9 @@ var pageY;
 var clicked_textarea = "";
 //bool for if renaming cell or not
 var renaming = false;
-//store cell's current contents/name
+//store cell"s current contents/name
 var currentVal = null;
-//I forget the difference between this and clicked_textarea but it works so don't mess with it
+//I forget the difference between this and clicked_textarea but it works so don"t mess with it
 var ta_class = "";
 //bool for if user has started to edit textarea
 var started_ta_edit = false;
@@ -751,7 +982,7 @@ function bfs_execute(){
     just_finished = false;
     $.ajax({
         type : "POST",
-        url : '/bfs_execute/',
+        url : "/bfs_execute/",
         success: function (success) {
             if(success == "500"){
                 alert("There was an error with the execution");
@@ -768,124 +999,17 @@ function update_positions(){
 
         $.ajax({
             type : "POST",
-            url : '/update_position/',
+            url : "/update_position/",
             data : JSON.stringify({
-                'cell_name': cell_name,
-                'top' : top,
-                'left' : left
+                "cell_name": cell_name,
+                "top" : top,
+                "left" : left
             }),
             dataType: "json",
             contentType: "application/json",
         });
     });
 };
-
-var codemirrors = [];
-
-function create_cell(doc, name, content="", contentType, top=(Math.ceil(pageY / 30 )*30)+10, left=(Math.ceil(pageX / 30 )*30)+10){
-    if(num_cells == 0){
-        pageX = 0;
-        pageY = 0;
-    }
-
-    var colorClass = contentType == "python" ? "Blue" : "Green";
-
-    doc.find("#scene").append('<div id="draggable" class="'.concat(name, '">' +
-        '<div style="display: inline-block; margin-right: 10px;">' +
-            '<h6 class="label" id="running_' + name + '" style="width: auto">[ ]</h6>' +
-        '</div>' +
-        '<div style="display: inline-block;">' +
-            '<h6 class="label">' + name + '</h6>' +
-        '</div>' +
-        '<div class="draggable" style="border-radius: 5px;">' +
-            '<div id="textarea_' + name + '" class="highlight' + colorClass + '" style="border-radius: 5px;"></div>' +
-        '</div></div>'))
-
-    doc.find(".".concat(name)).css("top", top );
-    doc.find(".".concat(name)).css("left", left );
-
-    //Grid system
-    doc.find(".".concat(name)).draggable({
-        snap: ".".concat(name),
-        grid: [ 30, 30 ],
-        scroll: true
-    });
-
-    //Codemirror
-    var cm = add_codemirror_editor(document.getElementById("canvas").contentWindow.document,"#textarea_" +  name, content, contentType);
-    $('.CodeMirror').resizable({
-        resize: function() {
-            cm.setSize($(this).width(), $(this).height());
-        }
-    });
-    doc.find(".CodeMirror").css("margin-top", "11px");
-
-    var dict = {'name': name, codemirror: cm};
-
-    codemirrors.push(dict);
-
-    num_cells += 1;
-
-    //make it draggable
-    $(function () {
-        doc.find("." + name).draggable({
-            snap: "#draggable",
-            grid: [ 30, 30 ],
-            stop: function() {
-                var t = 10;
-                var l = 10;
-                $(doc).find(".ui-draggable").each( function(){
-                    var cell_name = $(this).attr("class").substring(0, $(this).attr("class").indexOf("ui-draggable"));
-                    if(cell_name.trim() == name.trim()){
-                        t = $(this).css("top");
-                        l = $(this).css("left");
-                    }
-                });
-                $.ajax({
-                    type : "POST",
-                    url : '/update_position/',
-                    data : JSON.stringify({
-                        'cell_name': name,
-                        'top' : t,
-                        'left' : l
-                    }),
-                    dataType: "json",
-                    contentType: "application/json"
-                });
-            },
-            scroll: true
-        });
-    });
-
-    update_positions();
-}
-
-function shutdown(){
-    if(confirm("This will close the connection. Are you sure?")){
-        $.ajax({
-            type : "POST",
-            url : '/shutdown/',
-            complete: function (s) {
-                alert("Connection has been closed");
-                $("#connected_p").text("Disconnected");
-            }
-        });
-    }
-}
-
-function removeDraggables(){
-    for(var i = 0; i < num_cells; i++){
-        $("iframe").contents().find("#draggable").remove();
-    }
-    num_cells = 0;
-}
-
-function updateDCO(appended_string){
-    var textarea = $("#dynamic_code_output")
-    textarea.val(appended_string);
-    if(textarea.length)
-       textarea.scrollTop(textarea[0].scrollHeight - textarea.height());
-}
 
 const throttle = (callback, delay) => {
     let throttleTimeout = null;
@@ -993,128 +1117,3 @@ var debounce_func = debounce(function(){
 window.setInterval(function(){
     debounce_func();
 }, 200);
-
-function add_codemirror_editor(doc, ta_id, value='\n\n', contentType){
-    var cm = CodeMirror(doc.querySelector(ta_id), {
-        lineNumbers: true,
-        tabSize: 4,
-        indentUnit: 4,
-        value: value,
-        mode: contentType,
-        theme: 'rubyblue'
-    });
-    cm.on("change", function(){
-        currentVal = cm.getValue();
-        $.ajax({
-            type : "POST",
-            url : '/edit_cell/',
-            dataType: "json",
-            data: JSON.stringify({'name': clicked_textarea,
-                'content': currentVal}),
-            contentType: "application/json",
-            success: function (success) {
-                if(success == "500"){
-                    alert("Couldn't edit cell " + right_clicked_cell);
-                }
-            },
-            statusCode: {
-                500: function() {
-                    if(confirm("It seems there was a disconnect. Do you want to reconnect?")){
-                        location.reload();
-                    }
-                }
-            }
-        });
-
-        started_ta_edit = false;
-    });
-
-    return cm;
-}
-
-function setup_keyboard_shortcuts(doc){
-    $(doc).bind('keyup', 'Ctrl+return', function(){
-        if(clicked_textarea == ""){
-            return;
-        }
-        $.ajax({
-            type : "POST",
-            url : '/individual_execute/',
-            dataType: "json",
-            data: JSON.stringify({'cell_name': clicked_textarea}),
-            contentType: "application/json",
-            complete: function(){
-                is_executing = true;
-                just_finished = false;
-            }
-        });
-    });
-    $(doc).bind('keyup', 'Ctrl+r', function(){
-        bfs_execute();
-    });
-    $(doc).bind('keyup', 'Ctrl+s', function(){
-        var satx_text = "";
-        $.ajax({
-            type : "POST",
-            url : '/get_satx_text/',
-            dataType: "json",
-            data: JSON.stringify({'text': ""}),
-            contentType: "application/json",
-            complete: function (s) {
-                satx_text = s['responseText'];
-
-                var dwnld_ele = document.createElement('a');
-                dwnld_ele.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURI(satx_text));
-                dwnld_ele.setAttribute('download', filename);
-
-                dwnld_ele.style.display = 'none';
-                document.body.appendChild(dwnld_ele);
-                dwnld_ele.click();
-                document.body.removeChild(dwnld_ele);
-            }
-        });
-    });
-    $(doc).bind('keyup', 'Ctrl+c', function(){
-        console.log("Interrupt");
-    });
-    $(doc).bind('keyup', 'Ctrl+d', function(){
-        $.ajax({
-            type : "POST",
-            url : '/dupe_cell/',
-            dataType: "json",
-            data: JSON.stringify({'cell_name': clicked_textarea,
-                'content': '',
-                'content_type': ''}),
-            contentType: "application/json",
-            success: function (data) {
-                create_cell(doc, data['cell_name'], data['content'], data['content_type']);
-            }
-        });
-    });
-    $(doc).bind('keyup', 'Ctrl+backspace', function(){
-        if(clicked_textarea == ""){
-            return;
-        }
-        $.ajax({
-            type : "POST",
-            url : '/destroy_cell/',
-            dataType: "json",
-            data: JSON.stringify(clicked_textarea),
-            contentType: "application/json",
-            complete: function (o) {
-                var output = o.responseJSON;
-                var success = output['success']
-
-                if(success == "500"){
-                    alert("Couldn't remove cell " + clicked_textarea);
-                }
-                else{
-                    last_deleted_cell['name'] = output['name'];
-                    last_deleted_cell['content'] = output['content'];
-                    last_deleted_cell['content_type'] = output['content_type'];
-                    doc.find("div").remove("." + clicked_textarea);
-                }
-            }
-        });
-    });
-}
