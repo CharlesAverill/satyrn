@@ -20,11 +20,6 @@ def start_ui(url, port, interpreter, quiet):
         webbrowser.open("http://" + openurl + ":" + str(port) + "/#loaded")
 
     if not quiet:
-        with open(os.path.abspath(__file__)[:(-1 * len(os.path.basename(__file__)))] + "/asciiart.txt") as asciiart:
-            print("".join(asciiart.readlines()))
-
-        print("Thank you for using Satyrn! For issues and updates visit https://GitHub.com/CharlesAverill/satyrn\n")
-
         print("Initializing CherryPy server...")
 
     os.environ["FLASK_APP"] = "satyrnUI.satyrnUI"
@@ -51,13 +46,7 @@ def start_ui(url, port, interpreter, quiet):
             print("Stopped")
 
 
-def start_cli(interpreter, quiet):
-    if not quiet:
-        with open(os.path.abspath(__file__)[:(-1 * len(os.path.basename(__file__)))] + "/asciiart.txt") as asciiart:
-            print("".join(asciiart.readlines()))
-
-        print("Thank you for using Satyrn! For issues and updates visit https://GitHub.com/CharlesAverill/satyrn\n")
-
+def start_cli(interpreter):
     interpreter.run()
 
 
@@ -79,8 +68,14 @@ def main():
         if opt in ("q", "quiet", "-q", "--quiet"):
             quiet = True
 
+    if not quiet:
+        with open(os.path.abspath(__file__)[:(-1 * len(os.path.basename(__file__)))] + "/asciiart.txt") as asciiart:
+            print("".join(asciiart.readlines()))
+
+        print("Thank you for using Satyrn! \nFor issues and updates visit https://GitHub.com/CharlesAverill/satyrn\n")
+
     if cli_mode:
-        start_cli(interpreter, quiet)
+        start_cli(interpreter)
     else:
         opts, args = getopt.getopt(arguments, "p:hq", ["port=", "hidden", "quiet"])
 
@@ -90,6 +85,3 @@ def main():
             if opt in ("-h", "--hidden"):
                 url = "127.0.0.1"
         start_ui(url, port, interpreter, quiet)
-
-
-main()

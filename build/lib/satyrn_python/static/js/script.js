@@ -628,7 +628,7 @@ $("iframe").load(function(){
                 contentType: "application/json",
                 complete: function (s) {
                     if(s["responseText"] == "warning"){
-                        if(!confirm("Linking to a cell with output links can cause undesired recursion. Are you sure?")){
+                        if(!confirm("Linking to a cell with output links can cause undesired recursion. Continue?")){
                             continue_with_link = false;
                         }
                     }
@@ -783,7 +783,7 @@ $(document).on("click", "a, li", function(){
             });
             break;
         case "reset_runtime":
-            if(confirm("Resetting the runtime will destroy all variables. Are you sure?")){
+            if(confirm("Resetting the runtime will destroy all variables. Continue?")){
                 $.ajax({
                     type : "POST",
                     url : "/reset_runtime/",
@@ -863,7 +863,7 @@ $(document).on("click", "a, li", function(){
             }
             break;
         case "reset_graph":
-            if(confirm("Resetting the graph will destroy all cells and variables. Are you sure?")){
+            if(confirm("Resetting the graph will destroy all cells and variables. Continue?")){
                 $.ajax({
                     type : "POST",
                     url : "/reset_graph/",
@@ -875,7 +875,7 @@ $(document).on("click", "a, li", function(){
             }
             break;
         case "reset_run_all":
-            if(confirm("Resetting the runtime will destroy all variables. Are you sure?")){
+            if(confirm("Resetting the runtime will destroy all variables.Continue?")){
                 $.ajax({
                     type : "POST",
                     url : "/reset_runtime/",
@@ -954,6 +954,25 @@ $(document).on("click", "a, li", function(){
                     document.body.removeChild(dwnld_ele);
                 }
             });
+            break;
+        case "new_graph":
+            if(confirm("Creating a new graph will destroy any unsaved progress. Continue?")){
+                $.ajax({
+                    type : "POST",
+                    url : "/reset_graph/",
+                    complete: function (s) {
+                        $.ajax({
+                            type : "POST",
+                            url : "/set_filename/",
+                            data : "Untitled.SATX",
+                            complete: function (s) {
+                                alert("New graph has been created. Tab will now reload.");
+                                location.reload();
+                            }
+                        });
+                    }
+                });
+            }
             break;
     }
 })

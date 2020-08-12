@@ -93,8 +93,8 @@ your Satyrn instance
     - Deletes all local variables created by cells.
 * `reset_graph`
     - Deletes all cells and variables. Equivalent of restarting Satyrn session.
-* `save [filename].satx`
-    - Saves graph to .satx file.
+* `save [filename]`
+    - Saves graph, supported formats are `.satx`, `.py`, and `.ipynb`.
 * `[filename].satx`
     - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](examples/syntax_example.satx) shows the basic syntax rules.
 

@@ -2,3 +2,5 @@ networkx
 matplotlib
 flask
 cherrypy
+nbformat
+beautifulsoup4

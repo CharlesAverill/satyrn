@@ -1,3 +1,3 @@
 [console_scripts]
-satyrnCLI = satyrn_python.entry_point:main
+satyrn = satyrn_python.entry_point:main
 

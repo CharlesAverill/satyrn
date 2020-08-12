@@ -444,7 +444,6 @@ class Graph:
     def get_py_file(self):
         txtout = ""
 
-        lookup_table = self.get_lookup_table()
         cell_names, edges, _ = self.get_all_cells_edges()
         cells = [self.get_cell(cn) for cn in cell_names]
 
@@ -458,6 +457,27 @@ class Graph:
         txtout += "# <EOF>"
 
         return txtout
+
+    def get_ipynb_file(self):
+        from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell
+        from nbformat.v4.nbjson import JSONWriter
+
+        json_writer = JSONWriter()
+
+        nb = new_notebook()
+
+        cell_names, edges, _ = self.get_all_cells_edges()
+        cells = [self.get_cell(cn) for cn in cell_names]
+
+        for c in cells:
+            print(nb)
+            if c.content_type == "python":
+                nb.cells.append(new_code_cell(c.content, metadata={'name': c.name}))
+            else:
+                nb.cells.append(new_markdown_cell(c.content, metadata={'name': c.name}))
+
+        print(json_writer.writes(nb))
+        return json_writer.writes(nb)
 
 
 class Interpreter:
@@ -865,7 +885,15 @@ class Interpreter:
         if len(command) != 2:
             print("save takes 1 argument1: [filename]")
             return
-        self.graph.save_graph(command[1])
+        output_text = ""
+        if command[1].lower().endswith(".satx"):
+            output_text = self.graph.get_satx_as_txt()
+        elif command[1].lower().endswith(".py"):
+            output_text = self.graph.get_py_file()
+        elif command[1].lower().endswith(".ipynb"):
+            output_text = self.graph.get_ipynb_file()
+        with open(command[1], "w+") as file:
+            file.write(output_text)
 
     def run(self):
         # Main application loop
