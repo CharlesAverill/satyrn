@@ -1,1 +1,2 @@
 recursive-include satyrn_python *
+recursive-exclude satyrn_python/static *

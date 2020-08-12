@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import webbrowser
+import zipfile
 
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 
@@ -12,6 +13,11 @@ from .interpreter import Interpreter
 
 
 def start_ui(url, port, interpreter, quiet):
+    if not os.path.exists(os.path.dirname(os.path.abspath(__file__)) + "/satyrn_python/static/"):
+        with zipfile.ZipFile(os.path.dirname(os.path.abspath(__file__)) + "/static.zip",
+                             'r') as zipped_file:
+            zipped_file.extractall(os.path.dirname(os.path.abspath(__file__)) + "/static")
+
     openurl = "localhost" if url == "0.0.0.0" else url
 
     def delayed_browser_open():
