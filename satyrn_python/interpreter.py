@@ -528,56 +528,7 @@ class Interpreter:
             elif command[0] == "quit":
                 break
 
-            elif command[0] == "cell":
-                self.create_cell(command)
-
-            elif command[0] == "edit":
-                self.edit_cell(command)
-
-            elif command[0] == "rename":
-                self.rename_cell(command)
-
-            elif command[0] == "remove":
-                self.remove_cell(command)
-
-            elif command[0] == "link":
-                self.link(command)
-
-            elif command[0] == "sever":
-                self.sever(command)
-
-            elif command[0] == "merge":
-                self.merge(command)
-
-            elif command[0] == "swap":
-                self.swap(command)
-
-            elif command[0] == "execute":
-                self.execute(command)
-
-            elif command[0] == "display":
-                self.display(command)
-
-            elif command[0] == "list":
-                self.list_cells()
-
-            elif command[0] == "stdout":
-                self.set_stdout(command)
-
-            elif command[0] == "reset_runtime":
-                self.reset_runtime()
-
-            elif command[0] == "reset_graph":
-                self.reset_graph()
-
-            elif command[0] == "save":
-                self.save_graph(command)
-
-            elif ".satx" in command[0]:
-                self.run_file(command)
-
-            elif command[0]:
-                print("Syntax error: command \"" + command[0] + "\" not recognized.")
+            self.command_switch(command)
 
     def read_input(self):
         # Read input from stdin or external file. Returns list of command params.
