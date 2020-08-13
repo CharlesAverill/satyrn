@@ -3,6 +3,6 @@ repo_url: https://github.com/CharlesAverill/satyrn
 site_description: Satyrn is an alternative to Jupyter notebooks that supports branching code cells and network collaboration.
 site_author: Charles Averill
 nav:
-  - Quick Start: "satyrn.md"
+  - Quick Start: "index.md"
   - Introduction: "introduction.md"
   - CLI: "cli.md"
