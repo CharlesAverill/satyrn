@@ -19,7 +19,8 @@ necessarily linked linearly.
 In the graph above, cell `root` is what's called a "parent cell", with `a` and `b` being its children, and `c` 
 being the child of `b`. This is how Satyrn Graphs, or `.SATX` files, are structured. Satyrn performs a breadth-first 
 traversal on its graph to execute the code within the cells. This means that while cell `root` will executet before all 
-other cells, cells `a` and `b` will run their code <b>simultaneously</b>. This is particularly useful in situations like data analysis, where lots of data 
+other cells, cells `a` and `b` will run their code <b>simultaneously</b>, and once both `a` and `b` are finished, `c` 
+will execute. This is particularly useful in situations like data analysis, where lots of data 
 must be preprocessed before they can be used. If you have multiple sets of data to preprocess, why not preprocess them 
 simultaneously instead of waiting for them to finish 1-by-1?
 

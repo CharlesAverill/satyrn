@@ -3,7 +3,6 @@ README.md
 setup.py
 satyrn_python/.DS_Store
 satyrn_python/__init__.py
-satyrn_python/__main__.py
 satyrn_python/app.py
 satyrn_python/asciiart.txt
 satyrn_python/entry_point.py

@@ -1,1 +1,1 @@
-from .entry_point import start_cli, start_ui
+from .entry_point import main

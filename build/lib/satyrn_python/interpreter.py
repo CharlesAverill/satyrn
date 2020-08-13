@@ -26,14 +26,13 @@ TextIO is just a handy way of taking multi-line input from users and displaying 
 class TextIO:
 
     def __init__(self):
+        """Used to receive text input for Cells"""
         # Root tkinter window
         self.root = None
         self.user_input = ""
 
     def get_text_from_widget(self, widget):
-        """
-        :param widget: Widget to pull text from
-        """
+        """:param widget: Widget to pull text from"""
         self.user_input = widget.get("1.0", "end")
         self.root.quit()
 
@@ -123,6 +122,7 @@ class Cell:
 class Graph:
 
     def __init__(self, parent):
+        """Contains Cell objects and traverses them for execution"""
         # Networkx Directed graph
         self.graph = nx.DiGraph()
         self.parent = parent
@@ -169,9 +169,7 @@ class Graph:
                 return cell
 
     def add_cell(self, new_cell: Cell):
-        """
-        :param new_cell: Cell object to be added to graph
-        """
+        """:param new_cell: Cell object to be added to graph"""
         if new_cell.name in list(self.names_to_indeces.keys()):
             print(new_cell.name)
             print("All cells must have unique names")
@@ -483,6 +481,7 @@ class Graph:
 class Interpreter:
 
     def __init__(self):
+        """Contains Graph object and interprets user input"""
         # Graph object
         self.graph = Graph(self)
         # Assume live input first
@@ -500,9 +499,7 @@ class Interpreter:
         self.lock = threading.Lock()
 
     def run_file(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         try:
             openfile = open(command[0], "r")
             self.file = openfile.readlines()
@@ -692,9 +689,7 @@ class Interpreter:
             self.graph.add_cell(Cell(name, content_type, content.strip()))
 
     def edit_cell(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         with self.lock:
             if len(command) != 2:
                 print("edit takes 1 argument: [cell_name]")
@@ -714,9 +709,7 @@ class Interpreter:
             target_cell.content = command[2]
 
     def rename_cell(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         with self.lock:
             if len(command) != 3:
                 print("link takes 2 arguments: [original_cell_name] [new_cell_name]")
@@ -735,9 +728,7 @@ class Interpreter:
                     break
 
     def remove_cell(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         to_remove = command[1:]
         for cell in to_remove:
             i = self.graph.remove_cell(cell)
@@ -745,9 +736,7 @@ class Interpreter:
                 return -1
 
     def link(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         with self.lock:
             if len(command) != 3:
                 print("link takes 2 arguments: [cell_1] [cell_2]")
@@ -758,9 +747,7 @@ class Interpreter:
             self.graph.connect_cells(idx1, idx2)
 
     def sever(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         if len(command) != 3:
             print("sever takes 2 arguments: [cell_1] [cell_2]")
             return
@@ -771,18 +758,14 @@ class Interpreter:
         self.graph.sever_cells(name_1, name_2)
 
     def swap(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         if len(command) != 3:
             print("swap takes 2 arguments: [cell_1] [cell_2]")
             return
         self.graph.swap_cells(command[1], command[2])
 
     def merge(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         if not (2 < len(command) < 4):
             print("merge takes 2-3 arguments: [cell_1] [cell_2] (new_name)")
             return
@@ -798,9 +781,7 @@ class Interpreter:
         self.graph.merge_cells(name_1, name_2, newname)
 
     def execute(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         with self.lock:
             if ">>" in command:
                 cells_list = command[1:-2]
@@ -817,9 +798,7 @@ class Interpreter:
                 self.graph.bfs_traversal_execute(self.stdout, self.stdout_filename)
 
     def display(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         if len(command) == 1:
             self.graph.display()
         else:
@@ -851,9 +830,7 @@ class Interpreter:
         print("Edges:", edge_names)
 
     def set_stdout(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         if len(command) != 2 or (not command[1] == "internal" and not command[1] == "external"):
             print("stdout takes 1 arguments: (internal/external)")
             return
@@ -879,9 +856,7 @@ class Interpreter:
             self.std_capture = StringIO()
 
     def save_graph(self, command):
-        """
-        :param command: command to be executed
-        """
+        """:param command: command to be executed"""
         if len(command) != 2:
             print("save takes 1 argument1: [filename]")
             return
