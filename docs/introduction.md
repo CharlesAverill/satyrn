@@ -14,7 +14,7 @@ print(3)
 However, Satyrn's code execution is different. Code inside of cells still executes normally, but cells are not 
 necessarily linked linearly. 
 
-![Graph Example](media/graph.png?raw=true)
+![Graph Example](https://github.com/CharlesAverill/satyrn/blob/master/docs/media/graph.png?raw=true)
 
 In the graph above, cell `root` is what's called a "parent cell", with `a` and `b` being its children, and `c` 
 being the child of `b`. This is how Satyrn Graphs, or `.SATX` files, are structured. Satyrn performs a breadth-first 
