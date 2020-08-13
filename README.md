@@ -33,12 +33,22 @@ However, Satyrn's code execution is different. Code inside of cells still execut
 Satyrn is also a great tool for collaboration. While using the UI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. If you desire more security, the `--hidden` command line argument will hide your Satyrn instance from the network. <b>Use caution when working with Satyrn on public networks.</b>
 
 ## Contributors
-- [Charles Averill](https://github.com/CharlesAverill) - Author, back- & front-end feature integration
-- [Nathan Huckleberry](https://github.com/Nathan-Huckleberry) - Networking, optimization
-- [Tristan Wiesepape](https://github.com/qwetboy10) - Networking, optimization
-- [Ronak Malik](https://github.com/BeyondPerception) - Networking, optimization
-- [Merkie](https://githuh.com/Merkie) - Frontend design
-- [syrinsaya](https://github.com/syrinsaya) - UI design
+- [Charles Averill](https://github.com/CharlesAverill) 
+    - Author
+    - Back- & front-end feature integration
+- [Nathan Huckleberry](https://github.com/Nathan-Huckleberry)
+    - Networking
+    - Optimization
+- [Tristan Wiesepape](https://github.com/qwetboy10)
+    - Networking
+    - Optimization
+- [Ronak Malik](https://github.com/BeyondPerception)
+    - Networking
+    - Optimization
+- [Merkie](https://githuh.com/Merkie)
+    - Frontend design
+- [syrinsaya](https://github.com/syrinsaya)
+    - UI design
 
 [Join the dev Discord!](https://discord.gg/AEZtttJ)
 
