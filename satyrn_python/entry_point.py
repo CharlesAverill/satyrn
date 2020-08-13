@@ -20,7 +20,7 @@ def start_ui(url, port, interpreter, quiet):
                              'r') as zipped_file:
             zipped_file.extractall(os.path.dirname(os.path.abspath(__file__)) + "/static")
 
-    openurl = "localhost" if url == ("0." * 4)[:-1] else url
+    openurl = "localhost" if url == "0.0.0.0" else url
 
     def delayed_browser_open():
         time.sleep(3)
@@ -61,7 +61,7 @@ def start_cli(interpreter):
 def main():
     interpreter = Interpreter()
     cli_mode = False
-    url = ("0." * 4)[:-1]
+    url = "0.0.0.0"
     port = 20787
 
     arguments = sys.argv[1:]
