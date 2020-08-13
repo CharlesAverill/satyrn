@@ -17,9 +17,6 @@ def create_app(interpreter):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.root_path = os.path.dirname(os.path.abspath(__file__)[:-6])
-    app.config.from_mapping(
-        SECRET_KEY='dev'
-    )
 
     interpreter.create_cell(["create_cell", "root", "python", "n"])
 
@@ -155,7 +152,7 @@ def create_app(interpreter):
         satx_text = interpreter.graph.get_satx_as_txt()
         satx_text += "\n<!--SATYRN_POSITIONING_START-->"
 
-        for i in range(len(names)):
+        for i, _ in enumerate(names):
             satx_text += "\n" + names[i] + lefts[i] + " " + tops[i]
 
         satx_text += "\n<!--SATYRN_POSITIONING_END-->"
