@@ -22,7 +22,6 @@ Satyrn is an alternative to Jupyter notebooks that supports branching code cells
 ## What that means
 Code in Satyrn is executed in "Cells", which are small blocks of code that should perform a few small functions, but share variables, functions, imports, etc. Splitting code into these Cells allows users to run lots of "setup" cells and then play around with a cell that depends on the setup to function. This prevents users from having to run lengthy code over and over again. A similar application is Jupyter's Notebook.
 
-
 Most code is executed as a list of instructions,
 ```python
 print(1)
@@ -34,68 +33,68 @@ However, Satyrn's code execution is different. Code inside of cells still execut
 Satyrn is also a great tool for collaboration. While using the UI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. If you desire more security, the `--hidden` command line argument will hide your Satyrn instance from the network. <b>Use caution when working with Satyrn on public networks.</b>
 
 ## Contributors
-- [Charles Averill](https://github.com/CharlesAverill) - Author, back- & front-end feature integration
-- [Nathan Huckleberry](https://github.com/Nathan-Huckleberry) - Networking, optimization
-- [Tristan Wiesepape](https://github.com/qwetboy10) - Networking, optimization
-- [Ronak Malik](https://github.com/BeyondPerception) - Networking, optimization
-- [Merkie](https://githuh.com/Merkie) - Frontend design
-- [syrinsaya](https://github.com/syrinsaya) - UI design
+  - [Charles Averill](https://github.com/CharlesAverill) - Author, back- & front-end feature integration
+  - [Nathan Huckleberry](https://github.com/Nathan-Huckleberry) - Networking, optimization
+  - [Tristan Wiesepape](https://github.com/qwetboy10) - Networking, optimization
+  - [Ronak Malik](https://github.com/BeyondPerception) - Networking, optimization
+  - [Merkie](https://githuh.com/Merkie) - Frontend design
+  - [syrinsaya](https://github.com/syrinsaya) - UI design
 
 [Join the dev Discord!](https://discord.gg/AEZtttJ)
 
 ## Setup
-- Run `python -m pip install satyrn-python`
-- Run `satyrn` to open the UI (unstable)
-- Run `satyrn cli` to open the CLI
+  - Run `python -m pip install satyrn-python`
+  - Run `satyrn` to open the UI (unstable)
+  - Run `satyrn cli` to open the CLI
 
 ## Command Line Arguments
-- `cli` - Starts the CLI instead of the UI
-- `ui` - Starts the UI (Default behavior)
-- `-h --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
+  - `cli` - Starts the CLI instead of the UI
+  - `ui` - Starts the UI (Default behavior)
+  - `-h --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
 your Satyrn instance
-- `-p=n --port=n` - Designates the port for the UI to run on
-- `-q --quiet` - Quiet startup + shutdown
+  - `-p=n --port=n` - Designates the port for the UI to run on
+  - `-q --quiet` - Quiet startup + shutdown
 
 ## CLI Commands
-- `quit` - Quits out of interpreter
-- `cell [cell_name] [content_type](python/markdown) [add_content](y/n)`
+  - `quit` - Quits out of interpreter
+  - `cell [cell_name] [content_type](python/markdown) [add_content](y/n)`
     - Creates cell with given parameters
     - All cells require unique names
     - The first cell created will always be treated as the "root" cell, and will always be executed first in a complete execution call.
     - Set `content_type` to "python" for python cells
     - If `add_content` is "y", a text box will pop up. Input your python code here.
-- `remove [cell_name]`
+  - `remove [cell_name]`
     - Deletes cell and its links from graph. 
-- `edit [cell_name]`
+  - `edit [cell_name]`
     - Reopens text input window so that users can edit cells
-- `link [first_cell_name] [second_cell_name]`
+  - `link [first_cell_name] [second_cell_name]`
     - Links the two cells whose names are provided. You can technically still make branching graphs this way, but they
     will not work at all.
-- `sever [first_cell_name] [second_cell_name]`
+  - `sever [first_cell_name] [second_cell_name]`
     - Severs the link between the two cells whose names are provided
-- `merge [first_cell_name] [second_cell_name]`
+  - `merge [first_cell_name] [second_cell_name]`
     - Merges the two cells if they are adjacent.
-- `swap [first_cell_name] [second_cell_name]`
+  - `swap [first_cell_name] [second_cell_name]`
     - Swaps the contents and names of the named cells. e.g. 
-        - `a -> b -> c`
-        - `swap a b`
-        - `b -> a -> c`
-- `execute [cell_name_1] [cell_name_2] ... >> (filename)`
+      - `a -> b -> c`
+      - `swap a b`
+      - `b -> a -> c`
+  - `execute [cell_name_1] [cell_name_2] ... >> (filename)`
     - If no cell names are defined, the entire graph will execute sequentially
     - If cell names are defined, they will execute in the order they are named
     - `>> (filename)` is optional. If included, will save stdout cell output to whatever filename is provided.
-- `display [cell_name]`
+  - `display [cell_name]`
     - If `cell_name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.
-- `list`
+  - `list`
     - Prints a list of all cell names and edge pairs in graph
-- `reset_runtime`
+  - `reset_runtime`
     - Deletes all local variables created by cells.
-- `reset_graph`
+  - `reset_graph`
     - Deletes all cells and variables. Equivalent of restarting Satyrn session.
-- `save [filename]`
+  - `save [filename]`
     - Saves graph, supported formats are `.satx`, `.py`, and `.ipynb`.
-- `[filename]`
+  - `[filename]`
     - This will run a .satx file. It's just a reformatted version of the normal Satyrn input. [This test file](examples/syntax_example.satx) shows the basic syntax rules.
 
 ## CLI Example
