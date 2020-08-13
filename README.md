@@ -16,8 +16,8 @@
 
 # Satyrn
 
-![Satyrn](https://github.com/CharlesAverill/satyrn/blob/master/satyrn_python/static/cover.png?raw=true)
-Satyrn is an alternative to Jupyter notebooks that supports branching code cells.
+![Satyrn](docs/media/cover.png?raw=true)
+Satyrn is an alternative to Jupyter notebooks that supports branching code cells and network collaboration.
 
 ## What that means
 Code in Satyrn is executed in "Cells", which are small blocks of code that should perform a few small functions, but share variables, functions, imports, etc. Splitting code into these Cells allows users to run lots of "setup" cells and then play around with a cell that depends on the setup to function. This prevents users from having to run lengthy code over and over again. A similar application is Jupyter's Notebook.
