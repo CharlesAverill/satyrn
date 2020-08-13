@@ -36,22 +36,22 @@ Satyrn is also a great tool for collaboration. While using the UI, the graph sta
 -   [Charles Averill](https://github.com/CharlesAverill) 
     -   Author
     -   Back- & front-end feature integration
-    
+
 -   [Nathan Huckleberry](https://github.com/Nathan-Huckleberry)
     -   Networking
     -   Optimization
-    
+
 -   [Tristan Wiesepape](https://github.com/qwetboy10)
     -   Networking
     -   Optimization
-    
+
 -   [Ronak Malik](https://github.com/BeyondPerception)
     -   Networking
     -   Optimization
-    
+
 -   [Merkie](https://githuh.com/Merkie)
     -   Frontend design
-    
+
 -   [syrinsaya](https://github.com/syrinsaya)
     -   UI design
 
