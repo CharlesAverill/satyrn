@@ -1,6 +1,6 @@
 # Satyrn
 
-![Satyrn](media/cover.png?raw=true)
+![Satyrn](media/cover.png?raw=true =.5x)
 
 ## Installation
 Satyrn can be installed via pip: `pip install satyrn-python`

@@ -6,3 +6,8 @@ nav:
   - Quick Start: "index.md"
   - Introduction: "introduction.md"
   - CLI: "cli.md"
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - python
