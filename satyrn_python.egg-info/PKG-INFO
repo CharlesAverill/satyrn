@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: satyrn-python
-Version: 0.8.7.7
+Version: 0.8.7.7.1
 Summary: A Notebook alternative that supports branching code
 Home-page: https://github.com/CharlesAverill/satyrn/
 Author: Charles Averill
@@ -24,7 +24,7 @@ Description: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5f7ad54
         
         # Satyrn
         
-        ![Satyrn](docs/media/cover.png?raw=true)
+        ![Satyrn](https://github.com/CharlesAverill/satyrn/blob/master/docs/media/cover.png?raw=true)
         Satyrn is an alternative to Jupyter notebooks that supports branching code cells and network collaboration.
         
         ## What that means

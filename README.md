@@ -16,7 +16,7 @@
 
 # Satyrn
 
-![Satyrn](docs/media/cover.png?raw=true)
+![Satyrn](https://github.com/CharlesAverill/satyrn/blob/master/docs/media/cover.png?raw=true)
 Satyrn is an alternative to Jupyter notebooks that supports branching code cells and network collaboration.
 
 ## What that means

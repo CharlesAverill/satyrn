@@ -14,7 +14,7 @@ def zip_folder(zip_name, target_dir):
             zipobj.write(fn, fn[rootlen:])
 
 
-version = '0.8.7.7'
+version = '0.8.7.7.1'
 
 with open("satyrn_python/templates/index.html", "r") as read_index:
     html = read_index.read()
