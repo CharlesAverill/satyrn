@@ -379,29 +379,9 @@ class Graph:
         self.executing = False
 
     def save_graph(self, filename):
-        txtout = ""
+        txtout = self.get_satx_as_txt()
 
         filename = filename.replace("\"", "")
-
-        lookup_table = self.get_lookup_table()
-        cell_names, edges, _ = self.get_all_cells_edges()
-        cells = [self.get_cell(cn) for cn in cell_names]
-
-        for c in cells:
-            if c.content:
-                fill_with_code = "y:\n"
-            else:
-                fill_with_code = "n\n"
-            temp_text = "cell " + c.name + " " + c.content_type + " " + fill_with_code
-            if fill_with_code == "y:\n":
-                temp_text += c.content + "\n;\n"
-
-            txtout += temp_text
-
-        for e in edges:
-            name1 = lookup_table[e[0]]
-            name2 = lookup_table[e[1]]
-            txtout += "link " + name1 + " " + name2 + "\n"
 
         with open(filename, "w+") as file:
             file.write(txtout)
@@ -867,70 +847,71 @@ class Interpreter:
         with open(command[1], "w+") as file:
             file.write(output_text)
 
+    def command_switch(self, command):
+
+        if len(command) == 0:
+            return
+
+        elif command[0] == "help":
+            print(self.help_menu())
+
+        elif command[0] == "quit":
+            return "break"
+
+        elif command[0] == "cell":
+            self.create_cell(command)
+
+        elif command[0] == "edit":
+            self.edit_cell(command)
+
+        elif command[0] == "rename":
+            self.rename_cell(command)
+
+        elif command[0] == "remove":
+            self.remove_cell(command)
+
+        elif command[0] == "link":
+            self.link(command)
+
+        elif command[0] == "sever":
+            self.sever(command)
+
+        elif command[0] == "merge":
+            self.merge(command)
+
+        elif command[0] == "swap":
+            self.swap(command)
+
+        elif command[0] == "execute":
+            self.execute(command)
+
+        elif command[0] == "display":
+            self.display(command)
+
+        elif command[0] == "list":
+            self.list_cells()
+
+        elif command[0] == "stdout":
+            self.set_stdout(command)
+
+        elif command[0] == "reset_runtime":
+            self.reset_runtime()
+
+        elif command[0] == "reset_graph":
+            self.reset_graph()
+
+        elif command[0] == "save":
+            self.save_graph(command)
+
+        elif ".satx" in command[0]:
+            self.run_file(command)
+
+        else:
+            print("Syntax error: command \"" + command[0] + "\" not recognized.")
+
     def run(self):
         # Main application loop
         while True:
             command = self.read_input()
-
-            if len(command) == 0:
-                continue
-
-            elif command[0] == "help":
-                print(self.help_menu())
-
-            elif command[0] == "quit":
+            if self.command_switch(command) == "break":
                 break
-
-            elif command[0] == "cell":
-                self.create_cell(command)
-
-            elif command[0] == "edit":
-                self.edit_cell(command)
-
-            elif command[0] == "rename":
-                self.rename_cell(command)
-
-            elif command[0] == "remove":
-                self.remove_cell(command)
-
-            elif command[0] == "link":
-                self.link(command)
-
-            elif command[0] == "sever":
-                self.sever(command)
-
-            elif command[0] == "merge":
-                self.merge(command)
-
-            elif command[0] == "swap":
-                self.swap(command)
-
-            elif command[0] == "execute":
-                self.execute(command)
-
-            elif command[0] == "display":
-                self.display(command)
-
-            elif command[0] == "list":
-                self.list_cells()
-
-            elif command[0] == "stdout":
-                self.set_stdout(command)
-
-            elif command[0] == "reset_runtime":
-                self.reset_runtime()
-
-            elif command[0] == "reset_graph":
-                self.reset_graph()
-
-            elif command[0] == "save":
-                self.save_graph(command)
-
-            elif ".satx" in command[0]:
-                self.run_file(command)
-
-            else:
-                print("Syntax error: command \"" + command[0] + "\" not recognized.")
-
-inte = Interpreter()
-inte.run()
