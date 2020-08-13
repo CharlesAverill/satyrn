@@ -1,11 +1,12 @@
 Metadata-Version: 2.1
 Name: satyrn-python
-Version: 0.8.7.7.1
+Version: 0.8.7.7.2
 Summary: A Notebook alternative that supports branching code
 Home-page: https://github.com/CharlesAverill/satyrn/
 Author: Charles Averill
 Author-email: charlesaverill20@gmail.com
 License: UNKNOWN
+Project-URL: Documentation, https://satyrn.readthedocs.io/
 Description: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5f7ad54d352245df9099321c281b2db2)](https://app.codacy.com/manual/CharlesAverill/satyrn?utm_source=github.com&utm_medium=referral&utm_content=CharlesAverill/satyrn&utm_campaign=Badge_Grade_Dashboard)
         [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
         [![PyPI](https://img.shields.io/pypi/v/satyrn-python)](https://pypi.org/project/satyrn-python/)
