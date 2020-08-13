@@ -1,6 +1,7 @@
 import getopt
 import multiprocessing
 import os
+import shutil
 import sys
 import time
 import webbrowser
@@ -13,12 +14,17 @@ from .interpreter import Interpreter
 
 
 def start_ui(url, port, interpreter, quiet):
-    if not os.path.exists(os.path.dirname(os.path.abspath(__file__)) + "/static/"):
+    if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + "/static.zip"):
+        try:
+            shutil.rmtree(os.path.dirname(os.path.abspath(__file__)) + "/static")
+        except Exception as e:
+            whoops = True
         if not quiet:
             print("Unzipping static files...")
         with zipfile.ZipFile(os.path.dirname(os.path.abspath(__file__)) + "/static.zip",
                              'r') as zipped_file:
             zipped_file.extractall(os.path.dirname(os.path.abspath(__file__)) + "/static")
+        os.remove(os.path.dirname(os.path.abspath(__file__)) + "/static.zip")
 
     openurl = "localhost" if url == "0.0.0.0" else url
 
@@ -80,7 +86,8 @@ def main():
         with open(os.path.abspath(__file__)[:(-1 * len(os.path.basename(__file__)))] + "/asciiart.txt") as asciiart:
             print("".join(asciiart.readlines()))
 
-        print("Thank you for using Satyrn! \nFor issues and updates visit https://GitHub.com/CharlesAverill/satyrn\n")
+        print("Thank you for using Satyrn! \nFor issues and updates visit https://GitHub.com/CharlesAverill/satyrn")
+        print("Documentation is available at https://satyrn.readthedocs.io\n")
 
     if cli_mode:
         start_cli(interpreter)

@@ -5,7 +5,6 @@ import tkinter as tk
 
 import threading
 
-global exec_vars
 exec_vars = {}
 
 """
@@ -13,7 +12,7 @@ Structure Guide
 
 Cells, sometimes referred to as nodes, are data points that either hold markdown data or code. They also have names.
 
-The Graph is a collection of Cells. We use networkx as a backend for basic graph operations and add in methods to 
+The Graph is a collection of Cells. We use networkx as a backend for basic graph operations and add in methods to
 provide functionality specific to our needs.
 
 The Interpreter is the 'frontend' of the application, and provides a text-based interface for users to interact with
@@ -26,13 +25,13 @@ TextIO is just a handy way of taking multi-line input from users and displaying 
 class TextIO:
 
     def __init__(self):
-        """Used to receive text input for Cells"""
+        """Used to receive text input for Cells."""
         # Root tkinter window
         self.root = None
         self.user_input = ""
 
     def get_text_from_widget(self, widget):
-        """:param widget: Widget to pull text from"""
+        """:param widget: Widget to pull text from."""
         self.user_input = widget.get("1.0", "end")
         self.root.quit()
 
@@ -62,28 +61,25 @@ class Cell:
                  name_,
                  content_type_="python",
                  content_=" ",
-                 stdout_="internal",
                  top_=10,
                  left_=10):
         """
         :param name_: The cell's name
         :param content_type_: The type of content in the cell (markdown or python)
         :param content_: The contents of the cell, either markdown or python code
-        :param stdout_: Whether the cell prints its output (internal) or saves it to a file (external)
         :param top_: Cell's top position for the frontend
         :param left_: Cell's left position for the frontend
         """
         self.name = name_
         self.content_type = content_type_
         self.content = content_
-        self.stdout = stdout_
         self.output = ""
 
         self.top = top_
         self.left = left_
 
     def get_copy(self):
-        output_cell = Cell(self.name, self.content_type, self.content, self.stdout)
+        output_cell = Cell(self.name, self.content_type, self.content)
         output_cell.top = self.top
         output_cell.left = self.left
         return output_cell
@@ -97,32 +93,20 @@ class Cell:
         global exec_vars
         ex_vars_copy = exec_vars.copy()
 
-        if self.stdout == "internal":
-            try:
-                exec(self.content, ex_vars_copy)
-            except Exception as e:
-                print("Exception occurred in cell " + self.name)
-                print(e)
-        elif self.stdout == "external":
-            try:
-                print("<" + self.name + ">")
-                exec(self.content, ex_vars_copy)
-            except Exception as e:
-                print("Exception occurred in cell " + self.name)
-                print(e)
-        else:
-            print("stdout setting \"" + self.stdout + "\" not recognized. Please use internal/external.")
+        try:
+            print("<" + self.name + ">")
+            exec(self.content, ex_vars_copy)
+        except Exception as e:
+            print("Exception occurred in cell " + self.name)
+            print(e)
 
         exec_vars.update(ex_vars_copy)
-
-    def __str__(self):
-        return self.name + "\n\n" + "```\n" + self.content + "```\n"
 
 
 class Graph:
 
     def __init__(self, parent):
-        """Contains Cell objects and traverses them for execution"""
+        """Contains Cell objects and traverses them for execution."""
         # Networkx Directed graph
         self.graph = nx.DiGraph()
         self.parent = parent
@@ -169,7 +153,7 @@ class Graph:
                 return cell
 
     def add_cell(self, new_cell: Cell):
-        """:param new_cell: Cell object to be added to graph"""
+        """:param new_cell: Cell object to be added to graph."""
         if new_cell.name in list(self.names_to_indeces.keys()):
             print(new_cell.name)
             print("All cells must have unique names")
@@ -311,13 +295,11 @@ class Graph:
 
         return in_edges, out_edges
 
-    def execute_linear_list_of_cells(self, cells_list, stdout="internal", output_filename="stdout.txt"):
+    def execute_linear_list_of_cells(self, cells_list):
         std_file_out = ""
 
         for cell_name in cells_list:
             cell = self.get_cell(cell_name)
-
-            cell.stdout = stdout
 
             p = threading.Thread(target=cell.execute)
 
@@ -327,11 +309,7 @@ class Graph:
 
             std_file_out += cell.output
 
-        if stdout == "external":
-            with open(output_filename, 'w') as txt:
-                txt.write(std_file_out)
-
-    def bfs_traversal_execute(self, stdout="external", output_filename="stdout.txt"):
+    def bfs_traversal_execute(self):
         import time
         if len(self.get_all_cells_edges()[0]) == 0:
             return
@@ -341,7 +319,6 @@ class Graph:
         self.executing = True
 
         root_cell = self.get_cell("", 0)
-        root_cell.stdout = stdout
 
         root = threading.Thread(target=root_cell.execute)
 
@@ -360,7 +337,6 @@ class Graph:
             processes = []
             for n in neighbors:
                 neighbor_cell = self.get_cell(self.get_lookup_table()[n].strip())
-                neighbor_cell.stdout = stdout
 
                 neighbor = threading.Thread(target=neighbor_cell.execute)
 
@@ -369,7 +345,8 @@ class Graph:
 
                 new_neighbors.extend([i for i in self.graph.neighbors(n)])
 
-            [proc.join() for proc in processes]
+            for proc in processes:
+                proc.join()
 
             for n in neighbors:
                 time.sleep(.05)
@@ -382,29 +359,9 @@ class Graph:
         self.executing = False
 
     def save_graph(self, filename):
-        txtout = ""
+        txtout = self.get_satx_as_txt()
 
         filename = filename.replace("\"", "")
-
-        lookup_table = self.get_lookup_table()
-        cell_names, edges, _ = self.get_all_cells_edges()
-        cells = [self.get_cell(cn) for cn in cell_names]
-
-        for c in cells:
-            if c.content:
-                fill_with_code = "y:\n"
-            else:
-                fill_with_code = "n\n"
-            temp_text = "cell " + c.name + " " + c.content_type + " " + fill_with_code
-            if fill_with_code == "y:\n":
-                temp_text += c.content + "\n;\n"
-
-            txtout += temp_text
-
-        for e in edges:
-            name1 = lookup_table[e[0]]
-            name2 = lookup_table[e[1]]
-            txtout += "link " + name1 + " " + name2 + "\n"
 
         with open(filename, "w+") as file:
             file.write(txtout)
@@ -481,16 +438,13 @@ class Graph:
 class Interpreter:
 
     def __init__(self):
-        """Contains Graph object and interprets user input"""
+        """Contains Graph object and interprets user input."""
         # Graph object
         self.graph = Graph(self)
         # Assume live input first
         self.input_type = "live"
         # This will be set if the user executes a .satx file
         self.file = None
-        # This determines whether or not stdout gets sent to an external textbox
-        self.stdout = "external"
-        self.stdout_filename = "stdout.txt"
         # Start loop
         self.std_capture = StringIO()
 
@@ -499,7 +453,7 @@ class Interpreter:
         self.lock = threading.Lock()
 
     def run_file(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         try:
             openfile = open(command[0], "r")
             self.file = openfile.readlines()
@@ -516,7 +470,6 @@ class Interpreter:
 
         while len(content) > 0:
             command = content.pop(0).split(" ")
-            print(command)
 
             if "<!--SATYRN_DCO_START-->" in command[0]:
                 reading_dco_output = True
@@ -551,56 +504,7 @@ class Interpreter:
             elif command[0] == "quit":
                 break
 
-            elif command[0] == "cell":
-                self.create_cell(command)
-
-            elif command[0] == "edit":
-                self.edit_cell(command)
-
-            elif command[0] == "rename":
-                self.rename_cell(command)
-
-            elif command[0] == "remove":
-                self.remove_cell(command)
-
-            elif command[0] == "link":
-                self.link(command)
-
-            elif command[0] == "sever":
-                self.sever(command)
-
-            elif command[0] == "merge":
-                self.merge(command)
-
-            elif command[0] == "swap":
-                self.swap(command)
-
-            elif command[0] == "execute":
-                self.execute(command)
-
-            elif command[0] == "display":
-                self.display(command)
-
-            elif command[0] == "list":
-                self.list_cells()
-
-            elif command[0] == "stdout":
-                self.set_stdout(command)
-
-            elif command[0] == "reset_runtime":
-                self.reset_runtime()
-
-            elif command[0] == "reset_graph":
-                self.reset_graph()
-
-            elif command[0] == "save":
-                self.save_graph(command)
-
-            elif ".satx" in command[0]:
-                self.run_file(command)
-
-            elif command[0]:
-                print("Syntax error: command \"" + command[0] + "\" not recognized.")
+            self.command_switch(command)
 
     def read_input(self):
         # Read input from stdin or external file. Returns list of command params.
@@ -625,10 +529,8 @@ class Interpreter:
             "sever [first_cell_name] [second_cell_name]": "Removes link between first_cell and second_cell",
             "merge [first_cell_name] [second_cell_name]": "Merges the two cells if they are adjacent",
             "swap [first_cell_name] [second_cell_name]": "Swaps name, content type, and contents of specified cells",
-            "execute [cell_name_1] [cell_name_2] ... >> (filename)": "Executes graph. If no cell names are provided, "
-                                                                     "all will be executed. \n\t\tIf '>> filename' is "
-                                                                     "included, stdout will be saved to the specified "
-                                                                     "file in plain text format ",
+            "execute [cell_name_1] [cell_name_2] ...": "Executes graph. If no cell names are provided, "
+                                                       "all will be executed. \n\t\t",
             "display [cell_name]": "Displays graph. If cell_name defined, that cell's details will be printed out",
             "list": "Prints out names of all cells in graph",
             "reset_runtime": "Deletes all variables created within cells",
@@ -689,7 +591,7 @@ class Interpreter:
             self.graph.add_cell(Cell(name, content_type, content.strip()))
 
     def edit_cell(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         with self.lock:
             if len(command) != 2:
                 print("edit takes 1 argument: [cell_name]")
@@ -709,7 +611,7 @@ class Interpreter:
             target_cell.content = command[2]
 
     def rename_cell(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         with self.lock:
             if len(command) != 3:
                 print("link takes 2 arguments: [original_cell_name] [new_cell_name]")
@@ -728,7 +630,7 @@ class Interpreter:
                     break
 
     def remove_cell(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         to_remove = command[1:]
         for cell in to_remove:
             i = self.graph.remove_cell(cell)
@@ -736,7 +638,7 @@ class Interpreter:
                 return -1
 
     def link(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         with self.lock:
             if len(command) != 3:
                 print("link takes 2 arguments: [cell_1] [cell_2]")
@@ -747,7 +649,7 @@ class Interpreter:
             self.graph.connect_cells(idx1, idx2)
 
     def sever(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         if len(command) != 3:
             print("sever takes 2 arguments: [cell_1] [cell_2]")
             return
@@ -758,14 +660,14 @@ class Interpreter:
         self.graph.sever_cells(name_1, name_2)
 
     def swap(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         if len(command) != 3:
             print("swap takes 2 arguments: [cell_1] [cell_2]")
             return
         self.graph.swap_cells(command[1], command[2])
 
     def merge(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         if not (2 < len(command) < 4):
             print("merge takes 2-3 arguments: [cell_1] [cell_2] (new_name)")
             return
@@ -781,24 +683,23 @@ class Interpreter:
         self.graph.merge_cells(name_1, name_2, newname)
 
     def execute(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         with self.lock:
             if ">>" in command:
                 cells_list = command[1:-2]
-                self.stdout_filename = command[-1]
             else:
                 cells_list = command[1:]
             if len(cells_list) >= 1:
                 try:
-                    self.graph.execute_linear_list_of_cells(cells_list, self.stdout, self.stdout_filename)
+                    self.graph.execute_linear_list_of_cells(cells_list)
                 except Exception as e:
                     print("There was an error executing one of the cells")
                     print(e)
             else:
-                self.graph.bfs_traversal_execute(self.stdout, self.stdout_filename)
+                self.graph.bfs_traversal_execute()
 
     def display(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         if len(command) == 1:
             self.graph.display()
         else:
@@ -829,13 +730,6 @@ class Interpreter:
         print("Cells:", nodes)
         print("Edges:", edge_names)
 
-    def set_stdout(self, command):
-        """:param command: command to be executed"""
-        if len(command) != 2 or (not command[1] == "internal" and not command[1] == "external"):
-            print("stdout takes 1 arguments: (internal/external)")
-            return
-        self.stdout = command[1]
-
     def reset_runtime(self):
         # Delete all runtime variables
         with self.lock:
@@ -856,7 +750,7 @@ class Interpreter:
             self.std_capture = StringIO()
 
     def save_graph(self, command):
-        """:param command: command to be executed"""
+        """:param command: command to be executed."""
         if len(command) != 2:
             print("save takes 1 argument1: [filename]")
             return
@@ -870,67 +764,68 @@ class Interpreter:
         with open(command[1], "w+") as file:
             file.write(output_text)
 
+    def command_switch(self, command):
+
+        if len(command) == 0:
+            return
+
+        elif command[0] == "help":
+            print(self.help_menu())
+
+        elif command[0] == "quit":
+            return "break"
+
+        elif command[0] == "cell":
+            self.create_cell(command)
+
+        elif command[0] == "edit":
+            self.edit_cell(command)
+
+        elif command[0] == "rename":
+            self.rename_cell(command)
+
+        elif command[0] == "remove":
+            self.remove_cell(command)
+
+        elif command[0] == "link":
+            self.link(command)
+
+        elif command[0] == "sever":
+            self.sever(command)
+
+        elif command[0] == "merge":
+            self.merge(command)
+
+        elif command[0] == "swap":
+            self.swap(command)
+
+        elif command[0] == "execute":
+            self.execute(command)
+
+        elif command[0] == "display":
+            self.display(command)
+
+        elif command[0] == "list":
+            self.list_cells()
+
+        elif command[0] == "reset_runtime":
+            self.reset_runtime()
+
+        elif command[0] == "reset_graph":
+            self.reset_graph()
+
+        elif command[0] == "save":
+            self.save_graph(command)
+
+        elif ".satx" in command[0]:
+            self.run_file(command)
+
+        else:
+            print("Syntax error: command \"" + command[0] + "\" not recognized.")
+
     def run(self):
         # Main application loop
         while True:
             command = self.read_input()
-
-            if len(command) == 0:
-                continue
-
-            elif command[0] == "help":
-                print(self.help_menu())
-
-            elif command[0] == "quit":
+            if self.command_switch(command) == "break":
                 break
-
-            elif command[0] == "cell":
-                self.create_cell(command)
-
-            elif command[0] == "edit":
-                self.edit_cell(command)
-
-            elif command[0] == "rename":
-                self.rename_cell(command)
-
-            elif command[0] == "remove":
-                self.remove_cell(command)
-
-            elif command[0] == "link":
-                self.link(command)
-
-            elif command[0] == "sever":
-                self.sever(command)
-
-            elif command[0] == "merge":
-                self.merge(command)
-
-            elif command[0] == "swap":
-                self.swap(command)
-
-            elif command[0] == "execute":
-                self.execute(command)
-
-            elif command[0] == "display":
-                self.display(command)
-
-            elif command[0] == "list":
-                self.list_cells()
-
-            elif command[0] == "stdout":
-                self.set_stdout(command)
-
-            elif command[0] == "reset_runtime":
-                self.reset_runtime()
-
-            elif command[0] == "reset_graph":
-                self.reset_graph()
-
-            elif command[0] == "save":
-                self.save_graph(command)
-
-            elif ".satx" in command[0]:
-                self.run_file(command)
-
-            else:
-                print("Syntax error: command \"" + command[0] + "\" not recognized.")

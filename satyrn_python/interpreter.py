@@ -61,28 +61,25 @@ class Cell:
                  name_,
                  content_type_="python",
                  content_=" ",
-                 stdout_="internal",
                  top_=10,
                  left_=10):
         """
         :param name_: The cell's name
         :param content_type_: The type of content in the cell (markdown or python)
         :param content_: The contents of the cell, either markdown or python code
-        :param stdout_: Whether the cell prints its output (internal) or saves it to a file (external)
         :param top_: Cell's top position for the frontend
         :param left_: Cell's left position for the frontend
         """
         self.name = name_
         self.content_type = content_type_
         self.content = content_
-        self.stdout = stdout_
         self.output = ""
 
         self.top = top_
         self.left = left_
 
     def get_copy(self):
-        output_cell = Cell(self.name, self.content_type, self.content, self.stdout)
+        output_cell = Cell(self.name, self.content_type, self.content)
         output_cell.top = self.top
         output_cell.left = self.left
         return output_cell
@@ -96,21 +93,12 @@ class Cell:
         global exec_vars
         ex_vars_copy = exec_vars.copy()
 
-        if self.stdout == "internal":
-            try:
-                exec(self.content, ex_vars_copy)
-            except Exception as e:
-                print("Exception occurred in cell " + self.name)
-                print(e)
-        elif self.stdout == "external":
-            try:
-                print("<" + self.name + ">")
-                exec(self.content, ex_vars_copy)
-            except Exception as e:
-                print("Exception occurred in cell " + self.name)
-                print(e)
-        else:
-            print("stdout setting \"" + self.stdout + "\" not recognized. Please use internal/external.")
+        try:
+            print("<" + self.name + ">")
+            exec(self.content, ex_vars_copy)
+        except Exception as e:
+            print("Exception occurred in cell " + self.name)
+            print(e)
 
         exec_vars.update(ex_vars_copy)
 
@@ -307,13 +295,11 @@ class Graph:
 
         return in_edges, out_edges
 
-    def execute_linear_list_of_cells(self, cells_list, stdout="internal", output_filename="stdout.txt"):
+    def execute_linear_list_of_cells(self, cells_list):
         std_file_out = ""
 
         for cell_name in cells_list:
             cell = self.get_cell(cell_name)
-
-            cell.stdout = stdout
 
             p = threading.Thread(target=cell.execute)
 
@@ -323,11 +309,7 @@ class Graph:
 
             std_file_out += cell.output
 
-        if stdout == "external":
-            with open(output_filename, 'w') as txt:
-                txt.write(std_file_out)
-
-    def bfs_traversal_execute(self, stdout="external", output_filename="stdout.txt"):
+    def bfs_traversal_execute(self):
         import time
         if len(self.get_all_cells_edges()[0]) == 0:
             return
@@ -337,7 +319,6 @@ class Graph:
         self.executing = True
 
         root_cell = self.get_cell("", 0)
-        root_cell.stdout = stdout
 
         root = threading.Thread(target=root_cell.execute)
 
@@ -356,7 +337,6 @@ class Graph:
             processes = []
             for n in neighbors:
                 neighbor_cell = self.get_cell(self.get_lookup_table()[n].strip())
-                neighbor_cell.stdout = stdout
 
                 neighbor = threading.Thread(target=neighbor_cell.execute)
 
@@ -465,9 +445,6 @@ class Interpreter:
         self.input_type = "live"
         # This will be set if the user executes a .satx file
         self.file = None
-        # This determines whether or not stdout gets sent to an external textbox
-        self.stdout = "external"
-        self.stdout_filename = "stdout.txt"
         # Start loop
         self.std_capture = StringIO()
 
@@ -493,7 +470,6 @@ class Interpreter:
 
         while len(content) > 0:
             command = content.pop(0).split(" ")
-            print(command)
 
             if "<!--SATYRN_DCO_START-->" in command[0]:
                 reading_dco_output = True
@@ -553,10 +529,8 @@ class Interpreter:
             "sever [first_cell_name] [second_cell_name]": "Removes link between first_cell and second_cell",
             "merge [first_cell_name] [second_cell_name]": "Merges the two cells if they are adjacent",
             "swap [first_cell_name] [second_cell_name]": "Swaps name, content type, and contents of specified cells",
-            "execute [cell_name_1] [cell_name_2] ... >> (filename)": "Executes graph. If no cell names are provided, "
-                                                                     "all will be executed. \n\t\tIf '>> filename' is "
-                                                                     "included, stdout will be saved to the specified "
-                                                                     "file in plain text format ",
+            "execute [cell_name_1] [cell_name_2] ...": "Executes graph. If no cell names are provided, "
+                                                       "all will be executed. \n\t\t",
             "display [cell_name]": "Displays graph. If cell_name defined, that cell's details will be printed out",
             "list": "Prints out names of all cells in graph",
             "reset_runtime": "Deletes all variables created within cells",
@@ -713,17 +687,16 @@ class Interpreter:
         with self.lock:
             if ">>" in command:
                 cells_list = command[1:-2]
-                self.stdout_filename = command[-1]
             else:
                 cells_list = command[1:]
             if len(cells_list) >= 1:
                 try:
-                    self.graph.execute_linear_list_of_cells(cells_list, self.stdout, self.stdout_filename)
+                    self.graph.execute_linear_list_of_cells(cells_list)
                 except Exception as e:
                     print("There was an error executing one of the cells")
                     print(e)
             else:
-                self.graph.bfs_traversal_execute(self.stdout, self.stdout_filename)
+                self.graph.bfs_traversal_execute()
 
     def display(self, command):
         """:param command: command to be executed."""
@@ -756,13 +729,6 @@ class Interpreter:
         nodes, _, edge_names = self.graph.get_all_cells_edges()
         print("Cells:", nodes)
         print("Edges:", edge_names)
-
-    def set_stdout(self, command):
-        """:param command: command to be executed."""
-        if len(command) != 2 or (not command[1] == "internal" and not command[1] == "external"):
-            print("stdout takes 1 arguments: (internal/external)")
-            return
-        self.stdout = command[1]
 
     def reset_runtime(self):
         # Delete all runtime variables
@@ -842,9 +808,6 @@ class Interpreter:
         elif command[0] == "list":
             self.list_cells()
 
-        elif command[0] == "stdout":
-            self.set_stdout(command)
-
         elif command[0] == "reset_runtime":
             self.reset_runtime()
 
@@ -857,7 +820,7 @@ class Interpreter:
         elif ".satx" in command[0]:
             self.run_file(command)
 
-        else:
+        elif len(command[0]) > 0:
             print("Syntax error: command \"" + command[0] + "\" not recognized.")
 
     def run(self):

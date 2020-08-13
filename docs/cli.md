@@ -24,10 +24,9 @@
         - `a -> b -> c`
         - `swap a b`
         - `b -> a -> c`
-- `execute [cell_name_1] [cell_name_2] ... >> (filename)`
+- `execute [cell_name_1] [cell_name_2] ...`
     - If no cell names are defined, the entire graph will execute sequentially
     - If cell names are defined, they will execute in the order they are named
-    - `>> (filename)` is optional. If included, will save stdout cell output to whatever filename is provided.
 - `display [cell_name]`
     - If `cell_name` is defined, that cell's contents will be printed to the console
     - Otherwise, the entire graph will be displayed in matplotlib.

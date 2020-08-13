@@ -21,3 +21,7 @@ your Satyrn instance
 - `-p=n, --port=n` - Designates the port for the UI to run on (default is 20787)
 
 - `-q --quiet` - Quiet startup + shutdown
+
+## UI Shutdown
+The UI can be shutdown with the `Kernel > Shutdown` menu option if no cells are being executed.
+If any cell is being executed, 1-3 `Ctrl+c`'s must be provided to the command line you ran the `satyrn` command in.
