@@ -304,6 +304,8 @@ def create_app(interpreter):
 
         with interpreter.lock:
             cell = interpreter.graph.get_cell(name)
+            if not cell:
+                return "201"
             cell.top = top
             cell.left = left
 
