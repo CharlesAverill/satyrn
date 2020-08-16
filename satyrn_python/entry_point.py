@@ -1,11 +1,9 @@
 import getopt
 import multiprocessing
 import os
-import shutil
 import sys
 import time
 import webbrowser
-import zipfile
 
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 
@@ -13,25 +11,14 @@ from .app import create_app
 from .interpreter import Interpreter
 
 
+def delayed_browser_open(openurl, port):
+    time.sleep(3)
+
+    webbrowser.open("http://" + openurl + ":" + str(port) + "/#loaded")
+
+
 def start_ui(url, port, interpreter, quiet):
-    if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + "/static.zip"):
-        try:
-            shutil.rmtree(os.path.dirname(os.path.abspath(__file__)) + "/static")
-        except Exception as e:
-            whoops = True
-        if not quiet:
-            print("Unzipping static files...")
-        with zipfile.ZipFile(os.path.dirname(os.path.abspath(__file__)) + "/static.zip",
-                             'r') as zipped_file:
-            zipped_file.extractall(os.path.dirname(os.path.abspath(__file__)) + "/static")
-        os.remove(os.path.dirname(os.path.abspath(__file__)) + "/static.zip")
-
     openurl = "localhost" if url == "0.0.0.0" else url
-
-    def delayed_browser_open():
-        time.sleep(3)
-
-        webbrowser.open("http://" + openurl + ":" + str(port) + "/#loaded")
 
     if not quiet:
         print("Initializing CherryPy server...")
@@ -43,7 +30,7 @@ def start_ui(url, port, interpreter, quiet):
     server = WSGIServer((url, port), d)
 
     try:
-        p = multiprocessing.Process(target=delayed_browser_open)
+        p = multiprocessing.Process(target=delayed_browser_open, args=(openurl, port))
         p.start()
 
         if not quiet:
