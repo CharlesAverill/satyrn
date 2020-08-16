@@ -1,6 +1,8 @@
 import os
 import random
 import string
+import networkx as nx
+
 from contextlib import redirect_stdout
 from io import StringIO
 
@@ -92,13 +94,17 @@ def create_app(interpreter):
     @app.route("/recursion_check/", methods=["POST"])
     def recursion_check():
         data = request.get_json()
-        cell_name = data['cell_name'].strip()
+        first = data['first'].strip()
+        second = data['second'].strip()
 
         nodes, _, edge_names = interpreter.graph.get_all_cells_edges()
 
-        for e in edge_names:
-            if e[0] == cell_name:
-                return "500"
+        if interpreter.graph.name_to_idx(second) == 0:
+            return "Can't link to root cell"
+
+        if interpreter.graph.name_to_idx(second) in \
+                nx.ancestors(interpreter.graph.graph, interpreter.graph.name_to_idx(first)):
+            return "Cycles are not allowed"
 
         return "200"
 
@@ -127,9 +133,7 @@ def create_app(interpreter):
         if first == second:
             return "500"
 
-        interpreter.link(['link', first, second])
-
-        return "200"
+        return interpreter.link(['link', first, second])
 
     @app.route("/bfs_execute/", methods=["POST"])
     def bfs_execute():
@@ -304,5 +308,13 @@ def create_app(interpreter):
             cell.left = left
 
         return "200"
+
+    @app.route("/get_layer/", methods=["POST"])
+    def get_layer():
+        cell_name = request.get_json()['cell_name']
+
+        out = interpreter.get_layer(cell_name)
+
+        return str(out) if out > 0 else " "
 
     return app

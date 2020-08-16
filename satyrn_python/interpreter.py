@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from io import StringIO
+from networkx import algorithms
 import tkinter as tk
 
 import threading
@@ -160,8 +161,7 @@ class Graph:
             return
         else:
             self.graph.add_node(len(self.graph.nodes), data=new_cell, name=new_cell.name)
-
-        self.names_to_indeces.update({new_cell.name: len(self.names_to_indeces)})
+            self.names_to_indeces.update({new_cell.name: len(self.names_to_indeces)})
 
     def remove_cell(self, cell_name, cell_index=None):
         """
@@ -187,7 +187,20 @@ class Graph:
         :param idx1: Index of first cell
         :param idx2: Index of second cell
         """
-        self.graph.add_edge(idx1, idx2)
+
+        if not (self.graph.has_node(idx1) and self.graph.has_node(idx2)):
+            return
+
+        if idx2 == 0:
+            return "Can't link to root cell"
+
+        if idx2 in nx.ancestors(self.graph, idx1):
+            return "Cycles are not allowed"
+        else:
+            self.graph.add_edge(idx1, idx2)
+            print(self.get_layer(self.get_lookup_table()[idx1]))
+            print(self.get_layer(self.get_lookup_table()[idx2]))
+            return "Safe"
 
     def sever_cells(self, idx1, idx2):
         """
@@ -294,6 +307,26 @@ class Graph:
             out_edges.append(str_edge)
 
         return in_edges, out_edges
+
+    def get_layer(self, cell_name):
+        layer = {}
+        toposorted_ls = list(nx.topological_sort(self.graph))
+        idx = self.name_to_idx(cell_name)
+
+        if len(toposorted_ls) < 1:
+            return
+
+        layer[0] = 1
+
+        for node in toposorted_ls:
+            if node == 0:
+                continue
+            for parent in algorithms.dag.ancestors(self.graph, node):
+                layer[node] = max((layer[node] if node in layer.keys() else 0),
+                                  (layer[parent] + 1 if parent in layer.keys() else 0))
+        if idx in layer.keys():
+            return layer[idx]
+        return -1
 
     def execute_linear_list_of_cells(self, cells_list):
         std_file_out = ""
@@ -646,7 +679,8 @@ class Interpreter:
 
             idx1 = self.graph.name_to_idx(command[1])
             idx2 = self.graph.name_to_idx(command[2])
-            self.graph.connect_cells(idx1, idx2)
+
+            return self.graph.connect_cells(idx1, idx2)
 
     def sever(self, command):
         """:param command: command to be executed."""
@@ -829,3 +863,6 @@ class Interpreter:
             command = self.read_input()
             if self.command_switch(command) == "break":
                 break
+
+inte = Interpreter()
+inte.run()

@@ -1,0 +1,92 @@
+#idx_body {
+    background-color: #111f51;
+    padding-left: 100px;
+    padding-right: 100px;
+}
+
+#execution_status {
+    float: right;
+    color: white;
+    margin-right: 50px;
+}
+
+nav {
+    background: #1f2024;
+    height: 60px;
+    line-height: 60px;
+}
+
+nav .main-menu {
+    list-style: none;
+    display: inline-flex;
+}
+
+nav .main-menu > li {
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+}
+
+nav .main-menu > li:hover .sub-menu {
+    transform: translateY(0);
+    visibility: visible;
+    opacity: 1;
+    z-index: 1;
+}
+
+nav .main-menu > li > a {
+    color: #19ceda;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+nav .main-menu > li > a:hover {
+    color: #09aeaa;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+nav .main-menu > li .sub-menu {
+    position: absolute;
+    list-style: none;
+    width: 200px;
+    background: #27292d;
+    text-align: left;
+    transform: translateY(25px);
+    z-index: -1;
+    opacity: 0;
+    visibility: hidden;
+    transition: .4s;
+    padding-left: 0px !important;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+nav .main-menu > li .sub-menu li:hover{
+    background: #37393d;
+}
+
+nav .main-menu > li .sub-menu::before {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    bottom: 100%;
+    /*right: 1.9em;*/
+    left: 75px;
+    border: 8px solid transparent;
+    border-bottom: 6px solid #27292d;
+}
+
+nav .main-menu > li .sub-menu li {
+    padding-left: 10px;
+    height: 45px;
+    line-height: 45px;
+}
+
+nav .main-menu > li .sub-menu li > a {
+    color: white;
+    text-decoration: none;
+    font-size: small;
+    cursor: pointer;
+}
