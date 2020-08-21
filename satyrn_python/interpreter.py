@@ -2,7 +2,13 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from io import StringIO
 from networkx import algorithms
-import tkinter as tk
+try:
+    import tkinter as tk
+except ImportError as e:
+    print(e)
+    print("Your Python installation may not be configured for TKinter, a dependency of Satyrn")
+    print("Visit https://tkdocs.com/tutorial/install.html to install TKinter")
+    exit(1)
 
 import threading
 
