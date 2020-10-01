@@ -59,7 +59,7 @@ Satyrn is also a great tool for collaboration. While using the UI, the graph sta
 
 ## Setup
 -   Run `python -m pip install satyrn-python`
--   Run `satyrn` to open the UI (unstable)
+-   Run `satyrn` to open the UI (in development, unstable)
 -   Run `satyrn cli` to open the CLI
 
 ## Command Line Arguments
@@ -70,7 +70,7 @@ Satyrn is also a great tool for collaboration. While using the UI, the graph sta
 -   `-h --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
 your Satyrn instance
 
--   `-p=n --port=n` - Designates the port for the UI to run on
+-   `-p=n --port=n` - Forces UI to run on port n
 
 -   `-q --quiet` - Quiet startup + shutdown
 
