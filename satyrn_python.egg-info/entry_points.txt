@@ -1,3 +1,0 @@
-[console_scripts]
-satyrn = satyrn_python.entry_point:main
-
