@@ -1,4 +1,53 @@
-var filename = "Untitled.SATX";
+// Language loading
+var all_languages;
+
+$.ajaxSetup({async: false});
+$.getJSON("static/js/languages.json", function(json) {
+    all_languages = json;
+});
+$.ajaxSetup({async: true});
+
+var lang = all_languages.english;
+
+function reload_DOM_language(lang){
+    $("#graph_name_p").text(lang.default_filename + ".SATX");
+    $("#connected_p").text(lang.connected);
+
+    $("#file_dropdown_a").text(lang.file_menu + '\n<i class="fa fa-caret-down"></i>'); // File Menu
+    $("#new_graph_a").text(lang.new_graph_dropdown);
+    $("#load_graph_a").text(lang.load_graph_dropdown);
+    $("#save_graph_as_a").text(lang.save_graph_as);
+    $("#save_as_py_a").text(lang.save_as_py);
+    $("#close_and_halt_a").text(lang.close_and_halt);
+
+    $("#edit_dropdown_a").html(lang.edit_menu + '\n<i class="fa fa-caret-down"></i>'); // Edit Menu
+    $("#create_cell_a").text(lang.create_cell);
+    $("#duplicate_cell_a").text(lang.dupe_cell);
+    $("#delete_cell_a").text(lang.delete_cell);
+
+    $("#cell_dropdown_a").html(lang.cell_menu + '\n<i class="fa fa-caret-down"></i>'); // Cell Menu
+    $("#run_all_a").text(lang.run_all);
+    $("#run_cell_a").text(lang.run_cell);
+    $("#set_as_md_a").text(lang.set_as_md);
+    $("#set_as_py_a").text(lang.set_as_py);
+
+    $("#kernel_dropdown_a").html(lang.kernel_menu + '\n<i class="fa fa-caret-down"></i>'); // Kernel Menu
+    $("#interrupt_a").text(lang.interrupt);
+    $("#reset_runtime_a").text(lang.reset_runtime);
+    $("#clear_dco_a").text(lang.clear_dco);
+    $("#reset_graph_a").text(lang.reset_graph);
+    $("#reset_run_all_a").text(lang.reset_run_all);
+    $("#shutdown_a").text(lang.shutdown);
+
+    $("#help_dropdown_a").html(lang.help_menu + '\n<i class="fa fa-caret-down"></i>'); // Help Menu
+    $("#github_repo_a").text(lang.github_repo);
+    $("#docs_a").text(lang.docs);
+    console.log("Done updating langs");
+}
+
+reload_DOM_language(lang);
+
+var filename = lang.default_filename + ".SATX";
 var cell_names = [];
 var numCells = 0;
 var is_executing = false;
@@ -99,7 +148,7 @@ function setup_keyboard_shortcuts(doc){
                 var success = output["success"]
 
                 if(success == "500"){
-                    alert("Couldn't remove cell " + clicked_textarea);
+                    alert(lang.could_not_remove_cell);
                 }
                 else{
                     last_deleted_cell["name"] = output["name"];
@@ -146,12 +195,12 @@ function add_codemirror_editor(doc, ta_id, value="\n\n", contentType){
             contentType: "application/json",
             success: function (success) {
                 if(success == "500"){
-                    alert("Couldn't edit cell " + right_clicked_cell);
+                    alert(lang.could_not_edit_cell);
                 }
             },
             statusCode: {
                 500: function() {
-                    if(confirm("It seems there was a disconnect. Do you want to reconnect?")){
+                    if(confirm(lang.disconnect_reconnect)){
                         location.reload();
                     }
                 }
@@ -245,13 +294,13 @@ function create_cell(doc, name, content="", contentType, top=(Math.ceil(pageY / 
 }
 
 function shutdown(){
-    if(confirm("This will close the connection. Are you sure?")){
+    if(confirm(lang.connection_close_confirmation)){
         $.ajax({
             type : "POST",
             url : "/shutdown/",
             complete: function (s) {
-                alert("Connection has been closed");
-                $("#connected_p").text("Disconnected");
+                alert(lang.connection_closed);
+                $("#connected_p").text(lang.disconnected);
             }
         });
     }
@@ -289,7 +338,7 @@ $(window).load(function () {
             var graph_fn = data["graph_fn"];
 
             if(names.length !== contents.length){
-                alert("Loading error: names and contents are not congruent")
+                alert(lang.loading_error)
             }
             else{
                 if(names.length === 0){
@@ -365,7 +414,7 @@ $("#file-input").change(function(e){
                 var graph_fn = data["graph_fn"];
 
                 if(names.length != contents.length){
-                    alert("Loading error: names and contents are not congruent");
+                    alert(lang.loading_error);
                 }
                 else{
                     removeDraggables();
@@ -401,12 +450,12 @@ $("#file-input").change(function(e){
         });
     }
     reader.onerror = function(evt){
-        alert("There was an issue reading " + filename);
+        alert(lang.read_error);
     }
 })
 
 $("#graph_name_p").on("click", function(){
-    var new_name = prompt("New Graph name: ");
+    var new_name = prompt(lang.new_graph_prompt);
     if(new_name === null){
         return;
     }
@@ -422,7 +471,7 @@ $("#graph_name_p").on("click", function(){
         });
     }
     else{
-        alert("Please choose a longer Graph name");
+        alert(lang.longer_graph_name);
     }
 });
 
@@ -534,7 +583,7 @@ $("iframe").load(function(){
 
                         var success = output["success"]
                         if(success == "500"){
-                            alert("Couldn't remove cell " + right_clicked_cell);
+                            alert(lang.could_not_remove_cell);
                         }
                         else{
                             last_deleted_cell["name"] = output["name"];
@@ -551,7 +600,7 @@ $("iframe").load(function(){
                     url : "/root_has_outputs/",
                     complete: function (s) {
                         if(s["responseText"] == "warning" && numCells > 1){
-                            if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
+                            if(confirm(lang.no_out_links_warning)){
                                 bfs_execute();
                             }
                         }
@@ -656,16 +705,16 @@ $("iframe").load(function(){
                 complete: function (s) {
                     success = s["responseText"]
                     if(success == "500"){
-                        if(!confirm("Linking to a cell with output links can cause undesired recursion. Continue?")){
+                        if(!confirm(lang.cell_output_links_warning)){
                             continue_with_link = false;
                         }
                     }
                     if(success === "Can't link to root cell"){
-                        alert("Can't  link to the root cell");
+                        alert(lang.root_link_warning);
                         continue_with_link = false;
                     }
                     if(success === "Cycles are not allowed"){
-                        alert("Cycles are not allowed");
+                        alert(lang.cycle_warning);
                         continue_with_link = false;
                     }
                     if(continue_with_link) {
@@ -679,7 +728,7 @@ $("iframe").load(function(){
                             success: function (data) {
                                 success = data["responseText"];
                                 if(success === "500"){
-                                    alert("Couldn't link cells " + right_clicked_cell + " and " + clicked_textarea);
+                                    alert(lang.could_not_link_cells);
                                 }
                                 else{
                                     update_node_layers();
@@ -703,12 +752,12 @@ $("iframe").load(function(){
 
     doc.on("click", "h6", function(){
         var old_name = $(this).text();
-        var new_name = prompt("Rename cell: ");
+        var new_name = prompt(lang.rename_prompt);
         if(new_name == null){
             return;
         }
         if(new_name.length < 1){
-            alert("Please use a longer cell name");
+            alert(lang.longer_cell_name);
             return;
         }
         has_changed = true;
@@ -723,7 +772,7 @@ $("iframe").load(function(){
             contentType: "application/json",
             success: function (success) {
                 if(success == "200"){
-                    alert("Another cell already has this name. Please choose another.");
+                    alert(lang.cell_name_overlap_error);
                 }
                 else{
                     $.ajax({
@@ -735,7 +784,7 @@ $("iframe").load(function(){
                         contentType: "application/json",
                         success: function (success) {
                             if(success == "500"){
-                                alert("Couldn't rename cell \"" + old_name + "\" to \"" + new_name + "\", another cell already has this name");
+                                alert(lang.cell_name_overlap_error);
                             }
                             else{
                                 h6.html(new_name);
@@ -776,7 +825,7 @@ $(document).on("click", "a, li", function(){
                 url : "/root_has_outputs/",
                 complete: function (s) {
                     if(s["responseText"] == "warning" && numCells > 1){
-                        if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
+                        if(confirm(lang.no_out_links_warning)){
                             bfs_execute();
                         }
                     }
@@ -823,12 +872,12 @@ $(document).on("click", "a, li", function(){
             });
             break;
         case "reset_runtime":
-            if(confirm("Resetting the runtime will destroy all variables. Continue?")){
+            if(confirm(lang.runtime_reset_warning)){
                 $.ajax({
                     type : "POST",
                     url : "/reset_runtime/",
                     complete: function (s) {
-                        alert("Runtime has been reset")
+                        alert(lang.runtime_reset)
                     }
                 });
             }
@@ -903,19 +952,19 @@ $(document).on("click", "a, li", function(){
             }
             break;
         case "reset_graph":
-            if(confirm("Resetting the graph will destroy all cells and variables. Continue?")){
+            if(confirm(lang.graph_reset_warning)){
                 $.ajax({
                     type : "POST",
                     url : "/reset_graph/",
                     complete: function (s) {
-                        alert("Graph has been reset. Tab will now reload.");
+                        alert(lang.graph_reset);
                         location.reload();
                     }
                 });
             }
             break;
         case "reset_run_all":
-            if(confirm("Resetting the runtime will destroy all variables.Continue?")){
+            if(confirm(lang.runtime_reset_warning)){
                 $.ajax({
                     type : "POST",
                     url : "/reset_runtime/",
@@ -925,7 +974,7 @@ $(document).on("click", "a, li", function(){
                             url : "/root_has_outputs/",
                             complete: function (s) {
                                 if(s["responseText"] == "warning" && numCells > 1){
-                                    if(confirm("The root node has no outward links. Code execution starts at root, so this may result in unintended consequences. Continue?")){
+                                    if(confirm(lang.no_out_links_warning)){
                                         bfs_execute();
                                     }
                                 }
@@ -996,7 +1045,7 @@ $(document).on("click", "a, li", function(){
             });
             break;
         case "new_graph":
-            if(confirm("Creating a new graph will destroy any unsaved progress. Continue?")){
+            if(confirm(lang.new_graph_warning)){
                 $.ajax({
                     type : "POST",
                     url : "/reset_graph/",
@@ -1006,7 +1055,7 @@ $(document).on("click", "a, li", function(){
                             url : "/set_filename/",
                             data : "Untitled.SATX",
                             complete: function (s) {
-                                alert("New graph has been created. Tab will now reload.");
+                                alert(lang.new_graph);
                                 location.reload();
                             }
                         });
@@ -1048,7 +1097,7 @@ function bfs_execute(){
                 is_executing = false;
                 just_finished = false;
                 $("#execution_status").hide();
-                alert("There was an error with the execution");
+                alert(lang.execution_error);
             }
         }
     });

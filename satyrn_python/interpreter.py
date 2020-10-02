@@ -2,10 +2,11 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from io import StringIO
 from networkx import algorithms
+
 try:
     import tkinter as tk
-except ImportError as e:
-    print(e)
+except ImportError as error:
+    print(error)
     print("Your Python installation may not be configured for TKinter, a dependency of Satyrn")
     print("Visit https://tkdocs.com/tutorial/install.html to install TKinter")
     exit(1)
@@ -103,9 +104,9 @@ class Cell:
         try:
             print("<" + self.name + ">")
             exec(self.content, ex_vars_copy)
-        except Exception as e:
+        except Exception as exception:
             print("Exception occurred in cell " + self.name)
-            print(e)
+            print(exception)
 
         exec_vars.update(ex_vars_copy)
 
@@ -162,8 +163,7 @@ class Graph:
     def add_cell(self, new_cell: Cell):
         """:param new_cell: Cell object to be added to graph."""
         if new_cell.name in list(self.names_to_indeces.keys()):
-            print(new_cell.name)
-            print("All cells must have unique names")
+            print("Cannot use name {}, all cells must have unique names".format(new_cell.name))
             return
         else:
             self.graph.add_node(len(self.graph.nodes), data=new_cell, name=new_cell.name)
@@ -204,8 +204,6 @@ class Graph:
             return "Cycles are not allowed"
         else:
             self.graph.add_edge(idx1, idx2)
-            print(self.get_layer(self.get_lookup_table()[idx1]))
-            print(self.get_layer(self.get_lookup_table()[idx2]))
             return "Safe"
 
     def sever_cells(self, idx1, idx2):
@@ -353,18 +351,16 @@ class Graph:
         if len(self.get_all_cells_edges()[0]) == 0:
             return
 
-        std_file_out = "<root>"
-
         self.executing = True
 
         root_cell = self.get_cell("", 0)
 
         root = threading.Thread(target=root_cell.execute)
 
+        std_file_out = root_cell.name
+
         root.start()
         root.join()
-
-        time.sleep(.05)
 
         std_file_out += root_cell.output
 
@@ -384,6 +380,7 @@ class Graph:
 
                 new_neighbors.extend([i for i in self.graph.neighbors(n)])
 
+            # TODO : check if this is broken
             for proc in processes:
                 proc.join()
 
@@ -423,9 +420,9 @@ class Graph:
 
             txtout += temp_text
 
-        for e in edges:
-            name1 = lookup_table[e[0]]
-            name2 = lookup_table[e[1]]
+        for edge in edges:
+            name1 = lookup_table[edge[0]]
+            name2 = lookup_table[edge[1]]
             txtout += "link " + name1 + " " + name2 + "\n"
 
         if self.parent.std_capture.getvalue():
@@ -464,13 +461,11 @@ class Graph:
         cells = [self.get_cell(cn) for cn in cell_names]
 
         for c in cells:
-            print(nb)
             if c.content_type == "python":
                 nb.cells.append(new_code_cell(c.content, metadata={'name': c.name}))
             else:
                 nb.cells.append(new_markdown_cell(c.content, metadata={'name': c.name}))
 
-        print(json_writer.writes(nb))
         return json_writer.writes(nb)
 
 
@@ -497,8 +492,8 @@ class Interpreter:
             openfile = open(command[0], "r")
             self.file = openfile.readlines()
             self.run_string(self.file)
-        except Exception as e:
-            print(e)
+        except Exception as exception:
+            print(exception)
 
     def run_string(self, content):
         self.file = content
@@ -732,9 +727,9 @@ class Interpreter:
             if len(cells_list) >= 1:
                 try:
                     self.graph.execute_linear_list_of_cells(cells_list)
-                except Exception as e:
+                except Exception as exception:
                     print("There was an error executing one of the cells")
-                    print(e)
+                    print(exception)
             else:
                 self.graph.bfs_traversal_execute()
 
@@ -756,13 +751,13 @@ class Interpreter:
                 in_edges, out_edges = self.graph.get_in_out_edges(command[1])
                 if len(in_edges) > 0:
                     print("In Edges:")
-                    for e in in_edges:
-                        print(e)
+                    for edge in in_edges:
+                        print(edge)
                 print()
                 if len(out_edges) > 0:
                     print("Out Edges:")
-                    for e in out_edges:
-                        print(e)
+                    for edge in out_edges:
+                        print(edge)
                     print()
 
     def list_cells(self):
@@ -869,6 +864,3 @@ class Interpreter:
             command = self.read_input()
             if self.command_switch(command) == "break":
                 break
-
-inte = Interpreter()
-inte.run()

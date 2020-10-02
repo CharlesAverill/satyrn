@@ -21,6 +21,16 @@
   </script>
   <script src="../static/js/jquery-ui.js">
   </script>
+  <script src="../static/codemirror/lib/codemirror.js">
+  </script>
+  <script src="../static/js/python.js">
+  </script>
+  <script src="../static/js/markdown.js">
+  </script>
+  <script src="../static/js/jquery.hotkeys.js">
+  </script>
+  <script src="../static/js/satyrn_backend.js">
+  </script>
   <input accept=".SATX, .satx, .TXT, .txt" id="file-input" name="name" style="display: none;" type="file"/>
   <div class="title-bar">
    <div style="width: 25%; display: inline-block;">
@@ -44,152 +54,152 @@
    </div>
    <div style="display: inline-block; margin-top: 25px; margin-right: 25px; float: right;">
     <p id="version" style="color: white; border-color: #19ceda; border-width: 2px; background-color: transparent; resize: none;">
-     0.8.8.2
+     0.9.0
     </p>
    </div>
   </div>
   <nav style="border-radius: 10px;">
    <ul class="main-menu">
     <li>
-     <a>
+     <a id="file_dropdown_a">
       File
       <i class="fa fa-caret-down">
       </i>
      </a>
      <ul class="sub-menu">
       <li>
-       <a action="new_graph">
+       <a action="new_graph" id="new_graph_a">
         New Graph
        </a>
       </li>
       <li>
-       <a action="load_graph">
+       <a action="load_graph" id="load_graph_a">
         Load Graph
        </a>
       </li>
       <li>
-       <a action="save_graph_as" title="ctrl+s">
+       <a action="save_graph_as" id="save_graph_as_a" title="ctrl+s">
         Save Graph as...
        </a>
       </li>
       <li>
-       <a action="save_as_py" title="ctrl+s">
+       <a action="save_as_py" id="save_as_py_a" title="ctrl+s">
         Save as .py
        </a>
       </li>
       <li>
-       <a action="close_halt_graph">
+       <a action="close_halt_graph" id="close_and_halt_a">
         Close and Halt
        </a>
       </li>
      </ul>
     </li>
     <li>
-     <a>
+     <a id="edit_dropdown_a">
       Edit
       <i class="fa fa-caret-down">
       </i>
      </a>
      <ul class="sub-menu">
       <li>
-       <a action="create_cell">
+       <a action="create_cell" id="create_cell_a">
         Create Cell
        </a>
       </li>
       <li>
-       <a action="dupe_cell" title="ctrl+d">
+       <a action="dupe_cell" id="dupe_cell_a" title="ctrl+d">
         Duplicate Cell
        </a>
       </li>
       <li>
-       <a action="delete_cell" title="ctrl+backspace">
+       <a action="delete_cell" id="delete_cell_a" title="ctrl+backspace">
         Delete Cell
        </a>
       </li>
      </ul>
     </li>
     <li>
-     <a>
+     <a id="cell_dropdown_a">
       Cell
       <i class="fa fa-caret-down">
       </i>
      </a>
      <ul class="sub-menu">
       <li>
-       <a action="run_all" title="ctrl+r">
+       <a action="run_all" id="run_all_a" title="ctrl+r">
         Run All
        </a>
       </li>
       <li>
-       <a action="run_cell" title="ctrl+return">
+       <a action="run_cell" id="run_cell_a" title="ctrl+return">
         Run Cell
        </a>
       </li>
       <li>
-       <a action="set_as_md">
+       <a action="set_as_md" id="set_as_md_a">
         Set as Markdown
        </a>
       </li>
       <li>
-       <a action="set_as_py">
+       <a action="set_as_py" id="set_as_py_a">
         Set as Python
        </a>
       </li>
      </ul>
     </li>
     <li>
-     <a>
+     <a id="kernel_dropdown_a">
       Kernel
       <i class="fa fa-caret-down">
       </i>
      </a>
      <ul class="sub-menu">
       <li>
-       <a action="interrupt" title="ctrl+c">
+       <a action="interrupt" id="interrupt_a" title="ctrl+c">
         Interrupt
        </a>
       </li>
       <li>
-       <a action="reset_runtime">
+       <a action="reset_runtime" id="reset_runtime_a">
         Reset Runtime
        </a>
       </li>
       <li>
-       <a action="clear_dco">
+       <a action="clear_dco" id="clear_dco_a">
         Clear Output
        </a>
       </li>
       <li>
-       <a action="reset_graph">
+       <a action="reset_graph" id="reset_graph_a">
         Reset Graph
        </a>
       </li>
       <li>
-       <a action="reset_run_all">
+       <a action="reset_run_all" id="reset_run_all_a">
         Reset &amp; Run All
        </a>
       </li>
       <li>
-       <a action="shutdown">
+       <a action="shutdown" id="shutdown_a">
         Shutdown
        </a>
       </li>
      </ul>
     </li>
     <li>
-     <a>
+     <a id="help_dropdown_a">
       Help
       <i class="fa fa-caret-down">
       </i>
      </a>
      <ul class="sub-menu">
       <li>
-       <a href="https://github.com/CharlesAverill/satyrn" target="_blank" title="GitHub Repository">
+       <a href="https://github.com/CharlesAverill/satyrn" id="github_repo_a" target="_blank">
         GitHub Repository
        </a>
       </li>
       <li>
-       <a href="https://satyrn.readthedocs.io" target="_blank">
+       <a href="https://satyrn.readthedocs.io" id="docs_a" target="_blank">
         Documentation
        </a>
       </li>
@@ -265,15 +275,5 @@
    </iframe>
    <textarea frameborder="0" id="dynamic_code_output" readonly="" spellcheck="false" style="height: 994px; width: 24.1%; border-radius: 10px; cursor: text;"></textarea>
   </div>
-  <script src="../static/codemirror/lib/codemirror.js">
-  </script>
-  <script src="../static/js/python.js">
-  </script>
-  <script src="../static/js/markdown.js">
-  </script>
-  <script src="../static/js/jquery.hotkeys.js">
-  </script>
-  <script src="../static/js/script.js">
-  </script>
  </body>
 </html>
