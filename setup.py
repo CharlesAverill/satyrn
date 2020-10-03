@@ -1,5 +1,4 @@
 import setuptools
-import zipfile
 
 from bs4 import BeautifulSoup
 
