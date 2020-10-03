@@ -70,7 +70,11 @@ Satyrn is also a great tool for collaboration. While using the UI, the graph sta
 -   `-h --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
 your Satyrn instance
 
--   `-p=n --port=n` - Forces UI to run on port n
+-   `-p n --port=n` - Forces UI to run on port n
+
+-   `-l n --lang=n` - Sets UI Language. Currently supported:
+    - `english` (default)
+    - `latin`
 
 -   `-q --quiet` - Quiet startup + shutdown
 
