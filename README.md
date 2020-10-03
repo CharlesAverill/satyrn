@@ -73,8 +73,8 @@ your Satyrn instance
 -   `-p n --port=n` - Forces UI to run on port n
 
 -   `-l n --lang=n` - Sets UI Language. Currently supported:
-    - `english` (default)
-    - `latin`
+      - `english` (default)
+      - `latin`
 
 -   `-q --quiet` - Quiet startup + shutdown
 
