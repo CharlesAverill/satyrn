@@ -17,7 +17,7 @@ def delayed_browser_open(openurl, port):
     webbrowser.open("http://" + openurl + ":" + str(port) + "/#loaded")
 
 
-def start_ui(url, port, interpreter, quiet):
+def start_ui(url, port, interpreter, quiet, language):
     openurl = "localhost" if url == "0.0.0.0" else url
 
     if not quiet:
@@ -26,7 +26,7 @@ def start_ui(url, port, interpreter, quiet):
     os.environ["FLASK_APP"] = "satyrnUI.satyrnUI"
     os.environ["FLASK_ENV"] = "production"
 
-    d = PathInfoDispatcher({'/': create_app(interpreter)})
+    d = PathInfoDispatcher({'/': create_app(interpreter, language)})
     server = WSGIServer((url, port), d)
 
     try:
@@ -56,6 +56,7 @@ def main():
     cli_mode = False
     url = "0.0.0.0"
     port = 20787
+    language = "english"
 
     arguments = sys.argv[1:]
 
@@ -79,11 +80,16 @@ def main():
     if cli_mode:
         start_cli(interpreter)
     else:
-        opts, args = getopt.getopt(arguments, "p:hq", ["port=", "hidden", "quiet"])
+        opts, args = getopt.getopt(arguments, "pl:hq", ["port=", "lang=", "hidden", "quiet"])
 
         for opt, arg in opts:
             if opt in ("-p", "--port"):
-                port = int(arg[1:])
+                if len(opt) < 5:
+                    port = int(arg)
+                else:
+                    port = int(arg[1:])
             if opt in ("-h", "--hidden"):
                 url = "127.0.0.1"
-        start_ui(url, port, interpreter, quiet)
+            if opt in ("-l", "--lang"):
+                language = arg
+        start_ui(url, port, interpreter, quiet, language)

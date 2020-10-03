@@ -7,13 +7,23 @@ $.getJSON("static/js/languages.json", function(json) {
 });
 $.ajaxSetup({async: true});
 
-var lang = all_languages.english;
+function choose_language(l){
+    switch(l){
+        case "english":
+            return all_languages.english;
+            break;
+        case "latin":
+            return all_languages.latin;
+            break;
+    }
+    return "broken_language";
+}
 
 function reload_DOM_language(lang){
-    $("#graph_name_p").text(lang.default_filename + ".SATX");
+    $("#graph_name_p").text("Untitled.SATX");
     $("#connected_p").text(lang.connected);
 
-    $("#file_dropdown_a").text(lang.file_menu + '\n<i class="fa fa-caret-down"></i>'); // File Menu
+    $("#file_dropdown_a").html(lang.file_menu + '\n<i class="fa fa-caret-down"></i>'); // File Menu
     $("#new_graph_a").text(lang.new_graph_dropdown);
     $("#load_graph_a").text(lang.load_graph_dropdown);
     $("#save_graph_as_a").text(lang.save_graph_as);
@@ -42,12 +52,35 @@ function reload_DOM_language(lang){
     $("#help_dropdown_a").html(lang.help_menu + '\n<i class="fa fa-caret-down"></i>'); // Help Menu
     $("#github_repo_a").text(lang.github_repo);
     $("#docs_a").text(lang.docs);
-    console.log("Done updating langs");
 }
 
-reload_DOM_language(lang);
+function reload_context_menu(lang){
+    var iframe = $("iframe").contents(); // Context Menu
+    $(iframe).find('li[data-action="child_cell"]').text(lang.context_child);
+    $(iframe).find('li[data-action="create_cell"]').text(lang.context_create);
+    $(iframe).find('li[data-action="link_cell"]').text(lang.context_link);
+    $(iframe).find('li[data-action="destroy_cell"]').text(lang.context_destroy);
+    $(iframe).find('li[data-action="individual_execute"]').text(lang.context_execute);
+    $(iframe).find('li[data-action="dupe_cell"]').text(lang.context_dupe);
+}
 
-var filename = lang.default_filename + ".SATX";
+var lang = null;
+
+$(document).ready(function() {
+    $.ajax({
+            type : "GET",
+            url : "/get_language/",
+            dataType: "json",
+            contentType: "application/json",
+            complete: function (o) {
+                lang = choose_language(o["responseText"]);
+                reload_DOM_language(lang);
+                reload_context_menu(lang);
+            }
+        });
+});
+
+var filename = "Untitled.SATX";
 var cell_names = [];
 var numCells = 0;
 var is_executing = false;
@@ -475,11 +508,19 @@ $("#graph_name_p").on("click", function(){
     }
 });
 
-$("iframe").load(function(){
-    var doc = $(this).contents();
+function on_iframe_load(){
+    var doc = $("iframe").contents();
     var contentwindow_doc = document.getElementById("canvas").contentWindow.document;
 
     setup_keyboard_shortcuts(doc);
+
+    var iframe = $("iframe").contents(); // Context Menu Language
+    $(iframe).find('li[data-action="child_cell"]').text(lang.context_child);
+    $(iframe).find('li[data-action="create_cell"]').text(lang.context_create);
+    $(iframe).find('li[data-action="link_cell"]').text(lang.context_link);
+    $(iframe).find('li[data-action="destroy_cell"]').text(lang.context_destroy);
+    $(iframe).find('li[data-action="individual_execute"]').text(lang.context_execute);
+    $(iframe).find('li[data-action="dupe_cell"]').text(lang.context_dupe);
 
     $(doc).delegate("textarea", "keydown", function(e) {
         var keyCode = e.keyCode || e.which;
@@ -527,7 +568,7 @@ $("iframe").load(function(){
 
     //context menu
     // Trigger action when the contexmenu is about to be shown
-    doc.on("contextmenu", "#draggable",function (event) {
+    doc.on("contextmenu", "#draggable", function (event) {
         // Avoid the real one
         event.preventDefault();
 
@@ -798,7 +839,7 @@ $("iframe").load(function(){
             }
         });
     })
-});
+}
 
 $(document).on("click", ".shutdown", function(){
     shutdown();

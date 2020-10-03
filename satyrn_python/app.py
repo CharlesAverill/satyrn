@@ -8,6 +8,8 @@ from io import StringIO
 
 from flask import Flask, render_template, request, send_file
 
+language = ""
+
 
 def new_name():
     letters_and_digits = string.ascii_letters + string.digits
@@ -15,10 +17,12 @@ def new_name():
     return result_str
 
 
-def create_app(interpreter):
+def create_app(interpreter, lang):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.root_path = os.path.dirname(os.path.abspath(__file__)[:-6])
+
+    language = lang
 
     interpreter.create_cell(["create_cell", "root", "python", "n"])
 
@@ -41,6 +45,14 @@ def create_app(interpreter):
         if str(static_file).endswith(".png"):
             return send_file("static/" + static_file, mimetype="img/png")
         return render_template(static_file)
+
+    @app.route("/get_language/", methods=["GET"])
+    def get_language():
+        return lang
+
+    @app.route("/set_language/", methods=["POST"])
+    def set_language():
+        lang = request.get_json().strip()
 
     @app.route("/create_cell/", methods=["GET"])
     def create_cell():
