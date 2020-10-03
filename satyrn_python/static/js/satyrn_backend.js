@@ -66,7 +66,7 @@ function reload_context_menu(lang){
 
 var lang = null;
 
-$(document).ready(function() {
+function on_page_load(){
     $.ajax({
             type : "GET",
             url : "/get_language/",
@@ -77,8 +77,28 @@ $(document).ready(function() {
                 reload_DOM_language(lang);
                 reload_context_menu(lang);
             }
-        });
-});
+    }, async=false);
+    $("#graph_name_p").on("click", function(){
+        var new_name = prompt(lang.new_graph_prompt);
+        if(new_name === null){
+            return;
+        }
+        if(new_name.length > 0){
+            filename = new_name + ".SATX";
+            $(this).text(new_name + ".SATX");
+
+            $.ajax({
+                type : "GET",
+                url : "/set_filename/",
+                data : json.stringify({"filename": filename}),
+                dataType: "text"
+            });
+        }
+        else{
+            alert(lang.longer_graph_name);
+        }
+    });
+}
 
 var filename = "Untitled.SATX";
 var cell_names = [];
@@ -484,27 +504,6 @@ $("#file-input").change(function(e){
     }
     reader.onerror = function(evt){
         alert(lang.read_error);
-    }
-})
-
-$("#graph_name_p").on("click", function(){
-    var new_name = prompt(lang.new_graph_prompt);
-    if(new_name === null){
-        return;
-    }
-    if(new_name.length > 0){
-        filename = new_name + ".SATX";
-        $(this).text(new_name + ".SATX");
-
-        $.ajax({
-            type : "GET",
-            url : "/set_filename/",
-            data : json.stringify({"filename": filename}),
-            dataType: "text"
-        });
-    }
-    else{
-        alert(lang.longer_graph_name);
     }
 });
 
