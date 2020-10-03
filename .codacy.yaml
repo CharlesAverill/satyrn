@@ -2,3 +2,4 @@ exclude_paths:
   - 'satyrn_python/static/**'
   - 'build/**'
   - 'docs/**'
+  - 'README.md'
