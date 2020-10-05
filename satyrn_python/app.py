@@ -98,7 +98,6 @@ def create_app(interpreter, lang):
         new = data['new_name'].strip()
 
         if new in interpreter.graph.get_all_cells_edges()[0]:
-            print("500")
             return "500"
 
         interpreter.rename_cell(['edit_cell', old, new])
@@ -171,7 +170,8 @@ def create_app(interpreter, lang):
         satx_text += "\n<!--SATYRN_POSITIONING_START-->"
 
         for i, _ in enumerate(names):
-            satx_text += "\n" + names[i] + lefts[i] + " " + tops[i]
+            if len(names[i]) > 0:
+                satx_text += "\n" + names[i] + lefts[i] + " " + tops[i]
 
         satx_text += "\n<!--SATYRN_POSITIONING_END-->"
 
@@ -208,9 +208,9 @@ def create_app(interpreter, lang):
     @app.route("/dynamic_cell_output/", methods=["GET"])
     def get_dynamic_cell_output():
         if interpreter.graph.executing:
-            return interpreter.std_capture.getvalue()
-        return "<!--SATYRN_DONE_EXECUTING-->" + interpreter.std_capture.getvalue() + (
-            "<execution complete>" if len(interpreter.std_capture.getvalue()) > 0 else "")
+            a = interpreter.std_capture.getvalue()
+            return a
+        return "<!--SATYRN_DONE_EXECUTING-->" + interpreter.std_capture.getvalue()
 
     @app.route("/load_graph/", methods=["POST"])
     def load_graph():
@@ -303,6 +303,7 @@ def create_app(interpreter, lang):
 
     @app.route("/set_filename/", methods=["POST"])
     def set_fn():
+        print("bruh?")
         interpreter.filename = request.get_json()['filename']
 
     @app.route("/get_filename/", methods=["GET"])

@@ -6,10 +6,8 @@ from networkx import algorithms
 try:
     import tkinter as tk
 except ImportError as error:
-    print(error)
-    print("Your Python installation may not be configured for TKinter, a dependency of Satyrn")
-    print("Visit https://tkdocs.com/tutorial/install.html to install TKinter")
-    exit(1)
+    raise ImportError(_("Your Python installation may not be configured for TKinter, a dependency of Satyrn\n" +
+                        "Visit https://tkdocs.com/tutorial/install.html to install TKinter")) from error
 
 import threading
 
@@ -102,7 +100,6 @@ class Cell:
         ex_vars_copy = exec_vars.copy()
 
         try:
-            print("<" + self.name + ">")
             exec(self.content, ex_vars_copy)
         except Exception as exception:
             print("Exception occurred in cell " + self.name)
@@ -357,7 +354,8 @@ class Graph:
 
         root = threading.Thread(target=root_cell.execute)
 
-        std_file_out = root_cell.name
+        std_file_out = "<" + root_cell.name + ">\n"
+        print("<" + root_cell.name + ">")
 
         root.start()
         root.join()
@@ -374,6 +372,8 @@ class Graph:
                 neighbor_cell = self.get_cell(self.get_lookup_table()[n].strip())
 
                 neighbor = threading.Thread(target=neighbor_cell.execute)
+
+                print("<" + neighbor_cell.name + ">")
 
                 neighbor.start()
                 processes.append(neighbor)
@@ -428,7 +428,7 @@ class Graph:
         if self.parent.std_capture.getvalue():
             txtout += "<!--SATYRN_DCO_START-->\n"
             txtout += self.parent.std_capture.getvalue()
-            txtout += "<execution complete>\n<!--SATYRN_DCO_END-->"
+            txtout += "\n<!--SATYRN_DCO_END-->"
 
         return txtout
 

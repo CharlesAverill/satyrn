@@ -21,10 +21,7 @@ def start_ui(url, port, interpreter, quiet, language):
     openurl = "localhost" if url == "0.0.0.0" else url
 
     if not quiet:
-        print("Initializing CherryPy server...")
-
-    os.environ["FLASK_APP"] = "satyrnUI.satyrnUI"
-    os.environ["FLASK_ENV"] = "production"
+        print("Booting CherryPy server...")
 
     d = PathInfoDispatcher({'/': create_app(interpreter, language)})
     server = WSGIServer((url, port), d)

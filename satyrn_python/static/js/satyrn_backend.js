@@ -76,6 +76,7 @@ function on_page_load(){
                 lang = choose_language(o["responseText"]);
                 reload_DOM_language(lang);
                 reload_context_menu(lang);
+                on_iframe_load();
             }
     }, async=false);
     $("#graph_name_p").on("click", function(){
@@ -88,9 +89,9 @@ function on_page_load(){
             $(this).text(new_name + ".SATX");
 
             $.ajax({
-                type : "GET",
+                type : "POST",
                 url : "/set_filename/",
-                data : json.stringify({"filename": filename}),
+                data : JSON.stringify({"filename": filename}),
                 dataType: "text"
             });
         }
@@ -98,6 +99,74 @@ function on_page_load(){
             alert(lang.longer_graph_name);
         }
     });
+
+    $("#file-input").change(function(e){
+    filename = e.target.files[0].name;
+    console.log(filename);
+
+    var file_contents = "";
+
+    var reader = new FileReader();
+
+    reader.readAsText(e.target.files[0], "UTF-8");
+    reader.onload = function(evt){
+        file_contents = evt.target.result;
+        $("#graph_name_p").text(filename);
+
+        $.ajax({
+            type : "POST",
+            url : "/load_graph/",
+            dataType: "json",
+            data: JSON.stringify({"file_contents": file_contents,
+                                    "load_from_file": true,
+                                    "filename": filename}),
+            contentType: "application/json",
+            success: function (data) {
+                var names = data["names"];
+                var contents = data["contents"];
+                var content_types = data["content_types"];
+                var links = data["links"];
+                var tops = data["tops"];
+                var lefts = data["lefts"];
+                var graph_fn = data["graph_fn"];
+
+                if(names.length != contents.length){
+                    alert(lang.loading_error);
+                }
+                else{
+                    removeDraggables();
+                    for(var i = 0; i < names.length; i++){
+                        create_cell($("iframe").contents(), names[i], contents[i], content_types[i], tops[i], lefts[i]);
+                    }
+
+                    $("#file-input").val(null);
+
+                    $.ajax({
+                        type : "GET",
+                        url : "/dynamic_cell_output/",
+                        success: function (data) {
+                            if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
+                                data = data.substring(28);
+                            }
+                            updateDCO(data);
+                        }
+                    });
+
+                    $("#graph_name_p").text(graph_fn);
+                    filename = graph_fn;
+
+                    if(!window.location.hash){
+                        window.location = window.location + "#loaded";
+                    }
+                    window.location.reload();
+                }
+            }
+        });
+    }
+    reader.onerror = function(evt){
+        alert(lang.read_error);
+    }
+});
 }
 
 var filename = "Untitled.SATX";
@@ -144,7 +213,7 @@ function setup_keyboard_shortcuts(doc){
             }
         });
     });
-    $(doc).bind("keyup", "Ctrl+r", function(){
+    $(doc).bind("keyup", "Ctrl+q", function(){
         bfs_execute();
     });
     $(doc).bind("keyup", "Ctrl+s", function(){
@@ -435,76 +504,6 @@ $(window).load(function () {
             filename = graph_fn;
         }
     });
-});
-
-$("#file-input").change(function(e){
-    filename = e.target.files[0].name;
-
-    var file_contents = "";
-
-    var reader = new FileReader();
-
-    reader.readAsText(e.target.files[0], "UTF-8");
-    reader.onload = function(evt){
-        file_contents = evt.target.result;
-        $("#graph_name_p").text(filename);
-
-        $.ajax({
-            type : "POST",
-            url : "/load_graph/",
-            dataType: "json",
-            data: JSON.stringify({"file_contents": file_contents,
-                                    "load_from_file": true,
-                                    "filename": filename}),
-            contentType: "application/json",
-            success: function (data) {
-                var names = data["names"];
-                var contents = data["contents"];
-                var content_types = data["content_types"];
-                var links = data["links"];
-                var tops = data["tops"];
-                var lefts = data["lefts"];
-                var graph_fn = data["graph_fn"];
-
-                if(names.length != contents.length){
-                    alert(lang.loading_error);
-                }
-                else{
-                    removeDraggables();
-                    for(var i = 0; i < names.length; i++){
-                        create_cell($("iframe").contents(), names[i], contents[i], content_types[i], tops[i], lefts[i]);
-                    }
-
-                    $("#file-input").val(null);
-
-                    $.ajax({
-                        type : "GET",
-                        url : "/dynamic_cell_output/",
-                        success: function (data) {
-                            if(data.includes("<!--SATYRN_DONE_EXECUTING-->")){
-                                data = data.substring(28);
-                            }
-                            if(data.includes("<execution complete>")){
-                                data = data.substring(0, data.lastIndexOf("<execution complete>"));
-                            }
-                            updateDCO(data);
-                        }
-                    });
-
-                    $("#graph_name_p").text(graph_fn);
-                    filename = graph_fn;
-
-                    if(!window.location.hash){
-                        window.location = window.location + "#loaded";
-                    }
-                    window.location.reload();
-                }
-            }
-        });
-    }
-    reader.onerror = function(evt){
-        alert(lang.read_error);
-    }
 });
 
 function on_iframe_load(){
@@ -1093,7 +1092,7 @@ $(document).on("click", "a, li", function(){
                         $.ajax({
                             type : "POST",
                             url : "/set_filename/",
-                            data : "Untitled.SATX",
+                            data : JSON.stringify({"filename": "Untitled.SATX"}),
                             complete: function (s) {
                                 alert(lang.new_graph);
                                 location.reload();
