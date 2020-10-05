@@ -18,7 +18,11 @@ The `satyrn` keyword precedes all arguments
 - `-h, --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
 your Satyrn instance
 
-- `-p=n, --port=n` - Designates the port for the UI to run on (default is 20787)
+- `-p n, --port=n` - Designates the port for the UI to run on (default is 20787)
+
+- `-l n, --lang=n` - Sets UI Language. Currently supported:
+	- `english` (default)
+	- `latin`
 
 - `-q --quiet` - Quiet startup + shutdown
 
