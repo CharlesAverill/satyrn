@@ -49,7 +49,7 @@ Satyrn is also a great tool for collaboration. While using the UI, the graph sta
     -   Networking
     -   Optimization
 
--   [Merkie](https://githuh.com/Merkie)
+-   [Merkie](https://github.com/Merkie)
     -   Frontend design
 
 -   [syrinsaya](https://github.com/syrinsaya)
