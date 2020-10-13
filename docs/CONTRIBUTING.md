@@ -29,3 +29,24 @@ very dense right now, and needs to be split into multiple files, but for the tim
 text. To add a new language, copy and paste the template, and fill the original with the new language text. 
 - [index.html, canvas.html](https://github.com/CharlesAverill/satyrn/tree/master/satyrn_python/templates) - These are the HTML pages for the UI. The canvas
 is the area of the UI where cells are moved and edited, and it is rendered inside of an `<iframe>` inside of the index page. 
+
+## How do I contribute?
+1. Find an issue you'd like to work on from our [issues page](https://github.com/CharlesAverill/satyrn/issues)
+2. Fork the repository to your local GitHub organization. This means that you will have a copy of the repository under 
+**github-username/satyrn**.
+3. Clone the repository to your local machine using `git clone https://github.com/github-username/satyrn.git`.
+4. Create a new branch for your fix using `git checkout -b your-descriptive-branch-name`.
+5. Make the appropriate changes for the issue you are trying to address or the feature that you want to add.
+6. Use `git add insert-paths-of-changed-files-here` to add the file contents of the changed files to the "snapshot" git uses to manage the state of the project, also known as the index.
+7. Use `git commit -m "Insert a short message of the changes made here"` to store the contents of the index with a descriptive message.
+8. Push the changes to the remote repository using `git push origin branch-name-here`.
+9. Submit a [pull request](https://github.com/CharlesAverill/satyrn/pulls) to the satyrn repository.
+10. Title the pull request with a short description of the changes made and the issue or bug number associated with your change. For example, you can title an issue like so "Added more log outputting to resolve #4352".
+11. In the description of the pull request, explain the changes that you made, any issues you think exist with the pull request you made, and any questions you have for the maintainer. It's OK if your pull request is not perfect (no pull request is), the reviewer will be able to help you fix any problems and improve it!
+12. Wait for the pull request to be reviewed by a maintainer.
+13. Make changes to the pull request if the reviewing maintainer recommends them.
+14. Celebrate your success after your pull request is merged!
+
+## What if I need help?
+Feel free to contact me at charlesaverill20@gmail.com, or join the [dev Discord](https://discord.gg/AEZtttJ)! Commenting on issues is also a great way to
+ask for help from maintainers.
