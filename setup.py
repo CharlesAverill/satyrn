@@ -3,7 +3,7 @@ import setuptools
 from bs4 import BeautifulSoup
 
 
-version = '0.9.4'
+version = '0.9.5'
 
 with open("satyrn_python/templates/index.html", "r") as read_index:
     html = read_index.read()

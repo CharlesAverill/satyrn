@@ -6,8 +6,8 @@ from networkx import algorithms
 try:
     import tkinter as tk
 except ImportError as error:
-    raise ImportError(_("Your Python installation may not be configured for TKinter, a dependency of Satyrn\n" +
-                        "Visit https://tkdocs.com/tutorial/install.html to install TKinter")) from error
+    raise ImportError("Your Python installation may not be configured for TKinter, a dependency of Satyrn\n" +
+                      "Visit https://tkdocs.com/tutorial/install.html to install TKinter") from error
 
 import threading
 

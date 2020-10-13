@@ -32,7 +32,7 @@ function reload_DOM_language(lang){
 
     $("#edit_dropdown_a").html(lang.edit_menu + '\n<i class="fa fa-caret-down"></i>'); // Edit Menu
     $("#create_cell_a").text(lang.create_cell);
-    $("#duplicate_cell_a").text(lang.dupe_cell);
+    $("#dupe_cell_a").text(lang.dupe_cell);
     $("#delete_cell_a").text(lang.delete_cell);
 
     $("#cell_dropdown_a").html(lang.cell_menu + '\n<i class="fa fa-caret-down"></i>'); // Cell Menu
