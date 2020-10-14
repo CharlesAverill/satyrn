@@ -1,4 +1,4 @@
-# Contributing Standards
+# Contributing
 
 ## What should I work on?
 We have lots of issues that need work! All issues marked with 
