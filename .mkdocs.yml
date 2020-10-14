@@ -6,7 +6,6 @@ nav:
   - Quick Start: "index.md"
   - Introduction: "introduction.md"
   - CLI: "cli.md"
-  - Contributing: "CONTRIBUTING.md"
 theme:
   name: readthedocs
   highlightjs: true
