@@ -2,7 +2,7 @@
 
 ![Satyrn](media/cover.png?raw=true =.5x)
 
-<!-- ![Thanks for helping this project exist <3](media/collage.png?raw=true) -->
+<!-- ![Thanks for helping this project exist <3](media/.ctf?raw=true) -->
 
 ## Installation
 Satyrn can be installed via pip: `pip install satyrn-python`
@@ -17,7 +17,7 @@ The `satyrn` keyword precedes all arguments
 
 - `ui` - launches the UI (default behavior)
 
-- `-h, --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access 
+- `-h, --hidden` - Starts the UI on 127.0.0.1 instead of 0.0.0.0, preventing machines on your local network to access
 your Satyrn instance
 
 - `-p n, --port=n` - Designates the port for the UI to run on (default is 20787)
