@@ -29,6 +29,33 @@ very dense right now, and needs to be split into multiple files, but for the tim
 text. To add a new language, copy and paste the template, and fill the original with the new language text. 
 - [index.html, canvas.html](https://github.com/CharlesAverill/satyrn/tree/master/satyrn_python/templates) - These are the HTML pages for the UI. The canvas
 is the area of the UI where cells are moved and edited, and it is rendered inside of an `<iframe>` inside of the index page. 
+### Quick Flask/Ajax Intro
+Flask and Ajax can be weird to get into, but a lot of Satyrn depends on it. Here's a quick rundown of how [Flask](https://flask.palletsprojects.com/en/1.1.x/quickstart/) works with [Ajax](https://api.jquery.com/jquery.ajax/). In our [JavaScript backend](https://github.com/CharlesAverill/satyrn/blob/master/satyrn_python/static/js/satyrn_backend.js), there are lots of tasks that require communication between the frontend and backend. On the JavaScript side, this is accomplished by sending an **Ajax Request** to the Python backend. It's not too complicated, just follow the template below to make an Ajax request:
+```JavaScript
+$.ajax({
+    type : "" // Either "GET" or "POST". "GET" means you're just retrieving information from the backend, usually not changing any data. "POST" means you're sending and receiving data, and probably changing data too.
+    url : "/", // This should be a url that accurately describes what the request is for
+    dataType: "json", // Usually leave this alone
+    contentType: "application/json", // This too
+    data: JSON.stringify({"some_field": data1, // This is the data you'll send to the backend in the form of a dictionary. Give each data field a name and assign its value.
+                                    "another_field": data2,
+                                    "etc": data3}),
+    complete: function (output) { // This is a function that is run when a response is received from the backend. "output" is a response dictionary. Usually what you're receiving is a string, so to get your desired output, use `output["responseText"]`.
+        // Code to run when complete
+    }
+});
+```
+And that's a quick Ajax runthrough! Now let's do Flask. Most of the Flask groundwork is already laid out, so this part is really easy. All Flask code should be contained within [app.py](https://github.com/CharlesAverill/satyrn/blob/master/satyrn_python/app.py).
+```python
+@app.route("/same_url_from_ajax_request/", methods=["GET, "POST"]) # Necessary header
+def run_when_ajax_received(): # This method's code will be run when an Ajax request is received
+    data = request.get_json() # This receives the "data" variable from the request as a dictionary.
+    some = data['some_field'].strip() # Get a part of the data
+    another = data['another_field'].strip() # Get another part
+
+    return interpreter.do_something(some, another) # Usually return a string. You can call interpreter logic in these methods, and usually it's necessary.
+```
+And that's the Flask review! Check out their docs (linked above) if you need more info, or feel free to make an issue asking for help!
 
 ## How do I contribute?
 1. Find an issue you'd like to work on from our [issues page](https://github.com/CharlesAverill/satyrn/issues)
