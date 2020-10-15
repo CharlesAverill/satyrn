@@ -127,14 +127,14 @@ Here, code written in `[ ]` brackets was typed into the text box popup.
 ## Contributors
 -   [Charles Averill](https://github.com/CharlesAverill) 
 
+-   [syrinsaya](https://github.com/syrinsaya)
+
+-   [Ronak Malik](https://github.com/BeyondPerception)
+
 -   [Nathan Huckleberry](https://github.com/Nathan-Huckleberry)
 
 -   [Tristan Wiesepape](https://github.com/qwetboy10)
 
--   [Ronak Malik](https://github.com/BeyondPerception)
-
 -   [Merkie](https://github.com/Merkie)
-
--   [syrinsaya](https://github.com/syrinsaya)
 
 [Join the dev Discord!](https://discord.gg/AEZtttJ)
