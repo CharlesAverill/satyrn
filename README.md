@@ -32,21 +32,6 @@ However, Satyrn's code execution is different. Code inside of cells still execut
 
 Satyrn is also a great tool for collaboration. While using the UI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. If you desire more security, the `--hidden` command line argument will hide your Satyrn instance from the network. <b>Use caution when working with Satyrn on public networks.</b>
 
-## Contributors
--   [Charles Averill](https://github.com/CharlesAverill) 
-
--   [Nathan Huckleberry](https://github.com/Nathan-Huckleberry)
-
--   [Tristan Wiesepape](https://github.com/qwetboy10)
-
--   [Ronak Malik](https://github.com/BeyondPerception)
-
--   [Merkie](https://github.com/Merkie)
-
--   [syrinsaya](https://github.com/syrinsaya)
-
-[Join the dev Discord!](https://discord.gg/AEZtttJ)
-
 ## Setup
 -   Run `python -m pip install satyrn-python`
 -   Run `satyrn` to open the UI (in development, unstable)
@@ -138,3 +123,18 @@ Here, code written in `[ ]` brackets was typed into the text box popup.
 220
 ♄: quit
 ```
+
+## Contributors
+-   [Charles Averill](https://github.com/CharlesAverill) 
+
+-   [Nathan Huckleberry](https://github.com/Nathan-Huckleberry)
+
+-   [Tristan Wiesepape](https://github.com/qwetboy10)
+
+-   [Ronak Malik](https://github.com/BeyondPerception)
+
+-   [Merkie](https://github.com/Merkie)
+
+-   [syrinsaya](https://github.com/syrinsaya)
+
+[Join the dev Discord!](https://discord.gg/AEZtttJ)
