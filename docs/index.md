@@ -2,6 +2,8 @@
 
 ![Satyrn](media/cover.png?raw=true =.5x)
 
+<!-- ![Thanks for helping this project exist <3](media/collage.png?raw=true) -->
+
 ## Installation
 Satyrn can be installed via pip: `pip install satyrn-python`
 
