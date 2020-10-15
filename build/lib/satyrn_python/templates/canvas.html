@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="../static/css/canvas_style.css">
+    <link rel="stylesheet" href="../static/css/codemirror.css">
+    <link rel="stylesheet" href="../static/css/rubyblue.css">
+
+</head>
+
+<body id="scene">
+
+    <div id="dynamic_cell_output" style="color: white;">
+
+    </div>
+
+    <div id="draggable">
+
+    </div>
+
+    <!--Context Menu Begin-->
+    <ul class='custom-menu'>
+        <li data-action="child_cell">Create Child</li>
+        <li data-action="new_cell">Create Cell</li>
+        <li data-action="link_cell">Link Cell</li>
+        <li data-action="destroy_cell">Destroy Cell</li>
+        <li data-action="individual_execute">Run Cell</li>
+        <li data-action="dupe_cell">Duplicate Cell</li>
+    </ul>
+    <!--Context Menu End-->
+
+    <!--Scripts Begin-->
+    <script src='../static/js/panzoom.min.js'></script>
+    <script src="../static/js/jquery-1.12.4.js"></script>
+    <script src="../static/js/jquery-ui.js"></script>
+    <script>
+        window.onload = function() {
+            //parent.on_iframe_load(parent.lang);
+        }
+    </script>
+    <!--Scripts End-->
+</body>
+
+</html>
