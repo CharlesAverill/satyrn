@@ -12,10 +12,9 @@
     - Deletes cell and its links from graph. 
 - `edit [cell_name]`
     - Reopens text input window so that users can edit cells
-- `link [first_cell_name] [second_cell_name]`
-    - Links the two cells whose names are provided. You can technically still make branching graphs this way, but they
-    will not work at all.
-- `sever [first_cell_name] [second_cell_name]`
+- `link [parent_cell_name] [child_cell_name]`
+    - Links the two cells whose names are provided.
+- `sever [parent_cell_name] [child_cell_name]`
     - Severs the link between the two cells whose names are provided
 - `merge [first_cell_name] [second_cell_name]`
     - Merges the two cells if they are adjacent.
