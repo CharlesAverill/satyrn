@@ -16,7 +16,8 @@ function choose_language(l){
             return all_languages.latin;
             break;
     }
-    return "broken_language";
+    assert("It looks like your language ( + l + ) is broken , defaulting to English")
+    return all_languages.english;;
 }
 
 function reload_DOM_language(lang){
