@@ -16,7 +16,7 @@ function choose_language(l){
             return all_languages.latin;
             break;
     }
-    assert("It looks like your language ( + l + ) is broken , defaulting to English")
+    alert("It looks like your language {" + l + "} is broken , defaulting to English");
     return all_languages.english;;
 }
 

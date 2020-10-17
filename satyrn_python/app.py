@@ -157,7 +157,7 @@ def create_app(interpreter, lang):
 
     @app.route("/shutdown/", methods=["POST"])
     def shutdown():
-        exit(0)
+        raise KeyboardInterruptException
 
     @app.route("/get_satx_text/", methods=["POST"])
     def get_satx_text():
