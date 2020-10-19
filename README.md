@@ -35,7 +35,12 @@ However, Satyrn's code execution is different. Code inside of cells still execut
 Satyrn is also a great tool for collaboration. While using the UI, the graph state is shared over your local network via a CherryPy WSGI server. This allows machines on your local network to edit the same code you're working on by navigating to your IP address in their browser, no Python/Satyrn installations required. If you desire more security, the `--hidden` command line argument will hide your Satyrn instance from the network. <b>Use caution when working with Satyrn on public networks.</b>
 
 ## Setup
--   Run `python -m pip install satyrn-python`
+### Latest Release
+- `python -m pip install satyrn-python`
+### Build from source
+- `python setup.py install`
+
+## Startup
 -   Run `satyrn` to open the UI (in development, unstable)
 -   Run `satyrn cli` to open the CLI
 
