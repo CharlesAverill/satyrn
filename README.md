@@ -36,9 +36,14 @@ Satyrn is also a great tool for collaboration. While using the UI, the graph sta
 
 ## Setup
 ### Latest Release
-- `python -m pip install satyrn-python`
+```bash
+python -m pip install satyrn-python
+```
 ### Build from source
-- `python setup.py install`
+```bash
+git clone https://github.com/CharlesAverill/satyrn
+python setup.py install
+```
 
 ## Startup
 -   Run `satyrn` to open the UI (in development, unstable)
