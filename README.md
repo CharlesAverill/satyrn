@@ -62,6 +62,8 @@ your Satyrn instance
 -   `-l n --lang=n` - Sets UI Language. Currently supported:
       - `english` (default)
       - `latin`
+      - `chinese-simplified`
+      - `chinese-traditional`
 
 -   `-q --quiet` - Quiet startup + shutdown
 
