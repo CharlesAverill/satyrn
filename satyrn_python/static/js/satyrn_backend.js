@@ -15,6 +15,12 @@ function choose_language(l){
         case "latin":
             return all_languages.latin;
             break;
+        case "chinese_simplified":
+            return all_languages.chinese_simplified;
+            break;
+        case "chinese_traditional":
+            return all_languages.chinese_traditional;
+            break;
     }
     alert("It looks like your language {" + l + "} is broken , defaulting to English");
     return all_languages.english;;

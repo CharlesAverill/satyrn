@@ -147,6 +147,8 @@ Here, code written in `[ ]` brackets was typed into the text box popup.
 
 -   [Tristan Wiesepape](https://github.com/qwetboy10)
 
+-   [Agrover](https://github.com/Agrover112)
+
 -   [Umbresp](https://github.com/umbresp)
 
 -   [Merkie](https://github.com/Merkie)
